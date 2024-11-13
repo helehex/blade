@@ -9,7 +9,7 @@ struct BasisMask:
     var basis2entry: List[Int]
     var entry2basis: List[Int]
 
-    fn __init__(inout self, mask: List[Bool]):
+    fn __init__(out self, mask: List[Bool]):
         self.entry_count = 0
         self.basis2entry = List[Int](capacity=len(mask))
         self.entry2basis = List[Int](capacity=len(mask))

@@ -33,7 +33,7 @@ struct Signature:
 
     # +------( Initialize )------+ #
     #
-    fn __init__(inout self, po: Int, ne: Int = 0, ze: Int = 0, *, flip_ze: Bool = True):
+    fn __init__(out self, po: Int, ne: Int = 0, ze: Int = 0, *, flip_ze: Bool = True):
         self.po = po
         self.ne = ne
         self.ze = ze

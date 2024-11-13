@@ -27,7 +27,7 @@ struct Table[T: AnyTrivialRegType]:
     # +------( Lifecycle )------+ #
     #
     @always_inline
-    fn __init__(inout self):
+    fn __init__(out self):
         self._data = UnsafePointer[T]()
         self._cols, self._rows = 0, 0
 
@@ -41,12 +41,12 @@ struct Table[T: AnyTrivialRegType]:
             memclr(self._data, cols * rows)
 
     @always_inline
-    fn __init__(inout self, cols: Int, rows: Int, *, fill: T):
+    fn __init__(out self, cols: Int, rows: Int, *, fill: T):
         self.__init__[False](cols, rows)
         memset(self._data, fill, cols)
 
     @always_inline
-    fn __init__(inout self, cols: Int, rows: Int, *, rule: fn (Int, Int) -> T):
+    fn __init__(out self, cols: Int, rows: Int, *, rule: fn (Int, Int) -> T):
         self.__init__[False](cols, rows)
         for y in range(rows):
             for x in range(cols):

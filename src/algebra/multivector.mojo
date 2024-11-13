@@ -34,11 +34,11 @@ struct Multivector[sig: Signature, mask: BasisMask, type: DType = DType.float64,
         self._data.__init__[init]()
 
     @always_inline
-    fn __init__(inout self: Multivector[sig, sig.full_mask(), type, size]):
+    fn __init__(out self: Multivector[sig, sig.full_mask(), type, size]):
         self._data.__init__[True]()
 
     @always_inline
-    fn __init__(inout self: Multivector[sig, sig.scalar_mask(), type, size], s: SIMD[type, size]):
+    fn __init__(out self: Multivector[sig, sig.scalar_mask(), type, size], s: SIMD[type, size]):
         self.__init__[False]()
         self._data[0] = s
 
@@ -47,18 +47,18 @@ struct Multivector[sig: Signature, mask: BasisMask, type: DType = DType.float64,
             self._data[entry] = 0
 
     @always_inline
-    fn __init__(inout self, *coefs: SIMD[type, size]):
+    fn __init__(out self, *coefs: SIMD[type, size]):
         self = Self(coefs)
 
     @always_inline
-    fn __init__(inout self, owned coefs: VariadicList[SIMD[type, size]]):
+    fn __init__(out self, owned coefs: VariadicList[SIMD[type, size]]):
         self.__init__[False]()
         if len(coefs) != Self.mask.entry_count:
             abort("incorrect number of coefficient passed to masked multivector")
         self._data.__init__(coefs)
 
     @always_inline
-    fn __init__(inout self, owned **coefs: SIMD[type, size]):
+    fn __init__(out self, owned **coefs: SIMD[type, size]):
         self.__init__[True]()
 
         @parameter

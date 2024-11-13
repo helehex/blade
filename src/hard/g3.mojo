@@ -47,7 +47,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
 
     # +------( Initialize )------+ #
     #
-    fn __init__(inout self, none: None = None):
+    fn __init__(out self, none: None = None):
         self.s = 0
         self.v = None
         self.b = None
@@ -369,15 +369,15 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
 
     # +------( Initialize )------+ #
     #
-    fn __init__(inout self, none: None = None):
+    fn __init__(out self, none: None = None):
         self.s = 0
         self.b = None
 
-    fn __init__(inout self, s: Self.Coef, i: Self.Coef, j: Self.Coef, k: Self.Coef):
+    fn __init__(out self, s: Self.Coef, i: Self.Coef, j: Self.Coef, k: Self.Coef):
         self.s = s
         self.b = Self.Bive(i, j, k)
 
-    fn __init__(inout self, s: Self.Coef, b: Self.Bive = None):
+    fn __init__(out self, s: Self.Coef, b: Self.Bive = None):
         self.s = s
         self.b = b
 
@@ -574,12 +574,12 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
 
     # +------( Initialize )------+ #
     #
-    fn __init__(inout self, none: None = None):
+    fn __init__(out self, none: None = None):
         self.x = 0
         self.y = 0
         self.z = 0
 
-    fn __init__(inout self, x: Self.Coef, y: Self.Coef, z: Self.Coef):
+    fn __init__(out self, x: Self.Coef, y: Self.Coef, z: Self.Coef):
         self.x = x
         self.y = y
         self.z = z
@@ -766,12 +766,12 @@ struct Bivector[type: DType = DType.float64, size: Int = 1](
 
     # +------( Initialize )------+ #
     #
-    fn __init__(inout self, none: None = None):
+    fn __init__(out self, none: None = None):
         self.i = 0
         self.j = 0
         self.k = 0
 
-    fn __init__(inout self, i: Self.Coef, j: Self.Coef, k: Self.Coef):
+    fn __init__(out self, i: Self.Coef, j: Self.Coef, k: Self.Coef):
         self.i = i
         self.j = j
         self.k = k
@@ -968,13 +968,13 @@ struct Antiox[type: DType = DType.float64, size: Int = 1](
 
     # +------( Initialize )------+ #
     #
-    fn __init__(inout self, none: None = None):
+    fn __init__(out self, none: None = None):
         self.a = 0
 
-    fn __init__(inout self, a: Self.Coef):
+    fn __init__(out self, a: Self.Coef):
         self.a = a
 
-    # fn __init__(inout self, a: Tuple[Self.Coef]):
+    # fn __init__(out self, a: Tuple[Self.Coef]):
     #     self.a = a.get[0, Self.Coef]()
 
     # +------( Subscript )------+ #

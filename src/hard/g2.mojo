@@ -49,37 +49,37 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
     # +------( Initialize )------+ #
     #
     @always_inline
-    fn __init__(inout self, none: None = None):
+    fn __init__(out self, none: None = None):
         self.s = 0
         self.v = None
         self.i = 0
 
     @always_inline
-    fn __init__(inout self, s: Self.Coef, x: Self.Coef, y: Self.Coef, i: Self.Coef):
+    fn __init__(out self, s: Self.Coef, x: Self.Coef, y: Self.Coef, i: Self.Coef):
         self.s = s
         self.v = Self.Vect(x, y)
         self.i = i
 
     @always_inline
-    fn __init__(inout self, s: Self.Coef, v: Self.Vect = None, i: Self.Coef = 0):
+    fn __init__(out self, s: Self.Coef, v: Self.Vect = None, i: Self.Coef = 0):
         self.s = s
         self.v = v
         self.i = i
 
     @always_inline
-    fn __init__(inout self, v: Self.Vect, r: Self.Roto = None):
+    fn __init__(out self, v: Self.Vect, r: Self.Roto = None):
         self.s = r.s
         self.v = v
         self.i = r.i
 
     @always_inline
-    fn __init__(inout self, r: Self.Roto):
+    fn __init__(out self, r: Self.Roto):
         self.s = r.s
         self.v = None
         self.i = r.i
 
     @always_inline
-    fn __init__(inout self, m: Self.Lane):
+    fn __init__(out self, m: Self.Lane):
         self.s = m.s
         self.v = m.v
         self.i = m.i
@@ -530,22 +530,22 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
     # +------( Initialization )------+ #
     #
     @always_inline
-    fn __init__(inout self, none: None = None):
+    fn __init__(out self, none: None = None):
         self.s = 0
         self.i = 0
 
     @always_inline
-    fn __init__(inout self, s: Self.Coef, i: Self.Coef = 0):
+    fn __init__(out self, s: Self.Coef, i: Self.Coef = 0):
         self.s = s
         self.i = i
 
     @always_inline
-    fn __init__(inout self, v: Self.Lane):
+    fn __init__(out self, v: Self.Lane):
         self.s = v.s
         self.i = v.i
 
     @always_inline
-    fn __init__(inout self, *, angle: Self.Coef):
+    fn __init__(out self, *, angle: Self.Coef):
         self.s = cos(angle)
         self.i = sin(angle)
 
@@ -865,17 +865,17 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
     # +------( initialize )------+ #
     #
     @always_inline
-    fn __init__(inout self, none: None = None):
+    fn __init__(out self, none: None = None):
         self.x = 0
         self.y = 0
 
     @always_inline
-    fn __init__(inout self, x: Self.Coef, y: Self.Coef):
+    fn __init__(out self, x: Self.Coef, y: Self.Coef):
         self.x = x
         self.y = y
 
     @always_inline
-    fn __init__(inout self, v: Self.Lane):
+    fn __init__(out self, v: Self.Lane):
         self.x = v.x
         self.y = v.y
 
