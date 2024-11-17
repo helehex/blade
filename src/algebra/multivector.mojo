@@ -85,7 +85,6 @@ struct Multivector[sig: Signature, mask: BasisMask, type: DType = DType.float64,
             else:
                 abort("unknown basis: " + entry[].key)
 
-
     # +------( Subscript )------+ #
     #
     @always_inline

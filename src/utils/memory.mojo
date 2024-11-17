@@ -16,7 +16,7 @@ fn memclr[type: DType, //](ptr: UnsafePointer[Scalar[type], _], count: Int):
 
 @always_inline
 fn memclr[T: AnyTrivialRegType, //](ptr: UnsafePointer[T, _], count: Int):
-    memclr(ptr.bitcast[DType.uint8](), count * sizeof[T]())
+    memclr(ptr.bitcast[UInt8](), count * sizeof[T]())
 
 
 @always_inline
@@ -47,7 +47,7 @@ fn memcpy[
 
 @always_inline
 fn memcpy[T: AnyTrivialRegType, //](dst: UnsafePointer[T, _], src: UnsafePointer[T, _], count: Int):
-    memcpy(dst.bitcast[DType.uint8](), src.bitcast[DType.uint8](), count * sizeof[T]())
+    memcpy(dst.bitcast[UInt8](), src.bitcast[UInt8](), count * sizeof[T]())
 
 
 @always_inline

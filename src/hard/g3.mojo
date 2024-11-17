@@ -117,7 +117,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
 
     @no_inline
     fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
-        self.write_to[sep = "\n"](writer)
+        self.write_to[sep="\n"](writer)
 
     @no_inline
     fn write_to[WriterType: Writer, //, sep: StringLiteral](self, inout writer: WriterType):
@@ -408,7 +408,7 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
 
     @no_inline
     fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
-        self.write_to[sep = "\n"](writer)
+        self.write_to[sep="\n"](writer)
 
     @no_inline
     fn write_to[WriterType: Writer, //, sep: StringLiteral](self, inout writer: WriterType):
@@ -610,7 +610,7 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
 
     @no_inline
     fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
-        self.write_to[sep = "\n"](writer)
+        self.write_to[sep="\n"](writer)
 
     @no_inline
     fn write_to[WriterType: Writer, //, sep: StringLiteral](self, inout writer: WriterType):
@@ -802,7 +802,7 @@ struct Bivector[type: DType = DType.float64, size: Int = 1](
 
     @no_inline
     fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
-        self.write_to[sep = "\n"](writer)
+        self.write_to[sep="\n"](writer)
 
     @no_inline
     fn write_to[WriterType: Writer, //, sep: StringLiteral](self, inout writer: WriterType):
@@ -1001,7 +1001,7 @@ struct Antiox[type: DType = DType.float64, size: Int = 1](
 
     @no_inline
     fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
-        self.write_to[sep = "\n"](writer)
+        self.write_to[sep="\n"](writer)
 
     @no_inline
     fn write_to[WriterType: Writer, //, sep: StringLiteral](self, inout writer: WriterType):
