@@ -2,7 +2,7 @@
 Geometric Algebra for Mojo 🔥
 
 Infrared version: `0.1.0`  
-Mojo version: `24.6.0.dev2024111606`
+Mojo version: `24.6.0.dev2024111816`
 
 ## package layout:
 

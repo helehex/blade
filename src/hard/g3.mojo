@@ -47,8 +47,16 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
 
     # +------( Initialize )------+ #
     #
+    @implicit
     fn __init__(out self, none: None = None):
         self.s = 0
+        self.v = None
+        self.b = None
+        self.a = None
+
+    @implicit
+    fn __init__(out self, scalar: Self.Coef):
+        self.s = scalar
         self.v = None
         self.b = None
         self.a = None
@@ -69,9 +77,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
         self.b = Self.Bive(i, j, k)
         self.a = a
 
-    fn __init__(
-        inout self, s: Self.Coef, v: Self.Vect = None, b: Self.Bive = None, a: Self.Anti = None
-    ):
+    fn __init__(inout self, s: Self.Coef, v: Self.Vect, b: Self.Bive, a: Self.Anti):
         self.s = s
         self.v = v
         self.b = b
@@ -369,15 +375,21 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
 
     # +------( Initialize )------+ #
     #
+    @implicit
     fn __init__(out self, none: None = None):
         self.s = 0
+        self.b = None
+
+    @implicit
+    fn __init__(out self, scalar: Self.Coef):
+        self.s = scalar
         self.b = None
 
     fn __init__(out self, s: Self.Coef, i: Self.Coef, j: Self.Coef, k: Self.Coef):
         self.s = s
         self.b = Self.Bive(i, j, k)
 
-    fn __init__(out self, s: Self.Coef, b: Self.Bive = None):
+    fn __init__(out self, s: Self.Coef, b: Self.Bive):
         self.s = s
         self.b = b
 
@@ -574,6 +586,7 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
 
     # +------( Initialize )------+ #
     #
+    @implicit
     fn __init__(out self, none: None = None):
         self.x = 0
         self.y = 0
@@ -766,6 +779,7 @@ struct Bivector[type: DType = DType.float64, size: Int = 1](
 
     # +------( Initialize )------+ #
     #
+    @implicit
     fn __init__(out self, none: None = None):
         self.i = 0
         self.j = 0
@@ -968,9 +982,11 @@ struct Antiox[type: DType = DType.float64, size: Int = 1](
 
     # +------( Initialize )------+ #
     #
+    @implicit
     fn __init__(out self, none: None = None):
         self.a = 0
 
+    @implicit
     fn __init__(out self, a: Self.Coef):
         self.a = a
 

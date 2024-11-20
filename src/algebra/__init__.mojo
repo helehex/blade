@@ -61,12 +61,12 @@ fn scalar[
 @always_inline
 fn vector[
     sig: Signature, type: DType = DType.float64, size: Int = 1
-](*coefs: SIMD[type, size]) -> Multivector[sig, sig.vector_mask(), type, size]:
-    return Multivector[sig, sig.vector_mask(), type, size](coefs)
+](owned *coefs: SIMD[type, size]) -> Multivector[sig, sig.vector_mask(), type, size]:
+    return Multivector[sig, sig.vector_mask(), type, size](coefs^)
 
 
 @always_inline
 fn bivector[
     sig: Signature, type: DType = DType.float64, size: Int = 1
-](*coefs: SIMD[type, size]) -> Multivector[sig, sig.bivector_mask(), type, size]:
-    return Multivector[sig, sig.bivector_mask(), type, size](coefs)
+](owned *coefs: SIMD[type, size]) -> Multivector[sig, sig.bivector_mask(), type, size]:
+    return Multivector[sig, sig.bivector_mask(), type, size](coefs^)

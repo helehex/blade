@@ -48,6 +48,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
 
     # +------( Initialize )------+ #
     #
+    @implicit
     @always_inline
     fn __init__(out self, none: None = None):
         self.s = 0
@@ -72,12 +73,14 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
         self.v = v
         self.i = r.i
 
+    @implicit
     @always_inline
     fn __init__(out self, r: Self.Roto):
         self.s = r.s
         self.v = None
         self.i = r.i
 
+    @implicit
     @always_inline
     fn __init__(out self, m: Self.Lane):
         self.s = m.s
@@ -529,6 +532,7 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
 
     # +------( Initialization )------+ #
     #
+    @implicit
     @always_inline
     fn __init__(out self, none: None = None):
         self.s = 0

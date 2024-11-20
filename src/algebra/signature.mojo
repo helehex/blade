@@ -75,53 +75,53 @@ struct Signature:
 
     # +------( Masks )------+ #
     #
-    fn empty_mask(self) -> List[Bool]:
+    fn empty_mask(self) -> BasisMask:
         var result = List[Bool](capacity=self.dims)
         for _ in range(self.dims):
             result += False
-        return result
+        return BasisMask(result)
 
-    fn full_mask(self) -> List[Bool]:
+    fn full_mask(self) -> BasisMask:
         var result = List[Bool](capacity=self.dims)
         for _ in range(self.dims):
             result += True
-        return result
+        return BasisMask(result)
 
-    fn grade_mask(self, grade: Int) -> List[Bool]:
+    fn grade_mask(self, grade: Int) -> BasisMask:
         var result = List[Bool](capacity=self.dims)
         for basis in range(self.dims):
             result += self.grade_of[basis] == grade
-        return result
+        return BasisMask(result)
 
     @always_inline
-    fn even_mask(self) -> List[Bool]:
+    fn even_mask(self) -> BasisMask:
         var result = List[Bool](capacity=self.dims)
         for basis in range(self.dims):
             result += (self.grade_of[basis] % 2) == 0
-        return result
+        return BasisMask(result)
 
     @always_inline
-    fn scalar_mask(self) -> List[Bool]:
+    fn scalar_mask(self) -> BasisMask:
         return self.grade_mask(0)
 
     @always_inline
-    fn vector_mask(self) -> List[Bool]:
+    fn vector_mask(self) -> BasisMask:
         return self.grade_mask(1)
 
     @always_inline
-    fn bivector_mask(self) -> List[Bool]:
+    fn bivector_mask(self) -> BasisMask:
         return self.grade_mask(2)
 
     @always_inline
-    fn trivector_mask(self) -> List[Bool]:
+    fn trivector_mask(self) -> BasisMask:
         return self.grade_mask(3)
 
     @always_inline
-    fn quadvector_mask(self) -> List[Bool]:
+    fn quadvector_mask(self) -> BasisMask:
         return self.grade_mask(4)
 
     @always_inline
-    fn antiscalar_mask(self) -> List[Bool]:
+    fn antiscalar_mask(self) -> BasisMask:
         return self.grade_mask(self.grds - 1)
 
     # +------( Basis )------+ #

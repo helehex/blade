@@ -39,7 +39,15 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1]:
                 self[idx] = 0
 
     @always_inline
-    fn __init__[clear: Bool = True](inout self, values: VariadicList[SIMD[type, thickness]]):
+    fn __init__[clear: Bool = True](inout self, owned values: VariadicListMem[Int]):
+        self.__init__[False]()
+        for idx in range(size):
+            self[idx] = values[idx]
+
+    @always_inline
+    fn __init__[
+        clear: Bool = True
+    ](inout self, owned values: VariadicListMem[SIMD[type, thickness]]):
         self.__init__[False]()
         for idx in range(size):
             self[idx] = values[idx]
