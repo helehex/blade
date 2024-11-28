@@ -10,17 +10,17 @@ from sys import simdwidthof, sizeof
 
 
 @always_inline
-fn memclr[type: DType, //](ptr: UnsafePointer[Scalar[type], _], count: Int):
+fn memclr[type: DType, //](ptr: UnsafePointer[Scalar[type], *_], count: Int):
     memset(ptr, 0, count)
 
 
 @always_inline
-fn memclr[T: AnyTrivialRegType, //](ptr: UnsafePointer[T, _], count: Int):
+fn memclr[T: AnyTrivialRegType, //](ptr: UnsafePointer[T, *_], count: Int):
     memclr(ptr.bitcast[UInt8](), count * sizeof[T]())
 
 
 @always_inline
-fn memset[type: DType, //](ptr: UnsafePointer[Scalar[type], _], value: Scalar[type], count: Int):
+fn memset[type: DType, //](ptr: UnsafePointer[Scalar[type], *_], value: Scalar[type], count: Int):
     @parameter
     fn _set[width: Int](offset: Int):
         simd_store[width](ptr, offset, value)
@@ -29,7 +29,7 @@ fn memset[type: DType, //](ptr: UnsafePointer[Scalar[type], _], value: Scalar[ty
 
 
 @always_inline
-fn memset[T: AnyTrivialRegType, //](ptr: UnsafePointer[T, _], value: T, count: Int):
+fn memset[T: AnyTrivialRegType, //](ptr: UnsafePointer[T, *_], value: T, count: Int):
     for idx in range(count):
         (ptr + idx)[] = value
 
@@ -37,7 +37,7 @@ fn memset[T: AnyTrivialRegType, //](ptr: UnsafePointer[T, _], value: T, count: I
 @always_inline
 fn memcpy[
     type: DType, //
-](dst: UnsafePointer[Scalar[type], _], src: UnsafePointer[Scalar[type], _], count: Int):
+](dst: UnsafePointer[Scalar[type], *_], src: UnsafePointer[Scalar[type], *_], count: Int):
     @parameter
     fn _cpy[width: Int](offset: Int):
         simd_store[width](dst, offset, simd_load[width](src, offset))
@@ -46,14 +46,16 @@ fn memcpy[
 
 
 @always_inline
-fn memcpy[T: AnyTrivialRegType, //](dst: UnsafePointer[T, _], src: UnsafePointer[T, _], count: Int):
+fn memcpy[
+    T: AnyTrivialRegType, //
+](dst: UnsafePointer[T, *_], src: UnsafePointer[T, *_], count: Int):
     memcpy(dst.bitcast[UInt8](), src.bitcast[UInt8](), count * sizeof[T]())
 
 
 @always_inline
 fn simd_load[
     type: DType, //, width: Int, /, *, alignment: Int = 1
-](ptr: UnsafePointer[Scalar[type], _], offset: Int) -> SIMD[type, width]:
+](ptr: UnsafePointer[Scalar[type], *_], offset: Int) -> SIMD[type, width]:
     @parameter
     if type is DType.bool:
         return __mlir_op.`pop.load`[alignment = alignment.value](
@@ -68,7 +70,7 @@ fn simd_load[
 @always_inline
 fn simd_store[
     type: DType, //, width: Int, /, *, alignment: Int = 1
-](ptr: UnsafePointer[Scalar[type], _], offset: Int, value: SIMD[type, width]):
+](ptr: UnsafePointer[Scalar[type], *_], offset: Int, value: SIMD[type, width]):
     @parameter
     if type is DType.bool:
         __mlir_op.`pop.store`[alignment = alignment.value](

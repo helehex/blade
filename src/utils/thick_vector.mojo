@@ -79,7 +79,7 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1]:
     @always_inline
     fn unsafe_ptr[
         spc: __mlir_type.`index`
-    ](ref [_, spc]self) -> UnsafePointer[SIMD[type, thickness], AddressSpace(spc)]:
+    ](ref [_, spc]self) -> UnsafePointer[SIMD[type, thickness], address_space = AddressSpace(spc)]:
         return UnsafePointer.address_of(self._data).bitcast[
             SIMD[type, thickness], address_space = AddressSpace(spc)
         ]()
