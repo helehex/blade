@@ -121,7 +121,7 @@ struct Multivector[sig: Signature, mask: BasisMask, type: DType = DType.float64,
         return String.write(self)
 
     @no_inline
-    fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
         @parameter
         if self.mask.entry_count == 0:
             writer.write("0")

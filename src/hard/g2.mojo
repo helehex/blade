@@ -94,7 +94,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
         return Self.Lane(self.s[index], self.v.x[index], self.v.y[index], self.i[index])
 
     @always_inline
-    fn set_lane(inout self, index: Int, value: Self.Lane):
+    fn set_lane(mut self, index: Int, value: Self.Lane):
         self.s[index] = value.s
         self.v.x[index] = value.v.x
         self.v.y[index] = value.v.y
@@ -141,11 +141,11 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
         return String.write(self)
 
     @no_inline
-    fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
         self.write_to[sep="\n"](writer)
 
     @no_inline
-    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, mut writer: WriterType):
         @parameter
         if size == 1:
             writer.write(self.s, " + ", self.v.x, "x + ", self.v.y, "y + ", self.i, "i")
@@ -375,67 +375,67 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
     # +------( In-place Arithmetic )------+ #
     #
     @always_inline
-    fn __iadd__(inout self, other: Self.Coef):
+    fn __iadd__(mut self, other: Self.Coef):
         self = self + other
 
     @always_inline
-    fn __iadd__(inout self, other: Self.Vect):
+    fn __iadd__(mut self, other: Self.Vect):
         self = self + other
 
     @always_inline
-    fn __iadd__(inout self, other: Self.Roto):
+    fn __iadd__(mut self, other: Self.Roto):
         self = self + other
 
     @always_inline
-    fn __iadd__(inout self, other: Self):
+    fn __iadd__(mut self, other: Self):
         self = self + other
 
     @always_inline
-    fn __isub__(inout self, other: Self.Coef):
+    fn __isub__(mut self, other: Self.Coef):
         self = self - other
 
     @always_inline
-    fn __isub__(inout self, other: Self.Vect):
+    fn __isub__(mut self, other: Self.Vect):
         self = self - other
 
     @always_inline
-    fn __isub__(inout self, other: Self.Roto):
+    fn __isub__(mut self, other: Self.Roto):
         self = self - other
 
     @always_inline
-    fn __isub__(inout self, other: Self):
+    fn __isub__(mut self, other: Self):
         self = self - other
 
     @always_inline
-    fn __imul__(inout self, other: Self.Coef):
+    fn __imul__(mut self, other: Self.Coef):
         self = self * other
 
     @always_inline
-    fn __imul__(inout self, other: Self.Vect):
+    fn __imul__(mut self, other: Self.Vect):
         self = self * other
 
     @always_inline
-    fn __imul__(inout self, other: Self.Roto):
+    fn __imul__(mut self, other: Self.Roto):
         self = self * other
 
     @always_inline
-    fn __imul__(inout self, other: Self):
+    fn __imul__(mut self, other: Self):
         self = self * other
 
     @always_inline
-    fn __itruediv__(inout self, other: Self.Coef):
+    fn __itruediv__(mut self, other: Self.Coef):
         self = self / other
 
     @always_inline
-    fn __itruediv__(inout self, other: Self.Vect):
+    fn __itruediv__(mut self, other: Self.Vect):
         self = self / other
 
     @always_inline
-    fn __itruediv__(inout self, other: Self.Roto):
+    fn __itruediv__(mut self, other: Self.Roto):
         self = self / other
 
     @always_inline
-    fn __itruediv__(inout self, other: Self):
+    fn __itruediv__(mut self, other: Self):
         self = self / other
 
     # +------( Min / Max )------+ #
@@ -560,7 +560,7 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
         return Self.Lane(self.s[i], self.i[i])
 
     @always_inline
-    fn set_lane(inout self, i: Int, item: Self.Lane):
+    fn set_lane(mut self, i: Int, item: Self.Lane):
         self.s[i] = item.s
         self.i[i] = item.i
 
@@ -597,11 +597,11 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
         return String.write(self)
 
     @no_inline
-    fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
         self.write_to[sep="\n"](writer)
 
     @no_inline
-    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, mut writer: WriterType):
         @parameter
         if size == 1:
             writer.write(self.s, " + ", self.i, "i")
@@ -811,35 +811,35 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
     # +------( In-place Arithmetic )------+ #
     #
     @always_inline
-    fn __iadd__(inout self, other: Self.Coef):
+    fn __iadd__(mut self, other: Self.Coef):
         self = self + other
 
     @always_inline
-    fn __iadd__(inout self, other: Self):
+    fn __iadd__(mut self, other: Self):
         self = self + other
 
     @always_inline
-    fn __isub__(inout self, other: Self.Coef):
+    fn __isub__(mut self, other: Self.Coef):
         self = self - other
 
     @always_inline
-    fn __isub__(inout self, other: Self):
+    fn __isub__(mut self, other: Self):
         self = self - other
 
     @always_inline
-    fn __imul__(inout self, other: Self.Coef):
+    fn __imul__(mut self, other: Self.Coef):
         self = self * other
 
     @always_inline
-    fn __imul__(inout self, other: Self):
+    fn __imul__(mut self, other: Self):
         self = self * other
 
     @always_inline
-    fn __itruediv__(inout self, other: Self.Coef):
+    fn __itruediv__(mut self, other: Self.Coef):
         self = self / other
 
     @always_inline
-    fn __itruediv__(inout self, other: Self):
+    fn __itruediv__(mut self, other: Self):
         self = self / other
 
 
@@ -890,7 +890,7 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
         return Self.Lane(self.x[i], self.y[i])
 
     @always_inline
-    fn set_lane(inout self, i: Int, item: Self.Lane):
+    fn set_lane(mut self, i: Int, item: Self.Lane):
         self.x[i] = item.x
         self.y[i] = item.y
 
@@ -927,11 +927,11 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
         return String.write(self)
 
     @no_inline
-    fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
         self.write_to[sep="\n"](writer)
 
     @no_inline
-    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, mut writer: WriterType):
         @parameter
         if size == 1:
             writer.write(self.x, "x + ", self.y, "y")
@@ -1144,25 +1144,25 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
     # +------( In-place Arithmetic )------+ #
     #
     @always_inline
-    fn __iadd__(inout self, other: Self):
+    fn __iadd__(mut self, other: Self):
         self = self + other
 
     @always_inline
-    fn __isub__(inout self, other: Self):
+    fn __isub__(mut self, other: Self):
         self = self - other
 
     @always_inline
-    fn __imul__(inout self, other: Self.Coef):
+    fn __imul__(mut self, other: Self.Coef):
         self = self * other
 
     @always_inline
-    fn __imul__(inout self, other: Self.Roto):
+    fn __imul__(mut self, other: Self.Roto):
         self = self * other
 
     @always_inline
-    fn __itruediv__(inout self, other: Self.Coef):
+    fn __itruediv__(mut self, other: Self.Coef):
         self = self / other
 
     @always_inline
-    fn __itruediv__(inout self, other: Self.Roto):
+    fn __itruediv__(mut self, other: Self.Roto):
         self = self / other

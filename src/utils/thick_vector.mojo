@@ -27,7 +27,7 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1]:
     # +------( Initialize )------+ #
     #
     @always_inline
-    fn __init__[clear: Bool = True](inout self):
+    fn __init__[clear: Bool = True](out self):
         _thick_vector_construction_checks[size, thickness]()
         self._data = __mlir_op.`kgen.param.constant`[
             _type = Self.Data, value = __mlir_attr[`#kgen.unknown : `, Self.Data]
@@ -39,7 +39,7 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1]:
                 self[idx] = 0
 
     @always_inline
-    fn __init__[clear: Bool = True](inout self, owned values: VariadicListMem[Int]):
+    fn __init__[clear: Bool = True](out self, owned values: VariadicListMem[Int]):
         self.__init__[False]()
         for idx in range(size):
             self[idx] = values[idx]
@@ -47,7 +47,7 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1]:
     @always_inline
     fn __init__[
         clear: Bool = True
-    ](inout self, owned values: VariadicListMem[SIMD[type, thickness]]):
+    ](mut self, owned values: VariadicListMem[SIMD[type, thickness]]):
         self.__init__[False]()
         for idx in range(size):
             self[idx] = values[idx]

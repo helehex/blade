@@ -32,7 +32,7 @@ struct Table[T: AnyTrivialRegType]:
         self._cols, self._rows = 0, 0
 
     @always_inline
-    fn __init__[clear: Bool](inout self, cols: Int, rows: Int):
+    fn __init__[clear: Bool](out self, cols: Int, rows: Int):
         self._data = UnsafePointer[T].alloc(cols * rows)
         self._cols, self._rows = cols, rows
 
@@ -53,7 +53,7 @@ struct Table[T: AnyTrivialRegType]:
                 (self._data + (y * cols) + x)[] = rule(x, y)
 
     @always_inline
-    fn __copyinit__(inout self, other: Self):
+    fn __copyinit__(mut self, other: Self):
         if other._data:
             self.__init__[False](other._cols, other._rows)
             memcpy(self._data, other._data, other._cols * other._rows)
@@ -61,7 +61,7 @@ struct Table[T: AnyTrivialRegType]:
             self = Self()
 
     @always_inline
-    fn __moveinit__(inout self, owned other: Self):
+    fn __moveinit__(mut self, owned other: Self):
         self._data = other._data
         self._cols = other._cols
         self._rows = other._rows

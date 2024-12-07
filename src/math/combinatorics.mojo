@@ -86,7 +86,7 @@ fn powerset_ord(n: Int) -> List[List[Int]]:
 # +----------------------------------------------------------------------------------------------+ #
 #
 @always_inline
-fn increment_combination[offset: Int = 1](n: Int, inout l: List[Int]) -> Bool:
+fn increment_combination[offset: Int = 1](n: Int, mut l: List[Int]) -> Bool:
     var first_gap: Int = -1
     var first_val: Int = -1
     for i in range(1, len(l) + 1):

@@ -127,7 +127,7 @@ struct Signature:
     # +------( Basis )------+ #
     #
     @always_inline
-    fn squash_basis(self, inout basis: List[Int], inout sign: Int):
+    fn squash_basis(self, mut basis: List[Int], mut sign: Int):
         var result = List[Int](capacity=len(basis))
         var i = 1
         var j = 0
@@ -157,7 +157,7 @@ struct Signature:
             return SignedBasis(sign, self.order_basis(basis))
 
     @always_inline
-    fn squash_vec(self, inout basis: List[Int], vec: Int, inout sign: Int):
+    fn squash_vec(self, mut basis: List[Int], vec: Int, mut sign: Int):
         for idx in reversed(range(len(basis))):
             if basis[idx] == vec:
                 sign *= self.vec_sqrs[vec - 1]
@@ -192,7 +192,7 @@ struct Signature:
 
     # +------( Generate )------+ #
     #
-    fn generate_product_table(inout self):
+    fn generate_product_table(mut self):
         for x in range(self.dims):
             for y in range(self.dims):
                 self.mult[x, y] = self.reduce_basis(self.combs[x], self.combs[y])
@@ -204,7 +204,7 @@ struct Signature:
         return String.write(self)
 
     @no_inline
-    fn write_basis_to[WriterType: Writer, //](self, inout writer: WriterType, basis: SignedBasis):
+    fn write_basis_to[WriterType: Writer, //](self, mut writer: WriterType, basis: SignedBasis):
         var align = len(str(self.dims)) + 1
         var str_basis: String = ""
         if basis.sign < 0:
@@ -220,7 +220,7 @@ struct Signature:
         writer.write(str_basis, " ")
 
     @no_inline
-    fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
         for x in range(self.mult._cols):
             for y in range(self.mult._rows):
                 self.write_basis_to(writer, self.mult[x, y])

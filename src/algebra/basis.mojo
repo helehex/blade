@@ -39,7 +39,7 @@ struct SignedBasis(Writable):
         return String.write(self)
 
     @no_inline
-    fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
         if self.sign < 0:
             writer.write("-")
         elif self.sign > 0:
@@ -49,7 +49,7 @@ struct SignedBasis(Writable):
         writer.write(self.basis)
 
 
-fn signed_sort(inout basis: List[Int]) -> Int:
+fn signed_sort(mut basis: List[Int]) -> Int:
     var count = 0
     for i in range(1, len(basis)):
         var j = i

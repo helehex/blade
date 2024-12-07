@@ -62,7 +62,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
         self.a = None
 
     fn __init__(
-        inout self,
+        out self,
         s: Self.Coef,
         x: Self.Coef,
         y: Self.Coef,
@@ -77,7 +77,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
         self.b = Self.Bive(i, j, k)
         self.a = a
 
-    fn __init__(inout self, s: Self.Coef, v: Self.Vect, b: Self.Bive, a: Self.Anti):
+    fn __init__(out self, s: Self.Coef, v: Self.Vect, b: Self.Bive, a: Self.Anti):
         self.s = s
         self.v = v
         self.b = b
@@ -99,7 +99,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
         )
 
     @always_inline
-    fn set_lane(inout self, idx: Int, value: Self.Lane):
+    fn set_lane(mut self, idx: Int, value: Self.Lane):
         self.s[idx] = value.s
         self.v.x[idx] = value.v.x
         self.v.y[idx] = value.v.y
@@ -122,11 +122,11 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
         return String.write(self)
 
     @no_inline
-    fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
         self.write_to[sep="\n"](writer)
 
     @no_inline
-    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, mut writer: WriterType):
         @parameter
         if size == 1:
             writer.write(
@@ -400,7 +400,7 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
         return Self.Lane(self.s[idx], self.b.i[idx], self.b.j[idx], self.b.k[idx])
 
     @always_inline
-    fn set_lane(inout self, idx: Int, value: Self.Lane):
+    fn set_lane(mut self, idx: Int, value: Self.Lane):
         self.s[idx] = value.s
         self.b.i[idx] = value.b.i
         self.b.j[idx] = value.b.j
@@ -419,11 +419,11 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
         return String.write(self)
 
     @no_inline
-    fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
         self.write_to[sep="\n"](writer)
 
     @no_inline
-    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, mut writer: WriterType):
         @parameter
         if size == 1:
             writer.write(self.s, " + ", self.b.i, "i + ", self.b.j, "j + ", self.b.k, "k")
@@ -604,7 +604,7 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
         return Self.Lane(self.x[idx], self.y[idx], self.z[idx])
 
     @always_inline
-    fn set_lane(inout self, idx: Int, value: Self.Lane):
+    fn set_lane(mut self, idx: Int, value: Self.Lane):
         self.x[idx] = value.x
         self.y[idx] = value.y
         self.z[idx] = value.z
@@ -622,11 +622,11 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
         return String.write(self)
 
     @no_inline
-    fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
         self.write_to[sep="\n"](writer)
 
     @no_inline
-    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, mut writer: WriterType):
         @parameter
         if size == 1:
             writer.write(self.x, "x + ", self.y, "y + ", self.z, "z")
@@ -797,7 +797,7 @@ struct Bivector[type: DType = DType.float64, size: Int = 1](
         return Self.Lane(self.i[idx], self.j[idx], self.k[idx])
 
     @always_inline
-    fn set_lane(inout self, idx: Int, value: Self.Lane):
+    fn set_lane(mut self, idx: Int, value: Self.Lane):
         self.i[idx] = value.i
         self.j[idx] = value.j
         self.k[idx] = value.k
@@ -815,11 +815,11 @@ struct Bivector[type: DType = DType.float64, size: Int = 1](
         return String.write(self)
 
     @no_inline
-    fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
         self.write_to[sep="\n"](writer)
 
     @no_inline
-    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, mut writer: WriterType):
         @parameter
         if size == 1:
             writer.write(self.i, "i + ", self.j, "j + ", self.k, "k + ")
@@ -1000,7 +1000,7 @@ struct Antiox[type: DType = DType.float64, size: Int = 1](
         return Self.Lane(self.a[idx])
 
     @always_inline
-    fn set_lane(inout self, idx: Int, value: Self.Lane):
+    fn set_lane(mut self, idx: Int, value: Self.Lane):
         self.a[idx] = value.a
 
     # +------( Cast )------+ #
@@ -1016,11 +1016,11 @@ struct Antiox[type: DType = DType.float64, size: Int = 1](
         return String.write(self)
 
     @no_inline
-    fn write_to[WriterType: Writer, //](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
         self.write_to[sep="\n"](writer)
 
     @no_inline
-    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, inout writer: WriterType):
+    fn write_to[WriterType: Writer, //, sep: StringLiteral](self, mut writer: WriterType):
         @parameter
         if size == 1:
             writer.write(self.a, "a")
