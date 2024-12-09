@@ -38,7 +38,7 @@ struct BasisMask:
         var result = List[Bool](capacity=len(lhs.basis2entry))
         for idx in range(len(lhs.basis2entry)):
             result += (lhs.basis2entry[idx] != -1) | (rhs.basis2entry[idx] != -1)
-        return result
+        return Self(result^)
 
     fn mul(lhs, rhs: Self, sig: Signature) -> Self:
         var result = List[Bool](capacity=sig.dims)

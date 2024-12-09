@@ -868,6 +868,7 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
 
     # +------( initialize )------+ #
     #
+    @implicit
     @always_inline
     fn __init__(out self, none: None = None):
         self.x = 0
@@ -878,6 +879,7 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
         self.x = x
         self.y = y
 
+    @implicit
     @always_inline
     fn __init__(out self, v: Self.Lane):
         self.x = v.x

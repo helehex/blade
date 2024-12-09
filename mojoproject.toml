@@ -15,4 +15,4 @@ temp = "mojo temp.mojo"
 format = "mojo format -l 100 src"
 
 [dependencies]
-max = "==24.6.0.dev2024120705"
+max = "==24.6.0.dev2024120905"
