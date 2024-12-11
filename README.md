@@ -1,3 +1,5 @@
+![CodeQL](https://github.com/helehex/infrared/workflows/CodeQL/badge.svg)
+
 # Infrared 🔆
 Geometric Algebra for Mojo 🔥
 
