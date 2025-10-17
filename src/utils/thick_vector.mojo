@@ -1,12 +1,14 @@
 # x----------------------------------------------------------------------------------------------x #
 # | MIT License
-# | Copyright (c) 2024 Helehex
+# | Copyright (c) 2023-2025 Helehex
 # x----------------------------------------------------------------------------------------------x #
 """Thick Vector."""
 
-from .memory import UnsafePointer, memclr, simd_load, simd_store
+from memory import UnsafePointer
+from .memory import memclr, simd_load, simd_store
 
 
+@always_inline
 fn _thick_vector_construction_checks[size: Int, width: Int]():
     constrained[size >= 0 and width > 0, "number of elements in `SmallArray` must be >= 0"]()
 
@@ -16,73 +18,80 @@ fn _thick_vector_construction_checks[size: Int, width: Int]():
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct ThickVector[type: DType, size: Int, thickness: Int = 1]:
+struct ThickVector[type: DType, size: Int, thickness: Int = 1](Copyable, Movable):
     """A thick vector."""
+
+    # +------[ Alias ]------+ #
+    #
+    alias Coef = SIMD[type, thickness]
+    alias Lane = ThickVector[type, size, 1]
+    alias Data = __mlir_type[`!pop.array<`, size._mlir_value, `, `, Self.Coef, `>`]
 
     # +------< Data >------+ #
     #
-    alias Data = __mlir_type[`!pop.array<`, size.value, `, `, SIMD[type, thickness], `>`]
     var _data: Self.Data
 
     # +------( Initialize )------+ #
     #
     @always_inline
-    fn __init__[clear: Bool = True](out self):
+    fn __init__[init: Bool = True](out self):
         _thick_vector_construction_checks[size, thickness]()
-        self._data = __mlir_op.`kgen.param.constant`[
-            _type = Self.Data, value = __mlir_attr[`#kgen.unknown : `, Self.Data]
-        ]()
+        __mlir_op.`lit.ownership.mark_initialized`(__get_mvalue_as_litref(self._data))
 
         @parameter
-        if clear:
+        if init:
             for idx in range(size):
                 self[idx] = 0
 
     @always_inline
-    fn __init__[clear: Bool = True](out self, owned values: VariadicListMem[Int]):
-        self.__init__[False]()
+    fn __init__[clear: Bool = True](out self, var values: VariadicListMem[Int]):
+        self = self.__init__[False]()
         for idx in range(size):
             self[idx] = values[idx]
 
     @always_inline
-    fn __init__[
-        clear: Bool = True
-    ](mut self, owned values: VariadicListMem[SIMD[type, thickness]]):
-        self.__init__[False]()
+    fn __init__[clear: Bool = True](out self, var values: VariadicListMem[Self.Coef]):
+        self = self.__init__[False]()
         for idx in range(size):
             self[idx] = values[idx]
 
     # +------( Subscript )------+ #
     #
     @always_inline
-    fn __getitem__[
-        width: Int
-    ](ref [_]self: ThickVector[type, size, 1], owned idx: Int) -> SIMD[type, width]:
+    fn get_lane(self, idx: Int, out result: Self.Lane):
+        result = result.__init__[False]()
+
+        @parameter
+        for coef_idx in range(size):
+            result[coef_idx] = self[coef_idx][idx]
+
+    @always_inline
+    fn __getitem__[width: Int](ref self: Self.Lane, var idx: Int) -> SIMD[type, width]:
         return simd_load[width](self.unsafe_ptr(), idx)
 
     @always_inline
-    fn __getitem__(ref [_]self, owned idx: Int) -> SIMD[type, thickness]:
+    fn __getitem__(ref self, var idx: Int) -> Self.Coef:
         return (self.unsafe_ptr() + idx)[]
 
     @always_inline
     fn __setitem__[
         lif: MutableOrigin, //, width: Int
-    ](ref [lif]self: ThickVector[type, size, 1], owned idx: Int, value: SIMD[type, width]):
+    ](ref [lif]self: ThickVector[type, size, 1], var idx: Int, value: SIMD[type, width]):
         simd_store[width](self.unsafe_ptr(), idx, value)
 
     @always_inline
-    fn __setitem__[
-        lif: MutableOrigin, //
-    ](ref [lif]self, owned idx: Int, owned value: SIMD[type, thickness]):
+    fn __setitem__[lif: MutableOrigin, //](ref [lif]self, var idx: Int, var value: Self.Coef):
         (self.unsafe_ptr() + idx)[] = value
 
     @always_inline
-    fn unsafe_ptr[
-        spc: __mlir_type.`index`
-    ](ref [_, spc]self) -> UnsafePointer[SIMD[type, thickness], address_space = AddressSpace(spc)]:
-        return UnsafePointer.address_of(self._data).bitcast[
-            SIMD[type, thickness], address_space = AddressSpace(spc)
-        ]()
+    fn unsafe_ptr(
+        ref self,
+    ) -> UnsafePointer[
+        Self.Coef,
+        mut = Origin(__origin_of(self)).mut,
+        origin = __origin_of(self),
+    ]:
+        return UnsafePointer(to=self._data).bitcast[Self.Coef]()
 
     # @always_inline
     # fn clear[lif: AnyLifetime[True].type, //](ref [lif]self):
@@ -104,11 +113,11 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1]:
 
     @always_inline
     fn __is__(ref [_]self, ref [_]rhs: Self) -> Bool:
-        return UnsafePointer.address_of(self) == UnsafePointer.address_of(rhs)
+        return UnsafePointer(to=self) == UnsafePointer(to=rhs)
 
     @always_inline
     fn __isnot__(ref [_]self, ref [_]rhs: Self) -> Bool:
-        return UnsafePointer.address_of(self) != UnsafePointer.address_of(rhs)
+        return UnsafePointer(to=self) != UnsafePointer(to=rhs)
 
     # @always_inline
     # fn __eq__[size: Int = size](self, rhs: ThickVector[type, size]) -> Bool:
@@ -125,7 +134,7 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1]:
     #     fn _check[width: Int](offset: Int) -> Bool:
     #         return any(self.__getitem__[width](offset) != 0)
 
-    #     return vectorize_stoping[_check, simdwidthof[type]()](size)
+    #     return vectorize_stoping[_check, simd_width_of[type]()](size)
 
     # @always_inline
     # fn __all__(self) -> Bool:
@@ -134,4 +143,4 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1]:
     #     fn _check[width: Int](offset: Int) -> Bool:
     #         return any(self.__getitem__[width](offset) == 0)
 
-    #     return not vectorize_stoping[_check, simdwidthof[type]()](size)
+    #     return not vectorize_stoping[_check, simd_width_of[type]()](size)

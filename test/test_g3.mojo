@@ -1,11 +1,12 @@
 # x--------------------------------------------------------------------------x #
 # | MIT License
-# | Copyright (c) 2024 Helehex
+# | Copyright (c) 2023-2025 Helehex
 # x--------------------------------------------------------------------------x #
 
-from testing import assert_true, assert_false, assert_equal
+from testing import assert_true, assert_false, assert_equal, assert_not_equal
+from _testing import _assert_equal, _assert_not_equal
 
-from infrared.hard.g3 import *
+from blade.hard.g3 import *
 
 
 def main():
@@ -17,9 +18,9 @@ def main():
     simd_run[DType.float32, 2]()
     simd_run[DType.float32, 4]()
 
-    simd_run[DType.index, 1]()
-    simd_run[DType.index, 2]()
-    simd_run[DType.index, 4]()
+    simd_run[DType.int, 1]()
+    simd_run[DType.int, 2]()
+    simd_run[DType.int, 4]()
 
 
 def simd_run[type: DType, size: Int]():
@@ -32,53 +33,53 @@ def simd_run[type: DType, size: Int]():
 
 def test_eq[type: DType, size: Int]():
     # +--- Multivector
-    assert_true(Multivector[type, size](1, 2, 3, 4, 5, 6, 7, 8).__eq__[None](Multivector[type, size](1, 2, 3, 4, 5, 6, 7, 8)))
-    assert_false(Multivector[type, size](1, 2, 3, 4, 5, 6, 7, 8).__eq__[None](Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
+    assert_true(Multivector[type, size](1, 2, 3, 4, 5, 6, 7, 8).__eq__(Multivector[type, size](1, 2, 3, 4, 5, 6, 7, 8)))
+    assert_false(Multivector[type, size](1, 2, 3, 4, 5, 6, 7, 8).__eq__(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
 
-    assert_true(Multivector[type, size](1, 0, 0, 0, 5, 6, 7, 0).__eq__[None](Rotor[type, size](1, 5, 6, 7)))
-    assert_false(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__eq__[None](Rotor[type, size](8, 4, 3, 2)))
+    assert_true(Multivector[type, size](1, 0, 0, 0, 5, 6, 7, 0).__eq__(Rotor[type, size](1, 5, 6, 7)))
+    assert_false(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__eq__(Rotor[type, size](8, 4, 3, 2)))
 
-    assert_true(Multivector[type, size](1, 0, 0, 0, 0, 0, 0, 0).__eq__[None](1))
-    assert_false(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__eq__[None](8))
+    assert_true(Multivector[type, size](1, 0, 0, 0, 0, 0, 0, 0).__eq__(1))
+    assert_false(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__eq__(8))
 
-    assert_true(Multivector[type, size](0, 2, 3, 4, 0, 0, 0, 0).__eq__[None](Vector[type, size](2, 3, 4)))
-    assert_false(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__eq__[None](Vector[type, size](7, 6, 5)))
+    assert_true(Multivector[type, size](0, 2, 3, 4, 0, 0, 0, 0).__eq__(Vector[type, size](2, 3, 4)))
+    assert_false(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__eq__(Vector[type, size](7, 6, 5)))
 
-    assert_true(Multivector[type, size](0, 0, 0, 0, 5, 6, 7, 0).__eq__[None](Bivector[type, size](5, 6, 7)))
-    assert_false(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__eq__[None](Bivector[type, size](4, 3, 2)))
+    assert_true(Multivector[type, size](0, 0, 0, 0, 5, 6, 7, 0).__eq__(Bivector[type, size](5, 6, 7)))
+    assert_false(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__eq__(Bivector[type, size](4, 3, 2)))
 
-    assert_true(Multivector[type, size](0, 0, 0, 0, 0, 0, 0, 8).__eq__[None](Antiox[type, size](8)))
-    assert_false(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__eq__[None](Multivector[type, size](1)))
+    assert_true(Multivector[type, size](0, 0, 0, 0, 0, 0, 0, 8).__eq__(Antiox[type, size](8)))
+    assert_false(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__eq__(Multivector[type, size](1)))
 
 
     # +--- Rotor
-    assert_true(Rotor[type, size](1, 5, 6, 7).__eq__[None](Multivector[type, size](1, 0, 0, 0, 5, 6, 7, 0)))
-    assert_false(Rotor[type, size](1, 5, 6, 7).__eq__[None](Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
+    assert_true(Rotor[type, size](1, 5, 6, 7).__eq__(Multivector[type, size](1, 0, 0, 0, 5, 6, 7, 0)))
+    assert_false(Rotor[type, size](1, 5, 6, 7).__eq__(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
 
-    assert_true(Rotor[type, size](1, 5, 6, 7).__eq__[None](Rotor[type, size](1, 5, 6, 7)))
-    assert_false(Rotor[type, size](1, 5, 6, 7).__eq__[None](Rotor[type, size](8, 4, 3, 2)))
+    assert_true(Rotor[type, size](1, 5, 6, 7).__eq__(Rotor[type, size](1, 5, 6, 7)))
+    assert_false(Rotor[type, size](1, 5, 6, 7).__eq__(Rotor[type, size](8, 4, 3, 2)))
 
-    assert_true(Rotor[type, size](1, 0, 0, 0).__eq__[None](1))
-    assert_false(Rotor[type, size](8, 4, 3, 2).__eq__[None](8))
+    assert_true(Rotor[type, size](1, 0, 0, 0).__eq__(1))
+    assert_false(Rotor[type, size](8, 4, 3, 2).__eq__(8))
 
     # (False)
 
-    assert_true(Rotor[type, size](0, 5, 6, 7).__eq__[None](Bivector[type, size](5, 6, 7)))
-    assert_false(Rotor[type, size](8, 4, 3, 2).__eq__[None](Bivector[type, size](4, 3, 2)))
+    assert_true(Rotor[type, size](0, 5, 6, 7).__eq__(Bivector[type, size](5, 6, 7)))
+    assert_false(Rotor[type, size](8, 4, 3, 2).__eq__(Bivector[type, size](4, 3, 2)))
 
     # (False)
 
 
     # +--- Vector
-    assert_true(Vector[type, size](2, 3, 4).__eq__[None](Multivector[type, size](0, 2, 3, 4, 0, 0, 0, 0)))
-    assert_false(Vector[type, size](2, 3, 4).__eq__[None](Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
+    assert_true(Vector[type, size](2, 3, 4).__eq__(Multivector[type, size](0, 2, 3, 4, 0, 0, 0, 0)))
+    assert_false(Vector[type, size](2, 3, 4).__eq__(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
 
     # (False)
 
     # (False)
 
-    assert_true(Vector[type, size](2, 3, 4).__eq__[None](Vector[type, size](2, 3, 4)))
-    assert_false(Vector[type, size](2, 3, 4).__eq__[None](Vector[type, size](7, 6, 5)))
+    assert_true(Vector[type, size](2, 3, 4).__eq__(Vector[type, size](2, 3, 4)))
+    assert_false(Vector[type, size](2, 3, 4).__eq__(Vector[type, size](7, 6, 5)))
 
     # (False)
 
@@ -86,25 +87,25 @@ def test_eq[type: DType, size: Int]():
     
 
     # +--- Bivector
-    assert_true(Bivector[type, size](5, 6, 7).__eq__[None](Multivector[type, size](0, 0, 0, 0, 5, 6, 7, 0)))
-    assert_false(Bivector[type, size](5, 6, 7).__eq__[None](Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
+    assert_true(Bivector[type, size](5, 6, 7).__eq__(Multivector[type, size](0, 0, 0, 0, 5, 6, 7, 0)))
+    assert_false(Bivector[type, size](5, 6, 7).__eq__(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
 
-    assert_true(Bivector[type, size](5, 6, 7).__eq__[None](Rotor[type, size](0, 5, 6, 7)))
-    assert_false(Bivector[type, size](5, 6, 7).__eq__[None](Rotor[type, size](8, 4, 3, 2)))
-
-    # (False)
+    assert_true(Bivector[type, size](5, 6, 7).__eq__(Rotor[type, size](0, 5, 6, 7)))
+    assert_false(Bivector[type, size](5, 6, 7).__eq__(Rotor[type, size](8, 4, 3, 2)))
 
     # (False)
 
-    assert_true(Bivector[type, size](5, 6, 7).__eq__[None](Bivector[type, size](5, 6, 7)))
-    assert_false(Bivector[type, size](5, 6, 7).__eq__[None](Bivector[type, size](4, 3, 2)))
+    # (False)
+
+    assert_true(Bivector[type, size](5, 6, 7).__eq__(Bivector[type, size](5, 6, 7)))
+    assert_false(Bivector[type, size](5, 6, 7).__eq__(Bivector[type, size](4, 3, 2)))
 
     # (False)
 
 
     # +--- Antiox
-    assert_true(Antiox[type, size](8).__eq__[None](Multivector[type, size](0, 0, 0, 0, 0, 0, 0, 8)))
-    assert_false(Antiox[type, size](8).__eq__[None](Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
+    assert_true(Antiox[type, size](8).__eq__(Multivector[type, size](0, 0, 0, 0, 0, 0, 0, 8)))
+    assert_false(Antiox[type, size](8).__eq__(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
 
     # (False)
 
@@ -114,59 +115,59 @@ def test_eq[type: DType, size: Int]():
 
     # (False)
 
-    assert_true(Antiox[type, size](8).__eq__[None](Antiox[type, size](8)))
-    assert_false(Antiox[type, size](8).__eq__[None](Antiox[type, size](1)))
+    assert_true(Antiox[type, size](8).__eq__(Antiox[type, size](8)))
+    assert_false(Antiox[type, size](8).__eq__(Antiox[type, size](1)))
 
 
 def test_ne[type: DType, size: Int]():
     # +--- Multivector
-    assert_false(Multivector[type, size](1, 2, 3, 4, 5, 6, 7, 8).__ne__[None](Multivector[type, size](1, 2, 3, 4, 5, 6, 7, 8)))
-    assert_true(Multivector[type, size](1, 2, 3, 4, 5, 6, 7, 8).__ne__[None](Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
+    assert_false(Multivector[type, size](1, 2, 3, 4, 5, 6, 7, 8).__ne__(Multivector[type, size](1, 2, 3, 4, 5, 6, 7, 8)))
+    assert_true(Multivector[type, size](1, 2, 3, 4, 5, 6, 7, 8).__ne__(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
 
-    assert_false(Multivector[type, size](1, 0, 0, 0, 5, 6, 7, 0).__ne__[None](Rotor[type, size](1, 5, 6, 7)))
-    assert_true(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__ne__[None](Rotor[type, size](8, 4, 3, 2)))
+    assert_false(Multivector[type, size](1, 0, 0, 0, 5, 6, 7, 0).__ne__(Rotor[type, size](1, 5, 6, 7)))
+    assert_true(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__ne__(Rotor[type, size](8, 4, 3, 2)))
 
-    assert_false(Multivector[type, size](1, 0, 0, 0, 0, 0, 0, 0).__ne__[None](1))
-    assert_true(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__ne__[None](8))
+    assert_false(Multivector[type, size](1, 0, 0, 0, 0, 0, 0, 0).__ne__(1))
+    assert_true(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__ne__(8))
 
-    assert_false(Multivector[type, size](0, 2, 3, 4, 0, 0, 0, 0).__ne__[None](Vector[type, size](2, 3, 4)))
-    assert_true(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__ne__[None](Vector[type, size](7, 6, 5)))
+    assert_false(Multivector[type, size](0, 2, 3, 4, 0, 0, 0, 0).__ne__(Vector[type, size](2, 3, 4)))
+    assert_true(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__ne__(Vector[type, size](7, 6, 5)))
 
-    assert_false(Multivector[type, size](0, 0, 0, 0, 5, 6, 7, 0).__ne__[None](Bivector[type, size](5, 6, 7)))
-    assert_true(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__ne__[None](Bivector[type, size](4, 3, 2)))
+    assert_false(Multivector[type, size](0, 0, 0, 0, 5, 6, 7, 0).__ne__(Bivector[type, size](5, 6, 7)))
+    assert_true(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__ne__(Bivector[type, size](4, 3, 2)))
 
-    assert_false(Multivector[type, size](0, 0, 0, 0, 0, 0, 0, 8).__ne__[None](Antiox[type, size](8)))
-    assert_true(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__ne__[None](Multivector[type, size](1)))
+    assert_false(Multivector[type, size](0, 0, 0, 0, 0, 0, 0, 8).__ne__(Antiox[type, size](8)))
+    assert_true(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1).__ne__(Multivector[type, size](1)))
 
 
     # +--- Rotor
-    assert_false(Rotor[type, size](1, 5, 6, 7).__ne__[None](Multivector[type, size](1, 0, 0, 0, 5, 6, 7, 0)))
-    assert_true(Rotor[type, size](1, 5, 6, 7).__ne__[None](Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
+    assert_false(Rotor[type, size](1, 5, 6, 7).__ne__(Multivector[type, size](1, 0, 0, 0, 5, 6, 7, 0)))
+    assert_true(Rotor[type, size](1, 5, 6, 7).__ne__(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
 
-    assert_false(Rotor[type, size](1, 5, 6, 7).__ne__[None](Rotor[type, size](1, 5, 6, 7)))
-    assert_true(Rotor[type, size](1, 5, 6, 7).__ne__[None](Rotor[type, size](8, 4, 3, 2)))
+    assert_false(Rotor[type, size](1, 5, 6, 7).__ne__(Rotor[type, size](1, 5, 6, 7)))
+    assert_true(Rotor[type, size](1, 5, 6, 7).__ne__(Rotor[type, size](8, 4, 3, 2)))
 
-    assert_false(Rotor[type, size](1, 0, 0, 0).__ne__[None](1))
-    assert_true(Rotor[type, size](8, 4, 3, 2).__ne__[None](8))
+    assert_false(Rotor[type, size](1, 0, 0, 0).__ne__(1))
+    assert_true(Rotor[type, size](8, 4, 3, 2).__ne__(8))
 
     # (False)
 
-    assert_false(Rotor[type, size](0, 5, 6, 7).__ne__[None](Bivector[type, size](5, 6, 7)))
-    assert_true(Rotor[type, size](8, 4, 3, 2).__ne__[None](Bivector[type, size](4, 3, 2)))
+    assert_false(Rotor[type, size](0, 5, 6, 7).__ne__(Bivector[type, size](5, 6, 7)))
+    assert_true(Rotor[type, size](8, 4, 3, 2).__ne__(Bivector[type, size](4, 3, 2)))
 
     # (False)
 
 
     # +--- Vector
-    assert_false(Vector[type, size](2, 3, 4).__ne__[None](Multivector[type, size](0, 2, 3, 4, 0, 0, 0, 0)))
-    assert_true(Vector[type, size](2, 3, 4).__ne__[None](Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
+    assert_false(Vector[type, size](2, 3, 4).__ne__(Multivector[type, size](0, 2, 3, 4, 0, 0, 0, 0)))
+    assert_true(Vector[type, size](2, 3, 4).__ne__(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
 
     # (False)
 
     # (False)
 
-    assert_false(Vector[type, size](2, 3, 4).__ne__[None](Vector[type, size](2, 3, 4)))
-    assert_true(Vector[type, size](2, 3, 4).__ne__[None](Vector[type, size](7, 6, 5)))
+    assert_false(Vector[type, size](2, 3, 4).__ne__(Vector[type, size](2, 3, 4)))
+    assert_true(Vector[type, size](2, 3, 4).__ne__(Vector[type, size](7, 6, 5)))
 
     # (False)
 
@@ -174,25 +175,25 @@ def test_ne[type: DType, size: Int]():
 
 
     # +--- Bivector
-    assert_false(Bivector[type, size](5, 6, 7).__ne__[None](Multivector[type, size](0, 0, 0, 0, 5, 6, 7, 0)))
-    assert_true(Bivector[type, size](5, 6, 7).__ne__[None](Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
+    assert_false(Bivector[type, size](5, 6, 7).__ne__(Multivector[type, size](0, 0, 0, 0, 5, 6, 7, 0)))
+    assert_true(Bivector[type, size](5, 6, 7).__ne__(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
 
-    assert_false(Bivector[type, size](5, 6, 7).__ne__[None](Rotor[type, size](0, 5, 6, 7)))
-    assert_true(Bivector[type, size](5, 6, 7).__ne__[None](Rotor[type, size](8, 4, 3, 2)))
-
-    # (False)
+    assert_false(Bivector[type, size](5, 6, 7).__ne__(Rotor[type, size](0, 5, 6, 7)))
+    assert_true(Bivector[type, size](5, 6, 7).__ne__(Rotor[type, size](8, 4, 3, 2)))
 
     # (False)
 
-    assert_false(Bivector[type, size](5, 6, 7).__ne__[None](Bivector[type, size](5, 6, 7)))
-    assert_true(Bivector[type, size](5, 6, 7).__ne__[None](Bivector[type, size](4, 3, 2)))
+    # (False)
+
+    assert_false(Bivector[type, size](5, 6, 7).__ne__(Bivector[type, size](5, 6, 7)))
+    assert_true(Bivector[type, size](5, 6, 7).__ne__(Bivector[type, size](4, 3, 2)))
 
     # (False)
 
 
     # +--- Antiox
-    assert_false(Antiox[type, size](8).__ne__[None](Multivector[type, size](0, 0, 0, 0, 0, 0, 0, 8)))
-    assert_true(Antiox[type, size](8).__ne__[None](Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
+    assert_false(Antiox[type, size](8).__ne__(Multivector[type, size](0, 0, 0, 0, 0, 0, 0, 8)))
+    assert_true(Antiox[type, size](8).__ne__(Multivector[type, size](8, 7, 6, 5, 4, 3, 2, 1)))
 
     # (False)
 
@@ -202,8 +203,8 @@ def test_ne[type: DType, size: Int]():
 
     # (False)
 
-    assert_false(Antiox[type, size](8).__ne__[None](Antiox[type, size](8)))
-    assert_true(Antiox[type, size](8).__ne__[None](Antiox[type, size](1)))
+    assert_false(Antiox[type, size](8).__ne__(Antiox[type, size](8)))
+    assert_true(Antiox[type, size](8).__ne__(Antiox[type, size](1)))
 
 
 def test_add[type: DType, size: Int]():

@@ -6,4 +6,6 @@
 *.mojopkg
 
 # ignore environments
-.magic
+.pixi
+# pixi environments
+.pixi

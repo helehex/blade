@@ -1,38 +1,303 @@
 # x----------------------------------------------------------------------------------------------x #
 # | MIT License
-# | Copyright (c) 2024 Helehex
+# | Copyright (c) 2023-2025 Helehex
 # x----------------------------------------------------------------------------------------------x #
 
-from ..io.ansi import Color
+from collections.string import StringSlice
+from bit import pop_count, bit_reverse
+from ..utils.control import _assert
+from ..utils.format import ctoi, stoi, write_sign
+from ..utils.bit import SetBitIter
+
+
+# +----------------------------------------------------------------------------------------------+ #
+# | Basis Literal
+# +----------------------------------------------------------------------------------------------+ #
+#
+@register_passable("trivial")
+struct BasisLiteral[sig: Signature, basis: SignedBasis](Copyable, Defaultable, EqualityComparable, Movable, Writable):
+    @always_inline("builtin")
+    fn __init__(out self):
+        pass
+
+    @always_inline
+    fn __add__(
+        lhs,
+        rhs: BasisLiteral[sig, _],
+        out result: Multivector[sig, sig.basis_mask(lhs.basis) | sig.basis_mask(rhs.basis)],
+    ):
+        result = result.__init__[False]()
+        var lhs_entry = result.mask.get_entry(Basis(bin=lhs.basis.bin))
+        result._data[lhs_entry] = lhs.basis.sign
+        result._data[1 - lhs_entry] = rhs.basis.sign
+
+    @always_inline
+    fn __sub__(
+        lhs,
+        rhs: BasisLiteral[sig, _],
+        out result: Multivector[sig, sig.basis_mask(lhs.basis) | sig.basis_mask(-rhs.basis)],
+    ):
+        result = lhs + -rhs
+
+    @always_inline("builtin")
+    fn __mul__(
+        lhs, rhs: BasisLiteral[sig, _], out result: BasisLiteral[sig, sig.mul(lhs.basis, rhs.basis)]
+    ):
+        result = result.__init__()
+
+    @always_inline
+    fn __mul__(
+        lhs, rhs: SIMD, out result: Multivector[sig, sig.basis_mask(basis), rhs.dtype, rhs.size]
+    ):
+        result = result.__init__[False]()
+        result._data[0] = rhs
+
+    @always_inline
+    fn __rmul__(
+        rhs, lhs: SIMD, out result: Multivector[sig, sig.basis_mask(basis), lhs.dtype, lhs.size]
+    ):
+        result = rhs * lhs
+
+    @always_inline("builtin")
+    fn __neg__(self, out result: BasisLiteral[sig, -basis]):
+        result = result.__init__()
+
+    @always_inline("builtin")
+    fn __eq__(lhs, rhs: Self) -> Bool:
+        return True
+
+    @always_inline("builtin")
+    fn __eq__(lhs, rhs: BasisLiteral[sig, _]) -> Bool:
+        return lhs.basis == rhs.basis
+
+    @always_inline("builtin")
+    fn __ne__(lhs, rhs: Self) -> Bool:
+        return False
+
+    @always_inline("builtin")
+    fn __ne__(lhs, rhs: BasisLiteral[sig, _]) -> Bool:
+        return lhs.basis != rhs.basis
+
+    @no_inline
+    fn __str__(self) -> String:
+        return String.write(self)
+
+    @no_inline
+    fn write_to[WriterType: Writer](self, mut writer: WriterType):
+        writer.write(self.basis)
+
+
+# +----------------------------------------------------------------------------------------------+ #
+# | Basis
+# +----------------------------------------------------------------------------------------------+ #
+#
+@register_passable("trivial")
+struct Basis(Copyable, Defaultable, EqualityComparable, Movable, Writable, Stringable, Representable):
+    var bin: Int
+
+    @always_inline("builtin")
+    fn __init__(out self):
+        self.bin = 0
+
+    @always_inline("builtin")
+    fn __init__(out self, *, bin: Int):
+        self.bin = bin
+
+    @always_inline("builtin")
+    fn __neg__(self) -> SignedBasis:
+        return SignedBasis(-1, bin=self.bin)
+
+    @always_inline("builtin")
+    fn __eq__(lhs, rhs: Self) -> Bool:
+        return lhs.bin == rhs.bin
+
+    @always_inline("builtin")
+    fn __ne__(lhs, rhs: Self) -> Bool:
+        return lhs.bin != rhs.bin
+
+    fn __lt__(lhs, rhs: Self) -> Bool:
+        var lhs_vecs = pop_count(lhs.bin)
+        var rhs_vecs = pop_count(rhs.bin)
+        return (lhs_vecs < rhs_vecs) | (
+            (lhs_vecs == rhs_vecs) & (UInt(bit_reverse(lhs.bin)) > UInt(bit_reverse(rhs.bin)))
+        )
+
+    fn __gt__(lhs, rhs: Self) -> Bool:
+        var lhs_vecs = pop_count(lhs.bin)
+        var rhs_vecs = pop_count(rhs.bin)
+        return (lhs_vecs > rhs_vecs) | (
+            (lhs_vecs == rhs_vecs) & (UInt(bit_reverse(lhs.bin)) < UInt(bit_reverse(rhs.bin)))
+        )
+
+    @no_inline
+    fn __str__(self) -> String:
+        return String.write(self)
+
+    @no_inline
+    fn __repr__(self) -> String:
+        return String.write(self)
+
+    @no_inline
+    fn write_to[WriterType: Writer](self, mut writer: WriterType):
+        if self.bin == 0:
+            writer.write("1")
+        else:
+            for vec in SetBitIter(self.bin):
+                writer.write("e", vec + 1)
 
 
 # +----------------------------------------------------------------------------------------------+ #
 # | Signed Basis
 # +----------------------------------------------------------------------------------------------+ #
 #
-@value
 @register_passable("trivial")
-struct SignedBasis(Writable):
-    # +------< Data >------+ #
-    #
+struct SignedBasis(Copyable, Defaultable, EqualityComparable, Movable, Writable, Stringable):
     var sign: Int
-    var basis: Int
+    var bin: Int
+
+    @always_inline("builtin")
+    fn __init__(out self):
+        self.sign = 1
+        self.bin = 0
+
+    @implicit
+    @always_inline("builtin")
+    fn __init__(out self, basis: Basis):
+        self.sign = 1
+        self.bin = basis.bin
+
+    @always_inline("builtin")
+    fn __init__(out self, sign: Int, *, bin: Int):
+        self.sign = sign
+        self.bin = bin
+
+    @always_inline("builtin")
+    fn __init__(out self, sign: Int, basis: Basis):
+        self.sign = sign
+        self.bin = basis.bin
+
+    @always_inline("builtin")
+    fn __neg__(self) -> Self:
+        return Self(-self.sign, bin=self.bin)
+
+    @always_inline("builtin")
+    fn __eq__(lhs, rhs: Self) -> Bool:
+        return lhs.bin == rhs.bin
+
+    @always_inline("builtin")
+    fn __ne__(lhs, rhs: Self) -> Bool:
+        return lhs.bin != rhs.bin
+
+    @no_inline
+    fn __str__(self) -> String:
+        return String.write(self)
+
+    @no_inline
+    fn write_to[WriterType: Writer](self, mut writer: WriterType):
+        write_sign(writer, self.sign)
+        writer.write(Basis(bin=self.bin))
+
+
+# +----------------------------------------------------------------------------------------------+ #
+# | Scaled Basis
+# +----------------------------------------------------------------------------------------------+ #
+#
+@register_passable("trivial")
+struct ScaledBasis[dtype: DType, width: Int](Writable, EqualityComparable, Defaultable):
+    var scale: SIMD[dtype, width]
+    var bin: Int
+
+    # TODO: should be inline builtin
+    @always_inline("nodebug")
+    fn __init__(out self):
+        self.scale = 1
+        self.bin = 0
+
+    @implicit
+    # TODO: should be inline builtin
+    @always_inline("nodebug")
+    fn __init__(out self, basis: Basis):
+        self.scale = 1
+        self.bin = basis.bin
+
+    @implicit
+    @always_inline
+    fn __init__(out self, basis: SignedBasis):
+        self.scale = basis.sign
+        self.bin = basis.bin
+
+    @always_inline("builtin")
+    fn __init__(out self, scale: SIMD[dtype, width], *, bin: Int):
+        self.scale = scale
+        self.bin = bin
+
+    @always_inline("builtin")
+    fn __init__(out self, scale: SIMD[dtype, width], basis: Basis):
+        self.scale = scale
+        self.bin = basis.bin
 
     @always_inline
-    fn expand(self, sig: Signature) -> List[Int]:
-        var result = List[Int](capacity=sig.grade_of[self.basis])
-        var k = sig.grade_of[self.basis]
-        var r = sig.index_in_grade[self.basis] + 1
-        var j = 0
+    fn __neg__(self) -> Self:
+        return Self(-self.scale, bin=self.bin)
 
-        for s in range(1, k + 1):
-            var cs = j + 1
-            while r - pascal(sig.vecs - cs, k - s) > 0:
-                r -= pascal(sig.vecs - cs, k - s)
-                cs += 1
-            result += cs
-            j = cs
-        return result^
+    @always_inline
+    fn __eq__(lhs, rhs: Self) -> Bool:
+        return lhs.scale.eq(rhs.scale).reduce_and() and lhs.bin == rhs.bin
+
+    @always_inline
+    fn __ne__(lhs, rhs: Self) -> Bool:
+        return lhs.scale.ne(rhs.scale).reduce_or() or lhs.bin != rhs.bin
+
+    @no_inline
+    fn __str__(self) -> String:
+        return String.write(self)
+
+    @no_inline
+    fn write_to[WriterType: Writer](self, mut writer: WriterType):
+        @parameter
+        if width == 1:
+            writer.write(self.scale, self.bin)
+        else:
+            writer.write("[")
+
+            @parameter
+            for lane in range(width - 1):
+                writer.write(ScaledBasis[dtype, 1](self.scale[lane], bin=self.bin), ", ")
+            writer.write(ScaledBasis[dtype, 1](self.scale[width - 1], bin=self.bin), "]")
+
+
+# +----------------------------------------------------------------------------------------------+ #
+# | Basis Index
+# +----------------------------------------------------------------------------------------------+ #
+#
+@register_passable("trivial")
+struct BasisIndex(Copyable, EqualityComparable, ImplicitlyIntable, Writable, Stringable):
+    var idx: Int
+
+    @implicit
+    @always_inline("builtin")
+    fn __init__(out self, idx: Int):
+        self.idx = idx
+
+    @always_inline("builtin")
+    fn __int__(self) -> Int:
+        return self.idx
+
+    @always_inline("builtin")
+    fn __as_int__(self) -> Int:
+        return self.idx
+
+    @always_inline("builtin")
+    fn __neg__(self) -> SignedBasisIndex:
+        return SignedBasisIndex(-1, self.idx)
+
+    @always_inline("builtin")
+    fn __eq__(lhs, rhs: Self) -> Bool:
+        return lhs.idx == rhs.idx
+
+    @always_inline("builtin")
+    fn __ne__(lhs, rhs: Self) -> Bool:
+        return lhs.idx != rhs.idx
 
     @no_inline
     fn __str__(self) -> String:
@@ -40,40 +305,52 @@ struct SignedBasis(Writable):
 
     @no_inline
     fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
-        if self.sign < 0:
-            writer.write("-")
-        elif self.sign > 0:
-            writer.write("+")
-        else:
-            writer.write("o")
-        writer.write(self.basis)
+        writer.write(self.idx)
 
 
-fn signed_sort(mut basis: List[Int]) -> Int:
-    var count = 0
-    for i in range(1, len(basis)):
-        var j = i
-        while j > 0 and basis[j] < basis[j - 1]:
-            count += 1
-            var temp = basis[j - 1]
-            basis[j - 1] = basis[j]
-            basis[j] = temp
-            j -= 1
-    return count
+# +----------------------------------------------------------------------------------------------+ #
+# | Signed Basis Index
+# +----------------------------------------------------------------------------------------------+ #
+#
+@register_passable("trivial")
+struct SignedBasisIndex(Copyable, EqualityComparable, Movable, Writable, Stringable):
+    var sign: Int
+    var idx: Int
 
+    @implicit
+    @always_inline("builtin")
+    fn __init__(out self, idx: Int):
+        self.sign = 1
+        self.idx = idx
 
-fn count_odd(array: List[Int]) -> Int:
-    var count = 0
-    var i = 1
-    var m = 0
-    while i < array.size:
-        if array[i - 1] != array[i]:
-            if i % 2 != m:
-                count += 1
-            m = i % 2
-        i += 1
+    @implicit
+    @always_inline("builtin")
+    fn __init__(out self, idx: BasisIndex):
+        self.sign = 1
+        self.idx = idx.idx
 
-    if array.size % 2 != m:
-        count += 1
+    @always_inline("builtin")
+    fn __init__(out self, sign: Int, idx: Int):
+        self.sign = sign
+        self.idx = idx
 
-    return count
+    @always_inline("builtin")
+    fn __neg__(self) -> Self:
+        return Self(-self.sign, self.idx)
+
+    @always_inline("builtin")
+    fn __eq__(lhs, rhs: Self) -> Bool:
+        return lhs.sign == rhs.sign and lhs.idx == rhs.idx
+
+    @always_inline("builtin")
+    fn __ne__(lhs, rhs: Self) -> Bool:
+        return lhs.sign != rhs.sign or lhs.idx != rhs.idx
+
+    @no_inline
+    fn __str__(self) -> String:
+        return String.write(self)
+
+    @no_inline
+    fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
+        write_sign(writer, self.sign)
+        writer.write(self.idx)

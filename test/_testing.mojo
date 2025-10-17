@@ -1,6 +1,5 @@
 from collections import Optional
 from testing.testing import (
-    Testable,
     isclose,
     _SourceLocation,
     _assert_error,
@@ -9,12 +8,8 @@ from testing.testing import (
 )
 
 
-trait TestableCollectionElement(Testable, RepresentableCollectionElement, EqualityComparableCollectionElement):
-    pass
-
-
 @always_inline
-fn str_[T: TestableCollectionElement](l: List[List[T]]) -> String:
+fn _str[T: Copyable & Movable & Representable & EqualityComparable](l: List[List[T]]) -> String:
     var result: String = "["
     for idx in range(len(l) - 1):
         result += l[idx].__str__() + ", "
@@ -24,9 +19,9 @@ fn str_[T: TestableCollectionElement](l: List[List[T]]) -> String:
 
 
 @always_inline
-fn assert_equal_[T: TestableCollectionElement](
+fn _assert_equal[T: Copyable & Movable & Representable & EqualityComparable](
     lhs: List[T],
-    rhs: __type_of(lhs),
+    rhs: List[T],
     msg: String = "",
     *,
     location: Optional[_SourceLocation] = None,
@@ -46,9 +41,9 @@ fn assert_equal_[T: TestableCollectionElement](
 
 
 @always_inline
-fn assert_not_equal_[T: TestableCollectionElement](
+fn _assert_not_equal[T: Copyable & Movable & Representable & EqualityComparable](
     lhs: List[T],
-    rhs: __type_of(lhs),
+    rhs: List[T],
     msg: String = "",
     *,
     location: Optional[_SourceLocation] = None,
@@ -68,9 +63,9 @@ fn assert_not_equal_[T: TestableCollectionElement](
 
 
 @always_inline
-fn assert_equal_[T: TestableCollectionElement](
+fn _assert_equal[T: Copyable & Movable & Representable & EqualityComparable](
     lhs: List[List[T]],
-    rhs: __type_of(lhs),
+    rhs: List[List[T]],
     msg: String = "",
     *,
     location: Optional[_SourceLocation] = None,
@@ -85,14 +80,14 @@ fn assert_equal_[T: TestableCollectionElement](
     
     if not eq:
         raise _assert_cmp_error["`left == right` comparison"](
-            str_(lhs), str_(rhs), msg=msg, loc=location.or_else(__call_location())
+            _str(lhs), _str(rhs), msg=msg, loc=location.or_else(__call_location())
         )
 
 
 @always_inline
-fn assert_not_equal_[T: TestableCollectionElement](
+fn _assert_not_equal[T: Copyable & Movable & Representable & EqualityComparable](
     lhs: List[List[T]],
-    rhs: __type_of(lhs),
+    rhs: List[List[T]],
     msg: String = "",
     *,
     location: Optional[_SourceLocation] = None,
@@ -107,5 +102,5 @@ fn assert_not_equal_[T: TestableCollectionElement](
 
     if not ne:
         raise _assert_cmp_error["`left != right` comparison"](
-            str_(lhs), str_(rhs), msg=msg, loc=location.or_else(__call_location())
+            _str(lhs), _str(rhs), msg=msg, loc=location.or_else(__call_location())
         )

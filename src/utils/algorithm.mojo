@@ -1,8 +1,8 @@
 # x----------------------------------------------------------------------------------------------x #
 # | MIT License
-# | Copyright (c) 2024 Helehex
+# | Copyright (c) 2023-2025 Helehex
 # x----------------------------------------------------------------------------------------------x #
-"""Algorithm."""
+"""Algorithms."""
 
 
 fn vectorize_raising[
@@ -32,3 +32,33 @@ fn vectorize_stoping[func: fn[width: Int] (Int) capturing -> Bool, width: Int](c
             return True
         offset += 1
     return False
+
+
+fn counted_sort(mut basis: List[Int]) -> Int:
+    var count = 0
+    for i in range(1, len(basis)):
+        var j = i
+        while j > 0 and basis[j] < basis[j - 1]:
+            count += 1
+            var temp = basis[j - 1]
+            basis[j - 1] = basis[j]
+            basis[j] = temp
+            j -= 1
+    return count
+
+
+fn count_odd(array: List[Int]) -> Int:
+    var count = 0
+    var i = 1
+    var m = 0
+    while i < len(array):
+        if array[i - 1] != array[i]:
+            if i % 2 != m:
+                count += 1
+            m = i % 2
+        i += 1
+
+    if len(array) % 2 != m:
+        count += 1
+
+    return count

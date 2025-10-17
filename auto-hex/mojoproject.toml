@@ -2,7 +2,7 @@
 authors = ["helehex <helehex@gmail.com>"]
 channels = ["conda-forge", "https://conda.modular.com/max-nightly"]
 description = "Geometric algebra."
-name = "infrared"
+name = "blade"
 platforms = ["linux-64", "osx-arm64"]
 version = "0.1.0"
 license = "MIT"
@@ -15,4 +15,4 @@ temp = "mojo temp.mojo"
 format = "mojo format -l 100 src"
 
 [dependencies]
-max = "==24.6.0.dev2024120905"
+max = "==25.1.0.dev2024121705"

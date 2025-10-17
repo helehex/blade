@@ -1,50 +1,89 @@
 # x----------------------------------------------------------------------------------------------x #
 # | MIT License
-# | Copyright (c) 2024 Helehex
+# | Copyright (c) 2023-2025 Helehex
 # x----------------------------------------------------------------------------------------------x #
+"""Helper struct for basis masking."""
+
+from collections.string import StringSlice
+from .basis import Basis
+from ..math.combinatorics import power_unrank_bin
+from bit import next_power_of_two
 
 
-@value
-struct BasisMask:
-    var entry_count: Int
-    var basis2entry: List[Int]
-    var entry2basis: List[Int]
+@fieldwise_init
+struct BasisMask(Sized, ImplicitlyCopyable, Movable):
+    var full: Int
+    var entries: List[Basis]
 
-    fn __init__(out self, mask: List[Bool]):
-        self.entry_count = 0
-        self.basis2entry = List[Int](capacity=len(mask))
-        self.entry2basis = List[Int](capacity=len(mask))
-        for basis in range(len(mask)):
-            if mask[basis]:
-                self.entry2basis += basis
-                self.basis2entry += self.entry_count
-                self.entry_count += 1
+    @always_inline
+    fn __init__(out self, *, full: Int = -1, capacity: Int = 0):
+        self.full = full
+        self.entries = List[Basis](capacity=capacity)
+
+    @always_inline
+    fn __init__(out self, *bases: Basis):
+        self = Self(capacity = len(bases))
+        for basis in bases:
+            self.unmask(basis)
+
+    fn __copyinit__(out self, other: Self):
+        self.full = other.full
+        self.entries = other.entries.copy()
+
+    @always_inline
+    fn unmask(mut self, basis: Basis):
+        for idx in range(len(self.entries)):
+            if self.entries[idx] < basis:
+                continue
+            elif self.entries[idx] == basis:
+                return
             else:
-                self.basis2entry += -1
+                self.entries.insert(idx, basis)
+                return
+        self.entries.append(basis)
 
-    fn __init__(out self, *mask: Bool):
-        self.entry_count = 0
-        self.basis2entry = List[Int](capacity=len(mask))
-        self.entry2basis = List[Int](capacity=len(mask))
-        for basis in range(len(mask)):
-            if mask[basis]:
-                self.entry2basis += basis
-                self.basis2entry += self.entry_count
-                self.entry_count += 1
+    @always_inline
+    fn get_basis(self, entry: Int) -> Basis:
+        return Basis(bin=power_unrank_bin(self.full, entry)) if self.full != -1 else self.entries[entry]
+
+    @always_inline
+    fn get_entry(self, basis: Basis) -> Int:
+        if self.full != -1:
+            return basis.bin
+
+        for idx in range(len(self.entries)):
+            if self.entries[idx] < basis:
+                continue
+            elif self.entries[idx] == basis:
+                return idx
             else:
-                self.basis2entry += -1
+                break
+        return -1
 
-    fn __or__(lhs, rhs: Self) -> Self:
-        var result = List[Bool](capacity=len(lhs.basis2entry))
-        for idx in range(len(lhs.basis2entry)):
-            result += (lhs.basis2entry[idx] != -1) | (rhs.basis2entry[idx] != -1)
-        return Self(result^)
+    @always_inline
+    fn __len__(self) -> Int:
+        return (2**self.full) if self.full != -1 else len(self.entries)
 
-    fn mul(lhs, rhs: Self, sig: Signature) -> Self:
-        var result = List[Bool](capacity=sig.dims)
-        for _ in range(sig.dims):
-            result += False
-        for x in lhs.entry2basis:
-            for y in rhs.entry2basis:
-                result[sig.mult[x[], y[]].basis] |= sig.mult[x[], y[]].sign != 0
-        return Self(result^)
+    @always_inline
+    fn __or__(lhs, rhs: Self, out result: Self):
+        result = Self(capacity=len(lhs.entries))
+        var lhs_idx = 0
+        var rhs_idx = 0
+
+        while True:
+            if lhs_idx < len(lhs.entries) and (
+                rhs_idx >= len(rhs.entries) or lhs.entries[lhs_idx] < rhs.entries[rhs_idx]
+            ):
+                result.entries.append(lhs.entries[lhs_idx])
+                lhs_idx += 1
+            elif rhs_idx < len(rhs.entries) and (
+                lhs_idx >= len(lhs.entries) or lhs.entries[lhs_idx] > rhs.entries[rhs_idx]
+            ):
+                result.entries.append(rhs.entries[rhs_idx])
+                rhs_idx += 1
+            elif lhs_idx < len(lhs.entries) and rhs_idx < len(rhs.entries):
+                result.entries.append(lhs.entries[lhs_idx])
+                lhs_idx += 1
+                rhs_idx += 1
+            else:
+                return

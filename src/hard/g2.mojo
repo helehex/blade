@@ -1,6 +1,6 @@
 # x----------------------------------------------------------------------------------------------x #
 # | MIT License
-# | Copyright (c) 2024 Helehex
+# | Copyright (c) 2023-2025 Helehex
 # x----------------------------------------------------------------------------------------------x #
 """Defines a G2 Multivector, and it's subspaces.
 
@@ -15,7 +15,8 @@ Cl(2,0,0) ⇔ Mat2x2
 `i*i = -1`
 """
 
-from math import cos, sin, atan2
+from math import sqrt, cos, sin, atan2
+# from collections import Optional
 
 
 # +----------------------------------------------------------------------------------------------+ #
@@ -23,9 +24,7 @@ from math import cos, sin, atan2
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Multivector[type: DType = DType.float64, size: Int = 1](
-    StringableCollectionElement, Writable, EqualityComparable
-):
+struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
     """A G2 Multivector."""
 
     # +------[ Alias ]------+ #
@@ -48,12 +47,16 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
 
     # +------( Initialize )------+ #
     #
-    @implicit
     @always_inline
-    fn __init__(out self, none: None = None):
+    fn __init__(out self):
         self.s = 0
         self.v = None
         self.i = 0
+    
+    @implicit
+    @always_inline
+    fn __init__(out self, none: None):
+        self = Self.__init__()
 
     @always_inline
     fn __init__(out self, s: Self.Coef, x: Self.Coef, y: Self.Coef, i: Self.Coef):
@@ -124,7 +127,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
 
     @always_inline
     fn __simd_bool__(self) -> SIMD[DType.bool, size]:
-        return self.is_null()
+        return self.is_zero()
 
     @always_inline
     fn is_null(self) -> SIMD[DType.bool, size]:
@@ -160,68 +163,68 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
     # +------( Comparison )------+ #
     #
     @always_inline
-    fn __eq__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.s == other.s) & (self.v == other.v) & (self.i == other.i)
+    fn eq(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.s.eq(other.s)) & (self.v.eq(other.v)) & (self.i.eq(other.i))
 
     @always_inline
-    fn __eq__(self, other: Self.Roto) -> SIMD[DType.bool, size]:
-        return (self.s == other.s) & (self.v == Self.Vect()) & (self.i == other.i)
+    fn eq(self, other: Self.Roto) -> SIMD[DType.bool, size]:
+        return (self.s.eq(other.s)) & (self.v.eq(Self.Vect())) & (self.i.eq(other.i))
 
     @always_inline
-    fn __eq__(self, other: Self.Coef) -> SIMD[DType.bool, size]:
-        return (self.s == other) & (self.v == Self.Vect()) & (self.i == 0)
+    fn eq(self, other: Self.Coef) -> SIMD[DType.bool, size]:
+        return (self.s.eq(other)) & (self.v.eq(Self.Vect())) & (self.i.eq(0))
 
     @always_inline
-    fn __eq__(self, other: Self.Vect) -> SIMD[DType.bool, size]:
-        return (self.s == 0) & (self.v == other) & (self.i == 0)
+    fn eq(self, other: Self.Vect) -> SIMD[DType.bool, size]:
+        return (self.s.eq(0)) & (self.v.eq(other)) & (self.i.eq(0))
 
     @always_inline
-    fn __eq__[__: None = None](self, other: Self) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self) -> Bool:
+        return all(self.eq(other))
 
     @always_inline
-    fn __eq__[__: None = None](self, other: Self.Roto) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Roto) -> Bool:
+        return all(self.eq(other))
 
     @always_inline
-    fn __eq__[__: None = None](self, other: Self.Coef) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Coef) -> Bool:
+        return all(self.eq(other))
 
     @always_inline
-    fn __eq__[__: None = None](self, other: Self.Vect) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Vect) -> Bool:
+        return all(self.eq(other))
 
     @always_inline
-    fn __ne__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.s != other.s) | (self.v != other.v) | (self.i != other.i)
+    fn ne(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.s.ne(other.s)) | (self.v.ne(other.v)) | (self.i.ne(other.i))
 
     @always_inline
-    fn __ne__(self, other: Self.Roto) -> SIMD[DType.bool, size]:
-        return (self.s != other.s) | (self.v != Self.Vect()) | (self.i != other.i)
+    fn ne(self, other: Self.Roto) -> SIMD[DType.bool, size]:
+        return (self.s.ne(other.s)) | (self.v.ne(Self.Vect())) | (self.i.ne(other.i))
 
     @always_inline
-    fn __ne__(self, other: Self.Coef) -> SIMD[DType.bool, size]:
-        return (self.s != other) | (self.v != Self.Vect()) | (self.i != 0)
+    fn ne(self, other: Self.Coef) -> SIMD[DType.bool, size]:
+        return (self.s.ne(other)) | (self.v.ne(Self.Vect())) | (self.i.ne(0))
 
     @always_inline
-    fn __ne__(self, other: Self.Vect) -> SIMD[DType.bool, size]:
-        return (self.s != 0) | (self.v != other) | (self.i != 0)
+    fn ne(self, other: Self.Vect) -> SIMD[DType.bool, size]:
+        return (self.s.ne(0)) | (self.v.ne(other)) | (self.i.ne(0))
 
     @always_inline
-    fn __ne__[__: None = None](self, other: Self) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self) -> Bool:
+        return any(self.ne(other))
 
     @always_inline
-    fn __ne__[__: None = None](self, other: Self.Roto) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Roto) -> Bool:
+        return any(self.ne(other))
 
     @always_inline
-    fn __ne__[__: None = None](self, other: Self.Coef) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Coef) -> Bool:
+        return any(self.ne(other))
 
     @always_inline
-    fn __ne__[__: None = None](self, other: Self.Vect) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Vect) -> Bool:
+        return any(self.ne(other))
 
     # +------( Unary )------+ #
     #
@@ -510,9 +513,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
 # +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Rotor[type: DType = DType.float64, size: Int = 1](
-    StringableCollectionElement, Writable, EqualityComparable
-):
+struct Rotor[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
     """The real and anti parts of a Multivector G2. Useful for rotating vectors."""
 
     # +------[ Alias ]------+ #
@@ -616,52 +617,52 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
     # +------( Comparison )------+ #
     #
     @always_inline
-    fn __eq__(self, other: Self.Multi) -> SIMD[DType.bool, size]:
-        return other == self
+    fn eq(self, other: Self.Multi) -> SIMD[DType.bool, size]:
+        return other.eq(self)
 
     @always_inline
-    fn __eq__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.s == other.s) & (self.i == other.i)
+    fn eq(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.s.eq(other.s)) & (self.i.eq(other.i))
 
     @always_inline
-    fn __eq__(self, other: Self.Coef) -> SIMD[DType.bool, size]:
-        return (self.s == other) & (self.i == 0)
+    fn eq(self, other: Self.Coef) -> SIMD[DType.bool, size]:
+        return (self.s.eq(other)) & (self.i.eq(0))
 
     @always_inline
-    fn __eq__[__: None = None](self, other: Self.Multi) -> Bool:
-        return all(self.__eq__(other))
+    fn __eq__(self, other: Self.Multi) -> Bool:
+        return all(self.eq(other))
 
     @always_inline
-    fn __eq__[__: None = None](self, other: Self) -> Bool:
-        return all(self.__eq__(other))
+    fn __eq__(self, other: Self) -> Bool:
+        return all(self.eq(other))
 
     @always_inline
-    fn __eq__[__: None = None](self, other: Self.Coef) -> Bool:
-        return all(self.__eq__(other))
+    fn __eq__(self, other: Self.Coef) -> Bool:
+        return all(self.eq(other))
 
     @always_inline
-    fn __ne__(self, other: Self.Multi) -> SIMD[DType.bool, size]:
-        return other != self
+    fn ne(self, other: Self.Multi) -> SIMD[DType.bool, size]:
+        return other.ne(self)
 
     @always_inline
-    fn __ne__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.s != other.s) | (self.i != other.i)
+    fn ne(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.s.ne(other.s)) | (self.i.ne(other.i))
 
     @always_inline
-    fn __ne__(self, other: Self.Coef) -> SIMD[DType.bool, size]:
-        return (self.s != other) | (self.i != 0)
+    fn ne(self, other: Self.Coef) -> SIMD[DType.bool, size]:
+        return (self.s.ne(other)) | (self.i.ne(0))
 
     @always_inline
-    fn __ne__[__: None = None](self, other: Self.Multi) -> Bool:
-        return any(self.__ne__(other))
+    fn __ne__(self, other: Self.Multi) -> Bool:
+        return any(self.ne(other))
 
     @always_inline
-    fn __ne__[__: None = None](self, other: Self) -> Bool:
-        return any(self.__ne__(other))
+    fn __ne__(self, other: Self) -> Bool:
+        return any(self.ne(other))
 
     @always_inline
-    fn __ne__[__: None = None](self, other: Self.Coef) -> Bool:
-        return any(self.__ne__(other))
+    fn __ne__(self, other: Self.Coef) -> Bool:
+        return any(self.ne(other))
 
     # +------( Unary )------+ #
     #
@@ -848,9 +849,7 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
 # +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Vector[type: DType = DType.float64, size: Int = 1](
-    StringableCollectionElement, Writable, EqualityComparable
-):
+struct Vector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
     # +------[ Alias ]------+ #
     #
     alias Coef = SIMD[type, size]
@@ -948,36 +947,36 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
     # +------( Comparison )------+ #
     #
     @always_inline
-    fn __eq__(self, other: Self.Multi) -> SIMD[DType.bool, size]:
-        return other == self
+    fn eq(self, other: Self.Multi) -> SIMD[DType.bool, size]:
+        return other.eq(self)
 
     @always_inline
-    fn __eq__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.x == other.x) & (self.y == other.y)
+    fn eq(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.x.eq(other.x)) & (self.y.eq(other.y))
 
     @always_inline
-    fn __eq__[__: None = None](self, other: Self.Multi) -> Bool:
-        return all(self.__eq__(other))
+    fn __eq__(self, other: Self.Multi) -> Bool:
+        return all(self.eq(other))
 
     @always_inline
-    fn __eq__[__: None = None](self, other: Self) -> Bool:
-        return all(self.__eq__(other))
+    fn __eq__(self, other: Self) -> Bool:
+        return all(self.eq(other))
 
     @always_inline
-    fn __ne__(self, other: Self.Multi) -> SIMD[DType.bool, size]:
-        return other != self
+    fn ne(self, other: Self.Multi) -> SIMD[DType.bool, size]:
+        return other.ne(self)
 
     @always_inline
-    fn __ne__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.x != other.x) | (self.y != other.y)
+    fn ne(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.x.ne(other.x)) | (self.y.ne(other.y))
 
     @always_inline
-    fn __ne__[__: None = None](self, other: Self.Multi) -> Bool:
-        return any(self.__ne__(other))
+    fn __ne__(self, other: Self.Multi) -> Bool:
+        return any(self.ne(other))
 
     @always_inline
-    fn __ne__[__: None = None](self, other: Self) -> Bool:
-        return any(self.__ne__(other))
+    fn __ne__(self, other: Self) -> Bool:
+        return any(self.ne(other))
 
     # +------( Unary )------+ #
     #

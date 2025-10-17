@@ -1,0 +1,20 @@
+[workspace]
+authors = ["helehex <helehex@gmail.com>"]
+channels = ["conda-forge", "https://conda.modular.com/max-nightly", "https://conda.modular.com/max"]
+description = "Geometric Algebra."
+name = "blade"
+platforms = ["linux-64", "linux-aarch64", "osx-arm64"]
+version = "0.1.0"
+license = "MIT"
+
+[tasks]
+stable = "bash scripts/bump.sh stable"
+nightly = "bash scripts/bump.sh nightly"
+build = "bash scripts/build.sh"
+test = { cmd = "bash scripts/test.sh", depends-on = ["build"] }
+temp = "mojo temp.mojo"
+format = "mojo format -l 100 src"
+
+[dependencies]
+mojo = ">=0.25.7.0.dev2025101605,<0.26"
+max = "==25.7.0.dev2025101605"

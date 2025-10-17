@@ -1,12 +1,12 @@
 # x--------------------------------------------------------------------------x #
 # | MIT License
-# | Copyright (c) 2024 Helehex
+# | Copyright (c) 2023-2025 Helehex
 # x--------------------------------------------------------------------------x #
 
 from testing import assert_true, assert_false, assert_equal, assert_not_equal
-from _testing import assert_equal_
+from _testing import _assert_equal, _assert_not_equal
 
-from infrared.algebra.mask import *
+from blade.algebra.mask import *
 
 
 def main():
@@ -16,32 +16,42 @@ def main():
 def test_basis_mask():
     var mask: BasisMask
 
-    mask = BasisMask(List[Bool]())
-    assert_equal(mask.entry_count, 0)
-    assert_equal_(mask.basis2entry, List[Int]())
-    assert_equal_(mask.entry2basis, List[Int]())
+    mask = BasisMask()
+    assert_equal(len(mask), 0)
+    _assert_equal(mask.entries, List[Basis]())
+    assert_equal(mask.get_entry(Basis(bin=0b0)), -1)
 
-    mask = BasisMask(List(False))
-    assert_equal(mask.entry_count, 0)
-    assert_equal_(mask.basis2entry, List(-1))
-    assert_equal_(mask.entry2basis, List[Int]())
+    mask = BasisMask(Basis(bin=0b0))
+    assert_equal(len(mask), 1)
+    _assert_equal(mask.entries, List(Basis(bin=0b0)))
+    assert_equal(mask.get_basis(0), Basis(bin=0b0))
+    assert_equal(mask.get_entry(Basis(bin=0b0)), 0)
+    assert_equal(mask.get_entry(Basis(bin=0b1)), -1)
 
-    mask = BasisMask(List(True))
-    assert_equal(mask.entry_count, 1)
-    assert_equal_(mask.basis2entry, List(0))
-    assert_equal_(mask.entry2basis, List(0))
+    mask = BasisMask(Basis(bin=0b1))
+    assert_equal(len(mask), 1)
+    _assert_equal(mask.entries, List(Basis(bin=0b1)))
+    assert_equal(mask.get_basis(0), Basis(bin=0b1))
+    assert_equal(mask.get_entry(Basis(bin=0b0)), -1)
+    assert_equal(mask.get_entry(Basis(bin=0b1)), 0)
 
-    mask = BasisMask(List(False, True))
-    assert_equal(mask.entry_count, 1)
-    assert_equal_(mask.basis2entry, List(-1, 0))
-    assert_equal_(mask.entry2basis, List(1))
+    mask = BasisMask(Basis(bin=0b1), Basis(bin=0b0))
+    assert_equal(len(mask), 2)
+    _assert_equal(mask.entries, List(Basis(bin=0b0), Basis(bin=0b1)))
+    assert_equal(mask.get_basis(0), Basis(bin=0b0))
+    assert_equal(mask.get_basis(1), Basis(bin=0b1))
+    assert_equal(mask.get_entry(Basis(bin=0b0)), 0)
+    assert_equal(mask.get_entry(Basis(bin=0b1)), 1)
+    assert_equal(mask.get_entry(Basis(bin=0b10)), -1)
 
-    mask = BasisMask(List(False, False, True, False))
-    assert_equal(mask.entry_count, 1)
-    assert_equal_(mask.basis2entry, List(-1, -1, 0, -1))
-    assert_equal_(mask.entry2basis, List(2))
-
-    mask = BasisMask(List(False, True, True, False))
-    assert_equal(mask.entry_count, 2)
-    assert_equal_(mask.basis2entry, List(-1, 0, 1, -1))
-    assert_equal_(mask.entry2basis, List(1, 2))
+    mask = BasisMask(Basis(bin=0b100), Basis(bin=0b010))
+    assert_equal(len(mask), 2)
+    _assert_equal(mask.entries, List(Basis(bin=0b010), Basis(bin=0b100)))
+    assert_equal(mask.get_basis(0), Basis(bin=0b010))
+    assert_equal(mask.get_basis(1), Basis(bin=0b100))
+    assert_equal(mask.get_entry(Basis(bin=0b000)), -1)
+    assert_equal(mask.get_entry(Basis(bin=0b001)), -1)
+    assert_equal(mask.get_entry(Basis(bin=0b010)), 0)
+    assert_equal(mask.get_entry(Basis(bin=0b100)), 1)
+    assert_equal(mask.get_entry(Basis(bin=0b110)), -1)
+    

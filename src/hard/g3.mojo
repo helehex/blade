@@ -1,6 +1,6 @@
 # x----------------------------------------------------------------------------------------------x #
 # | MIT License
-# | Copyright (c) 2024 Helehex
+# | Copyright (c) 2023-2025 Helehex
 # x----------------------------------------------------------------------------------------------x #
 """Defines a G3 Multivector, and it's subspaces.
 
@@ -23,9 +23,7 @@ Cl(3,0,0) ⇔ Mat2x2(C)
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Multivector[type: DType = DType.float64, size: Int = 1](
-    StringableCollectionElement, Writable, EqualityComparable
-):
+struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
     """A G3 Multivector."""
 
     # +------[ Alias ]------+ #
@@ -112,6 +110,22 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
     # +------( Cast )------+ #
     #
     @always_inline
+    fn __all__(self) -> Bool:
+        return self.__simd_bool__().reduce_and()
+
+    @always_inline
+    fn __any__(self) -> Bool:
+        return self.__simd_bool__().reduce_or()
+
+    @always_inline
+    fn __bool__(self) -> Bool:
+        return self.__simd_bool__().__bool__()
+
+    @always_inline
+    fn __simd_bool__(self) -> SIMD[DType.bool, size]:
+        return self.is_zero()
+
+    @always_inline
     fn is_zero(self) -> SIMD[DType.bool, size]:
         return (self.s == 0) & self.v.is_zero() & self.b.is_zero() & self.a.is_zero()
 
@@ -157,97 +171,97 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
 
     # +------( Comparison )------+ #
     #
-    fn __eq__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.s == other.s) & (self.v == other.v) & (self.b == other.b) & (self.a == other.a)
+    fn eq(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.s.eq(other.s)) & (self.v.eq(other.v)) & (self.b.eq(other.b)) & (self.a.eq(other.a))
 
-    fn __eq__(self, other: Self.Rotor) -> SIMD[DType.bool, size]:
+    fn eq(self, other: Self.Rotor) -> SIMD[DType.bool, size]:
         return (
-            (self.s == other.s)
-            & (self.v == Self.Vect())
-            & (self.b == other.b)
-            & (self.a == Self.Anti())
+            (self.s.eq(other.s))
+            & (self.v.eq(Self.Vect()))
+            & (self.b.eq(other.b))
+            & (self.a.eq(Self.Anti()))
         )
 
-    fn __eq__(self, other: Self.Coef) -> SIMD[DType.bool, size]:
+    fn eq(self, other: Self.Coef) -> SIMD[DType.bool, size]:
         return (
-            (self.s == other)
-            & (self.v == Self.Vect())
-            & (self.b == Self.Bive())
-            & (self.a == Self.Anti())
+            (self.s.eq(other))
+            & (self.v.eq(Self.Vect()))
+            & (self.b.eq(Self.Bive()))
+            & (self.a.eq(Self.Anti()))
         )
 
-    fn __eq__(self, other: Self.Vect) -> SIMD[DType.bool, size]:
-        return (self.s == 0) & (self.v == other) & (self.b == Self.Bive()) & (self.a == Self.Anti())
+    fn eq(self, other: Self.Vect) -> SIMD[DType.bool, size]:
+        return (self.s.eq(0)) & (self.v.eq(other)) & (self.b.eq(Self.Bive())) & (self.a.eq(Self.Anti()))
 
-    fn __eq__(self, other: Self.Bive) -> SIMD[DType.bool, size]:
-        return (self.s == 0) & (self.v == Self.Vect()) & (self.b == other) & (self.a == Self.Anti())
+    fn eq(self, other: Self.Bive) -> SIMD[DType.bool, size]:
+        return (self.s.eq(0)) & (self.v.eq(Self.Vect())) & (self.b.eq(other)) & (self.a.eq(Self.Anti()))
 
-    fn __eq__(self, other: Self.Anti) -> SIMD[DType.bool, size]:
-        return (self.s == 0) & (self.v == Self.Vect()) & (self.b == Self.Bive()) & (self.a == other)
+    fn eq(self, other: Self.Anti) -> SIMD[DType.bool, size]:
+        return (self.s.eq(0)) & (self.v.eq(Self.Vect())) & (self.b.eq(Self.Bive())) & (self.a.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self) -> Bool:
+        return all(self.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self.Rotor) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Rotor) -> Bool:
+        return all(self.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self.Coef) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Coef) -> Bool:
+        return all(self.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self.Vect) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Vect) -> Bool:
+        return all(self.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self.Bive) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Bive) -> Bool:
+        return all(self.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self.Anti) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Anti) -> Bool:
+        return all(self.eq(other))
 
-    fn __ne__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.s != other.s) | (self.v != other.v) | (self.b != other.b) | (self.a != other.a)
+    fn ne(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.s.ne(other.s)) | (self.v.ne(other.v)) | (self.b.ne(other.b)) | (self.a.ne(other.a))
 
-    fn __ne__(self, other: Self.Rotor) -> SIMD[DType.bool, size]:
+    fn ne(self, other: Self.Rotor) -> SIMD[DType.bool, size]:
         return (
-            (self.s != other.s)
-            | (self.v != Self.Vect())
-            | (self.b != other.b)
-            | (self.a != Self.Anti())
+            (self.s.ne(other.s))
+            | (self.v.ne(Self.Vect()))
+            | (self.b.ne(other.b))
+            | (self.a.ne(Self.Anti()))
         )
 
-    fn __ne__(self, other: Self.Coef) -> SIMD[DType.bool, size]:
+    fn ne(self, other: Self.Coef) -> SIMD[DType.bool, size]:
         return (
-            (self.s != other)
-            | (self.v != Self.Vect())
-            | (self.b != Self.Bive())
-            | (self.a != Self.Anti())
+            (self.s.ne(other))
+            | (self.v.ne(Self.Vect()))
+            | (self.b.ne(Self.Bive()))
+            | (self.a.ne(Self.Anti()))
         )
 
-    fn __ne__(self, other: Self.Vect) -> SIMD[DType.bool, size]:
-        return (self.s != 0) | (self.v != other) | (self.b != Self.Bive()) | (self.a != Self.Anti())
+    fn ne(self, other: Self.Vect) -> SIMD[DType.bool, size]:
+        return (self.s.ne(0)) | (self.v.ne(other)) | (self.b.ne(Self.Bive())) | (self.a.ne(Self.Anti()))
 
-    fn __ne__(self, other: Self.Bive) -> SIMD[DType.bool, size]:
-        return (self.s != 0) | (self.v != Self.Vect()) | (self.b != other) | (self.a != Self.Anti())
+    fn ne(self, other: Self.Bive) -> SIMD[DType.bool, size]:
+        return (self.s.ne(0)) | (self.v.ne(Self.Vect())) | (self.b.ne(other)) | (self.a.ne(Self.Anti()))
 
-    fn __ne__(self, other: Self.Anti) -> SIMD[DType.bool, size]:
-        return (self.s != 0) | (self.v != Self.Vect()) | (self.b != Self.Bive()) | (self.a != other)
+    fn ne(self, other: Self.Anti) -> SIMD[DType.bool, size]:
+        return (self.s.ne(0)) | (self.v.ne(Self.Vect())) | (self.b.ne(Self.Bive())) | (self.a.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self) -> Bool:
+        return any(self.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self.Rotor) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Rotor) -> Bool:
+        return any(self.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self.Coef) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Coef) -> Bool:
+        return any(self.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self.Vect) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Vect) -> Bool:
+        return any(self.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self.Bive) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Bive) -> Bool:
+        return any(self.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self.Anti) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Anti) -> Bool:
+        return any(self.ne(other))
 
     # +------( Operations )------+ #
     #
@@ -353,9 +367,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Rotor[type: DType = DType.float64, size: Int = 1](
-    StringableCollectionElement, Writable, EqualityComparable
-):
+struct Rotor[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
     """A G3 Rotor. The even sub-algebra of G3. Isomorphic with Quaternions."""
 
     # +------[ Alias ]------+ #
@@ -409,6 +421,22 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
     # +------( Cast )------+ #
     #
     @always_inline
+    fn __all__(self) -> Bool:
+        return self.__simd_bool__().reduce_and()
+
+    @always_inline
+    fn __any__(self) -> Bool:
+        return self.__simd_bool__().reduce_or()
+
+    @always_inline
+    fn __bool__(self) -> Bool:
+        return self.__simd_bool__().__bool__()
+
+    @always_inline
+    fn __simd_bool__(self) -> SIMD[DType.bool, size]:
+        return self.is_zero()
+    
+    @always_inline
     fn is_zero(self) -> SIMD[DType.bool, size]:
         return (self.s == 0) & self.b.is_zero()
 
@@ -437,53 +465,53 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
 
     # +------( Comparison )------+ #
     #
-    fn __eq__(self, other: Self.Multi) -> SIMD[DType.bool, size]:
-        return other == self
+    fn eq(self, other: Self.Multi) -> SIMD[DType.bool, size]:
+        return other.eq(self)
 
-    fn __eq__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.s == other.s) & (self.b == other.b)
+    fn eq(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.s.eq(other.s)) & (self.b.eq(other.b))
 
-    fn __eq__(self, other: Self.Coef) -> SIMD[DType.bool, size]:
-        return (self.s == other) & (self.b == Self.Bive())
+    fn eq(self, other: Self.Coef) -> SIMD[DType.bool, size]:
+        return (self.s.eq(other)) & (self.b.eq(Self.Bive()))
 
-    fn __eq__(self, other: Self.Bive) -> SIMD[DType.bool, size]:
-        return (self.s == 0) & (self.b == other)
+    fn eq(self, other: Self.Bive) -> SIMD[DType.bool, size]:
+        return (self.s.eq(0)) & (self.b.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self.Multi) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Multi) -> Bool:
+        return all(self.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self) -> Bool:
+        return all(self.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self.Coef) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Coef) -> Bool:
+        return all(self.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self.Bive) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Bive) -> Bool:
+        return all(self.eq(other))
 
-    fn __ne__(self, other: Self.Multi) -> SIMD[DType.bool, size]:
-        return other != self
+    fn ne(self, other: Self.Multi) -> SIMD[DType.bool, size]:
+        return other.ne(self)
 
-    fn __ne__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.s != other.s) | (self.b != other.b)
+    fn ne(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.s.ne(other.s)) | (self.b.ne(other.b))
 
-    fn __ne__(self, other: Self.Coef) -> SIMD[DType.bool, size]:
-        return (self.s != other) | (self.b != Self.Bive())
+    fn ne(self, other: Self.Coef) -> SIMD[DType.bool, size]:
+        return (self.s.ne(other)) | (self.b.ne(Self.Bive()))
 
-    fn __ne__(self, other: Self.Bive) -> SIMD[DType.bool, size]:
-        return (self.s != 0) | (self.b != other)
+    fn ne(self, other: Self.Bive) -> SIMD[DType.bool, size]:
+        return (self.s.ne(0)) | (self.b.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self.Multi) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Multi) -> Bool:
+        return any(self.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self) -> Bool:
+        return any(self.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self.Coef) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Coef) -> Bool:
+        return any(self.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self.Bive) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Bive) -> Bool:
+        return any(self.ne(other))
 
     # +------( Operations )------+ #
     #
@@ -563,9 +591,7 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Vector[type: DType = DType.float64, size: Int = 1](
-    StringableCollectionElement, Writable, EqualityComparable
-):
+struct Vector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
     """A G3 Vector."""
 
     # +------[ Alias ]------+ #
@@ -612,6 +638,22 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
     # +------( Cast )------+ #
     #
     @always_inline
+    fn __all__(self) -> Bool:
+        return self.__simd_bool__().reduce_and()
+
+    @always_inline
+    fn __any__(self) -> Bool:
+        return self.__simd_bool__().reduce_or()
+
+    @always_inline
+    fn __bool__(self) -> Bool:
+        return self.__simd_bool__().__bool__()
+
+    @always_inline
+    fn __simd_bool__(self) -> SIMD[DType.bool, size]:
+        return self.is_zero()
+
+    @always_inline
     fn is_zero(self) -> SIMD[DType.bool, size]:
         return (self.x == 0) & (self.y == 0) & (self.z == 0)
 
@@ -640,29 +682,29 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
 
     # +------( Comparison )------+ #
     #
-    fn __eq__(self, other: Self.Multi) -> SIMD[DType.bool, size]:
-        return other == self
+    fn eq(self, other: Self.Multi) -> SIMD[DType.bool, size]:
+        return other.eq(self)
 
-    fn __eq__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.x == other.x) & (self.y == other.y) & (self.z == other.z)
+    fn eq(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.x.eq(other.x)) & (self.y.eq(other.y)) & (self.z.eq(other.z))
 
-    fn __eq__[__: None = None](self, other: Self.Multi) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Multi) -> Bool:
+        return all(self.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self) -> Bool:
+        return all(self.eq(other))
 
-    fn __ne__(self, other: Self.Multi) -> SIMD[DType.bool, size]:
-        return other != self
+    fn ne(self, other: Self.Multi) -> SIMD[DType.bool, size]:
+        return other.ne(self)
 
-    fn __ne__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.x != other.x) | (self.y != other.y) | (self.z != other.z)
+    fn ne(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.x.ne(other.x)) | (self.y.ne(other.y)) | (self.z.ne(other.z))
 
-    fn __ne__[__: None = None](self, other: Self.Multi) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Multi) -> Bool:
+        return any(self.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self) -> Bool:
+        return any(self.ne(other))
 
     # +------( Operations )------+ #
     #
@@ -756,9 +798,7 @@ struct Vector[type: DType = DType.float64, size: Int = 1](
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Bivector[type: DType = DType.float64, size: Int = 1](
-    StringableCollectionElement, Writable, EqualityComparable
-):
+struct Bivector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
     """A G3 Bivector."""
 
     # +------[ Alias ]------+ #
@@ -805,6 +845,22 @@ struct Bivector[type: DType = DType.float64, size: Int = 1](
     # +------( Cast )------+ #
     #
     @always_inline
+    fn __all__(self) -> Bool:
+        return self.__simd_bool__().reduce_and()
+
+    @always_inline
+    fn __any__(self) -> Bool:
+        return self.__simd_bool__().reduce_or()
+
+    @always_inline
+    fn __bool__(self) -> Bool:
+        return self.__simd_bool__().__bool__()
+
+    @always_inline
+    fn __simd_bool__(self) -> SIMD[DType.bool, size]:
+        return self.is_zero()
+
+    @always_inline
     fn is_zero(self) -> SIMD[DType.bool, size]:
         return (self.i == 0) & (self.j == 0) & (self.k == 0)
 
@@ -833,41 +889,41 @@ struct Bivector[type: DType = DType.float64, size: Int = 1](
 
     # +------( Comparison )------+ #
     #
-    fn __eq__(self, other: Self.Multi) -> SIMD[DType.bool, size]:
-        return other == self
+    fn eq(self, other: Self.Multi) -> SIMD[DType.bool, size]:
+        return other.eq(self)
 
-    fn __eq__(self, other: Self.Rotor) -> SIMD[DType.bool, size]:
-        return other == self
+    fn eq(self, other: Self.Rotor) -> SIMD[DType.bool, size]:
+        return other.eq(self)
 
-    fn __eq__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.i == other.i) & (self.j == other.j) & (self.k == other.k)
+    fn eq(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.i.eq(other.i)) & (self.j.eq(other.j)) & (self.k.eq(other.k))
 
-    fn __eq__[__: None = None](self, other: Self.Multi) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Multi) -> Bool:
+        return all(self.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self.Rotor) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Rotor) -> Bool:
+        return all(self.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self) -> Bool:
+        return all(self.eq(other))
 
-    fn __ne__(self, other: Self.Multi) -> SIMD[DType.bool, size]:
-        return other != self
+    fn ne(self, other: Self.Multi) -> SIMD[DType.bool, size]:
+        return other.ne(self)
 
-    fn __ne__(self, other: Self.Rotor) -> SIMD[DType.bool, size]:
-        return other != self
+    fn ne(self, other: Self.Rotor) -> SIMD[DType.bool, size]:
+        return other.ne(self)
 
-    fn __ne__(self, other: Self) -> SIMD[DType.bool, size]:
-        return (self.i != other.i) | (self.j != other.j) | (self.k != other.k)
+    fn ne(self, other: Self) -> SIMD[DType.bool, size]:
+        return (self.i.ne(other.i)) | (self.j.ne(other.j)) | (self.k.ne(other.k))
 
-    fn __ne__[__: None = None](self, other: Self.Multi) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Multi) -> Bool:
+        return any(self.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self.Rotor) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Rotor) -> Bool:
+        return any(self.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self) -> Bool:
+        return any(self.ne(other))
 
     # +------( Operations )------+ #
     #
@@ -961,9 +1017,7 @@ struct Bivector[type: DType = DType.float64, size: Int = 1](
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Antiox[type: DType = DType.float64, size: Int = 1](
-    StringableCollectionElement, Writable, EqualityComparable
-):
+struct Antiox[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
     """A G3 Antiox."""
 
     # +------[ Alias ]------+ #
@@ -1006,6 +1060,22 @@ struct Antiox[type: DType = DType.float64, size: Int = 1](
     # +------( Cast )------+ #
     #
     @always_inline
+    fn __all__(self) -> Bool:
+        return self.__simd_bool__().reduce_and()
+
+    @always_inline
+    fn __any__(self) -> Bool:
+        return self.__simd_bool__().reduce_or()
+
+    @always_inline
+    fn __bool__(self) -> Bool:
+        return self.__simd_bool__().__bool__()
+
+    @always_inline
+    fn __simd_bool__(self) -> SIMD[DType.bool, size]:
+        return self.is_zero()
+
+    @always_inline
     fn is_zero(self) -> SIMD[DType.bool, size]:
         return self.a == 0
 
@@ -1034,29 +1104,29 @@ struct Antiox[type: DType = DType.float64, size: Int = 1](
 
     # +------( Comparison )------+ #
     #
-    fn __eq__(self, other: Self.Multi) -> SIMD[DType.bool, size]:
-        return other == self
+    fn eq(self, other: Self.Multi) -> SIMD[DType.bool, size]:
+        return other.eq(self)
 
-    fn __eq__(self, other: Self) -> SIMD[DType.bool, size]:
-        return self.a == other.a
+    fn eq(self, other: Self) -> SIMD[DType.bool, size]:
+        return self.a.eq(other.a)
 
-    fn __eq__[__: None = None](self, other: Self.Multi) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self.Multi) -> Bool:
+        return all(self.eq(other))
 
-    fn __eq__[__: None = None](self, other: Self) -> Bool:
-        return self.__eq__(other).reduce_and()
+    fn __eq__(self, other: Self) -> Bool:
+        return all(self.eq(other))
 
-    fn __ne__(self, other: Self.Multi) -> SIMD[DType.bool, size]:
-        return other != self
+    fn ne(self, other: Self.Multi) -> SIMD[DType.bool, size]:
+        return other.ne(self)
 
-    fn __ne__(self, other: Self) -> SIMD[DType.bool, size]:
-        return self.a != other.a
+    fn ne(self, other: Self) -> SIMD[DType.bool, size]:
+        return self.a.ne(other.a)
 
-    fn __ne__[__: None = None](self, other: Self.Multi) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self.Multi) -> Bool:
+        return any(self.ne(other))
 
-    fn __ne__[__: None = None](self, other: Self) -> Bool:
-        return self.__ne__(other).reduce_or()
+    fn __ne__(self, other: Self) -> Bool:
+        return any(self.ne(other))
 
     # +------( Operations )------+ #
     #

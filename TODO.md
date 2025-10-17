@@ -1,7 +1,12 @@
 # TODO
-- Improve performance of algebra generation
-    - Use bit wise operations for basis reduction
-- Improve model for multivector subspace initialization
-    - Multivector eval() from string
-    - Maybe add a SignatureMask struct for helping with masking
-- Make some examples
+- Optimize
+    - Use fast quaternion muls
+    - Use binary combination sorting to avoid ranking/unranking
+- Zero Elimination
+    - Create an expression solver for zero elimination
+    - Operations could return an expression, and execute lazily
+- Products
+    - inner, outer, regressive, exp, sqrt
+- Examples
+    - Signature explorer
+    - Computer graphics

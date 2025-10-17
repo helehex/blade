@@ -1,11 +1,12 @@
 # x--------------------------------------------------------------------------x #
 # | MIT License
-# | Copyright (c) 2024 Helehex
+# | Copyright (c) 2023-2025 Helehex
 # x--------------------------------------------------------------------------x #
 
-from testing import assert_true, assert_false, assert_equal
+from testing import assert_true, assert_false, assert_equal, assert_not_equal
+from _testing import _assert_equal, _assert_not_equal
 
-from infrared.hard.g2 import *
+from blade.hard.g2 import *
 
 
 def main():
@@ -17,9 +18,9 @@ def main():
     simd_run[DType.float32, 2]()
     simd_run[DType.float32, 4]()
 
-    simd_run[DType.index, 1]()
-    simd_run[DType.index, 2]()
-    simd_run[DType.index, 4]()
+    simd_run[DType.int, 1]()
+    simd_run[DType.int, 2]()
+    simd_run[DType.int, 4]()
 
 
 def simd_run[type: DType, size: Int]():
@@ -36,78 +37,78 @@ def simd_run[type: DType, size: Int]():
 
 def test_eq[type: DType, size: Int]():
     # +--- Multivector
-    assert_true(Multivector[type, size](1, 2, 3, 4).__eq__[None](Multivector[type, size](1, 2, 3, 4)))
-    assert_false(Multivector[type, size](1, 2, 3, 4).__eq__[None](Multivector[type, size](4, 3, 2, 1)))
+    assert_true(Multivector[type, size](1, 2, 3, 4).__eq__(Multivector[type, size](1, 2, 3, 4)))
+    assert_false(Multivector[type, size](1, 2, 3, 4).__eq__(Multivector[type, size](4, 3, 2, 1)))
 
-    assert_true(Multivector[type, size](0, 2, 3, 0).__eq__[None](Vector[type, size](2, 3)))
-    assert_false(Multivector[type, size](1, 2, 3, 4).__eq__[None](Vector[type, size](2, 3)))
+    assert_true(Multivector[type, size](0, 2, 3, 0).__eq__(Vector[type, size](2, 3)))
+    assert_false(Multivector[type, size](1, 2, 3, 4).__eq__(Vector[type, size](2, 3)))
 
-    assert_true(Multivector[type, size](1, 0, 0, 0).__eq__[None](SIMD[type, size](1)))
-    assert_false(Multivector[type, size](1, 2, 3, 4).__eq__[None](SIMD[type, size](1)))
+    assert_true(Multivector[type, size](1, 0, 0, 0).__eq__(SIMD[type, size](1)))
+    assert_false(Multivector[type, size](1, 2, 3, 4).__eq__(SIMD[type, size](1)))
 
-    assert_true(Multivector[type, size](1, 0, 0, 4).__eq__[None](Rotor[type, size](1, 4)))
-    assert_false(Multivector[type, size](1, 2, 3, 4).__eq__[None](Rotor[type, size](1, 4)))
+    assert_true(Multivector[type, size](1, 0, 0, 4).__eq__(Rotor[type, size](1, 4)))
+    assert_false(Multivector[type, size](1, 2, 3, 4).__eq__(Rotor[type, size](1, 4)))
 
 
     # +--- Rotor
-    assert_true(Rotor[type, size](1, 4).__eq__[None](Multivector[type, size](1, 0, 0, 4)))
-    assert_false(Rotor[type, size](1, 4).__eq__[None](Multivector[type, size](1, 2, 3, 4)))
+    assert_true(Rotor[type, size](1, 4).__eq__(Multivector[type, size](1, 0, 0, 4)))
+    assert_false(Rotor[type, size](1, 4).__eq__(Multivector[type, size](1, 2, 3, 4)))
 
-    assert_true(Rotor[type, size](1, 4).__eq__[None](Rotor[type, size](1, 4)))
-    assert_false(Rotor[type, size](1, 4).__eq__[None](Rotor[type, size](4, 1)))
+    assert_true(Rotor[type, size](1, 4).__eq__(Rotor[type, size](1, 4)))
+    assert_false(Rotor[type, size](1, 4).__eq__(Rotor[type, size](4, 1)))
 
-    assert_true(Rotor[type, size](1, 0).__eq__[None](SIMD[type, size](1)))
-    assert_false(Rotor[type, size](1, 4).__eq__[None](SIMD[type, size](1)))
+    assert_true(Rotor[type, size](1, 0).__eq__(SIMD[type, size](1)))
+    assert_false(Rotor[type, size](1, 4).__eq__(SIMD[type, size](1)))
 
     # False
 
 
     # +--- Vector
-    assert_true(Vector[type, size](2, 3).__eq__[None](Multivector[type, size](0, 2, 3, 0)))
-    assert_false(Vector[type, size](2, 3).__eq__[None](Multivector[type, size](1, 2, 3, 4)))
+    assert_true(Vector[type, size](2, 3).__eq__(Multivector[type, size](0, 2, 3, 0)))
+    assert_false(Vector[type, size](2, 3).__eq__(Multivector[type, size](1, 2, 3, 4)))
 
     # False
 
-    assert_true(Vector[type, size](2, 3).__eq__[None](Vector[type, size](2, 3)))
-    assert_false(Vector[type, size](2, 3).__eq__[None](Vector[type, size](3, 2)))
+    assert_true(Vector[type, size](2, 3).__eq__(Vector[type, size](2, 3)))
+    assert_false(Vector[type, size](2, 3).__eq__(Vector[type, size](3, 2)))
 
 
 def test_ne[type: DType, size: Int]():
     # +--- Multivector
-    assert_false(Multivector[type, size](1, 2, 3, 4).__ne__[None](Multivector[type, size](1, 2, 3, 4)))
-    assert_true(Multivector[type, size](1, 2, 3, 4).__ne__[None](Multivector[type, size](4, 3, 2, 1)))
+    assert_false(Multivector[type, size](1, 2, 3, 4).__ne__(Multivector[type, size](1, 2, 3, 4)))
+    assert_true(Multivector[type, size](1, 2, 3, 4).__ne__(Multivector[type, size](4, 3, 2, 1)))
 
-    assert_false(Multivector[type, size](0, 2, 3, 0).__ne__[None](Vector[type, size](2, 3)))
-    assert_true(Multivector[type, size](1, 2, 3, 4).__ne__[None](Vector[type, size](2, 3)))
+    assert_false(Multivector[type, size](0, 2, 3, 0).__ne__(Vector[type, size](2, 3)))
+    assert_true(Multivector[type, size](1, 2, 3, 4).__ne__(Vector[type, size](2, 3)))
 
-    assert_false(Multivector[type, size](1, 0, 0, 0).__ne__[None](SIMD[type, size](1)))
-    assert_true(Multivector[type, size](1, 2, 3, 4).__ne__[None](SIMD[type, size](1)))
+    assert_false(Multivector[type, size](1, 0, 0, 0).__ne__(SIMD[type, size](1)))
+    assert_true(Multivector[type, size](1, 2, 3, 4).__ne__(SIMD[type, size](1)))
 
-    assert_false(Multivector[type, size](1, 0, 0, 4).__ne__[None](Rotor[type, size](1, 4)))
-    assert_true(Multivector[type, size](1, 2, 3, 4).__ne__[None](Rotor[type, size](1, 4)))
+    assert_false(Multivector[type, size](1, 0, 0, 4).__ne__(Rotor[type, size](1, 4)))
+    assert_true(Multivector[type, size](1, 2, 3, 4).__ne__(Rotor[type, size](1, 4)))
 
 
     # +--- Rotor
-    assert_false(Rotor[type, size](1, 4).__ne__[None](Multivector[type, size](1, 0, 0, 4)))
-    assert_true(Rotor[type, size](1, 4).__ne__[None](Multivector[type, size](1, 2, 3, 4)))
+    assert_false(Rotor[type, size](1, 4).__ne__(Multivector[type, size](1, 0, 0, 4)))
+    assert_true(Rotor[type, size](1, 4).__ne__(Multivector[type, size](1, 2, 3, 4)))
 
-    assert_false(Rotor[type, size](1, 4).__ne__[None](Rotor[type, size](1, 4)))
-    assert_true(Rotor[type, size](1, 4).__ne__[None](Rotor[type, size](4, 1)))
+    assert_false(Rotor[type, size](1, 4).__ne__(Rotor[type, size](1, 4)))
+    assert_true(Rotor[type, size](1, 4).__ne__(Rotor[type, size](4, 1)))
 
-    assert_false(Rotor[type, size](1, 0).__ne__[None](SIMD[type, size](1)))
-    assert_true(Rotor[type, size](1, 4).__ne__[None](SIMD[type, size](1)))
+    assert_false(Rotor[type, size](1, 0).__ne__(SIMD[type, size](1)))
+    assert_true(Rotor[type, size](1, 4).__ne__(SIMD[type, size](1)))
 
     # False
 
 
     # +--- Vector
-    assert_false(Vector[type, size](2, 3).__ne__[None](Multivector[type, size](0, 2, 3, 0)))
-    assert_true(Vector[type, size](2, 3).__ne__[None](Multivector[type, size](1, 2, 3, 4)))
+    assert_false(Vector[type, size](2, 3).__ne__(Multivector[type, size](0, 2, 3, 0)))
+    assert_true(Vector[type, size](2, 3).__ne__(Multivector[type, size](1, 2, 3, 4)))
 
     # False
 
-    assert_false(Vector[type, size](2, 3).__ne__[None](Vector[type, size](2, 3)))
-    assert_true(Vector[type, size](2, 3).__ne__[None](Vector[type, size](3, 2)))
+    assert_false(Vector[type, size](2, 3).__ne__(Vector[type, size](2, 3)))
+    assert_true(Vector[type, size](2, 3).__ne__(Vector[type, size](3, 2)))
 
 
 def test_add[type: DType, size: Int]():
