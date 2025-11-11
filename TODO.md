@@ -5,8 +5,9 @@
 - Zero Elimination
     - Create an expression solver for zero elimination
     - Operations could return an expression, and execute lazily
-- Products
-    - inner, outer, regressive, exp, sqrt
+- Operations
+    - inner, outer, regressive, exp, sqrt, diff
 - Examples
     - Signature explorer
     - Computer graphics
+    - Physics simulation

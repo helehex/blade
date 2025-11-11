@@ -1,7 +1,12 @@
 from sys import bit_width_of
 from bit import pop_count, count_trailing_zeros, bit_reverse
 from ..utils.bit import SetBitIter
-from ..math.combinatorics import SetOrder, SetOrder_SizeLexic, power_rank_bin, power_unrank_bin
+from .combinatorics import (
+    SetOrder,
+    SetOrder_SizeLexic,
+    power_rank_bin,
+    power_unrank_bin,
+)
 
 
 @register_passable("trivial")
@@ -16,7 +21,9 @@ struct Combinadic[width: Int, sorting: SetOrder = SetOrder_SizeLexic](Intable):
 
     # Integer to Combinadic
     fn __init__(out self, var idx: Int):
-        constrained[width <= bit_width_of[Int](), "width must be <= bit_width_of[Int]()"]()
+        constrained[
+            width <= bit_width_of[Int](), "width must be <= bit_width_of[Int]()"
+        ]()
         idx %= 2**width
         self._data = power_unrank_bin[sorting](width, idx)
 

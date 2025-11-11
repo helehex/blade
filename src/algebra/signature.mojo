@@ -193,7 +193,7 @@ struct Signature(Writable):
     # +------( Basis )------+ #
     #
     fn basis(self, idx: BasisIndex) -> Basis:
-        return Basis(bin=power_unrank_bin(self.vecs, idx))
+        return Basis(bin=power_unrank_bin(self.vecs, Int(idx)))
 
     fn basis(self, string: StringSlice, out result: Basis):
         result = Basis()
@@ -288,12 +288,12 @@ struct Signature(Writable):
     #
     @always_inline
     fn signed_basis_index(self, basis: SignedBasis) -> SignedBasisIndex:
-        return SignedBasisIndex(basis.sign, self.basis_index(basis))
+        return SignedBasisIndex(basis.sign, Int(self.basis_index(basis)))
 
     @always_inline
     fn signed_basis_index(self, string: StringSlice, out result: SignedBasisIndex):
         basis = self.signed_basis(string)
-        return SignedBasisIndex(basis.sign, self.basis_index(basis))
+        return SignedBasisIndex(basis.sign, Int(self.basis_index(basis)))
 
     # +------( Grade Basis )------+ #
     #
@@ -311,7 +311,7 @@ struct Signature(Writable):
 
     @always_inline
     fn grade(self, idx: BasisIndex) -> Int:
-        return grade_of(self.vecs, idx)
+        return grade_of(self.vecs, Int(idx))
 
     @always_inline
     fn grade(self, idx: SignedBasisIndex) -> Int:

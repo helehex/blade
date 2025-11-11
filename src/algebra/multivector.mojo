@@ -309,7 +309,7 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
         return lhs - rhs
 
     @always_inline
-    fn __mul__[lhs_origin: ImmutableOrigin, rhs_origin: ImmutableOrigin, //](ref [lhs_origin]lhs, ref [rhs_origin]rhs: Self.Mask, out result: Self.Mask[sig.mul(lhs.mask, rhs.mask)]):
+    fn __mul__[lhs_origin: ImmutOrigin, rhs_origin: ImmutOrigin, //](ref [lhs_origin]lhs, ref [rhs_origin]rhs: Self.Mask, out result: Self.Mask[sig.mul(lhs.mask, rhs.mask)]):
         result = result.__init__[True]()
 
         @parameter
@@ -329,7 +329,7 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
                     )
 
     @always_inline
-    fn __mul__[origin: ImmutableOrigin, //](ref [origin]lhs, ref [origin]rhs: Self, out result: Self.Mask[sig.sqr(rhs.mask)]):
+    fn __mul__[origin: ImmutOrigin, //](ref [origin]lhs, ref [origin]rhs: Self, out result: Self.Mask[sig.sqr(rhs.mask)]):
         result = lhs**2
 
     @always_inline

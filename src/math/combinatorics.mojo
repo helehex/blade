@@ -634,7 +634,7 @@ fn pascal[r: Int](n: Int, out result: Int):
 @always_inline
 fn pascal(n: Int, var r: Int, out result: Int):
     """Returns `n choose r`, or `0` if `n >= r >= 0` is false."""
-    result = n >= r >= 0
+    result = Int(n >= r >= 0)
     r = min(r, n - r)  # * result # expects n to be positive
     for i in range(1, r + 1):
         result = (result * (i + n - r)) // i
@@ -642,7 +642,7 @@ fn pascal(n: Int, var r: Int, out result: Int):
 
 @always_inline
 fn pascal_sum(n: Int, var r: Int, out sum: Int):
-    sum = r >= 0
+    sum = Int(r >= 0)
     term = 1
     for i in range(1, r + 1):
         term = (term * (n - i + 1)) // i
@@ -662,7 +662,7 @@ fn pascal_degrade(n: Int, mut power_rank: Int, out grade: Int):
 @always_inline
 fn next_pascal(mut n: Int, mut r: Int, mut current: Int, *, next_r: Bool):
     n += 1
-    r += next_r
+    r += Int(next_r)
     current = ((current * n) // _select_register_value(next_r, r, n - r)) or Int(r <= n)
 
 

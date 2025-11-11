@@ -16,5 +16,5 @@ temp = "mojo temp.mojo"
 format = "mojo format -l 100 src"
 
 [dependencies]
-mojo = ">=0.25.7.0.dev2025101605,<0.26"
-max = "==25.7.0.dev2025101605"
+mojo = ">=0.25.7.0.dev2025111005,<0.26"
+max = "==25.7.0.dev2025111005"

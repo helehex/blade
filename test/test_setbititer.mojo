@@ -6,7 +6,7 @@
 from testing import assert_true, assert_false, assert_equal, assert_not_equal
 from _testing import _assert_equal, _assert_not_equal
 
-from blade.utils.combinadic import *
+from blade.utils.bit import SetBitIter
 
 
 def main():
@@ -44,7 +44,6 @@ def main():
     assert_equal(iter.__next__(), 6)
     assert_false(iter.__has_next__())
 
-
     var riter = SetBitIter(0b0000).__reversed__()
     assert_false(riter.__has_next__())
 
@@ -69,4 +68,3 @@ def main():
     assert_true(riter.__has_next__())
     assert_equal(riter.__next__(), 6)
     assert_false(riter.__has_next__())
-

@@ -271,7 +271,7 @@ struct ScaledBasis[dtype: DType, width: Int](Writable, EqualityComparable, Defau
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct BasisIndex(Copyable, EqualityComparable, ImplicitlyIntable, Writable, Stringable):
+struct BasisIndex(Copyable, EqualityComparable, Intable, Writable, Stringable):
     var idx: Int
 
     @implicit
@@ -281,10 +281,6 @@ struct BasisIndex(Copyable, EqualityComparable, ImplicitlyIntable, Writable, Str
 
     @always_inline("builtin")
     fn __int__(self) -> Int:
-        return self.idx
-
-    @always_inline("builtin")
-    fn __as_int__(self) -> Int:
         return self.idx
 
     @always_inline("builtin")

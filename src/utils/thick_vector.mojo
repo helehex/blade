@@ -75,12 +75,12 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1](Copyable, Movable
 
     @always_inline
     fn __setitem__[
-        lif: MutableOrigin, //, width: Int
+        lif: MutOrigin, //, width: Int
     ](ref [lif]self: ThickVector[type, size, 1], var idx: Int, value: SIMD[type, width]):
         simd_store[width](self.unsafe_ptr(), idx, value)
 
     @always_inline
-    fn __setitem__[lif: MutableOrigin, //](ref [lif]self, var idx: Int, var value: Self.Coef):
+    fn __setitem__[lif: MutOrigin, //](ref [lif]self, var idx: Int, var value: Self.Coef):
         (self.unsafe_ptr() + idx)[] = value
 
     @always_inline
@@ -88,8 +88,8 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1](Copyable, Movable
         ref self,
     ) -> UnsafePointer[
         Self.Coef,
-        mut = Origin(__origin_of(self)).mut,
-        origin = __origin_of(self),
+        mut = Origin(origin_of(self)).mut,
+        origin = origin_of(self),
     ]:
         return UnsafePointer(to=self._data).bitcast[Self.Coef]()
 
