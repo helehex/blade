@@ -2,6 +2,7 @@
 **/temp.**
 **/temp/
 **kgen.trace**
+img.*
 
 # environments
 .pixi

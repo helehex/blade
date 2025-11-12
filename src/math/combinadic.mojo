@@ -3,14 +3,14 @@ from bit import pop_count, count_trailing_zeros, bit_reverse
 from ..utils.bit import SetBitIter
 from .combinatorics import (
     SetOrder,
-    SetOrder_SizeLexic,
+    SetOrder_Slexic,
     power_rank_bin,
     power_unrank_bin,
 )
 
 
 @register_passable("trivial")
-struct Combinadic[width: Int, sorting: SetOrder = SetOrder_SizeLexic](Intable):
+struct Combinadic[width: Int, sorting: SetOrder = SetOrder_Slexic](Intable):
     var _data: Int
 
     fn __init__(out self):

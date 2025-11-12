@@ -10,68 +10,129 @@ from bit import pop_count, count_trailing_zeros
 from utils._select import _select_register_value
 from ..utils.bit import SetBitIter, reverse_bits
 
+alias DefaultSort = SetOrder_Slexic
+
 
 # +----------------------------------------------------------------------------------------------+ #
 # | SetOrder
 # +----------------------------------------------------------------------------------------------+ #
 #
 trait SetOrder:
+    """Powerset ordering meta-type."""
+
     # +------( powerset )------+ #
     #
     @staticmethod
     fn powerset(n: Int) -> List[List[Int]]:
+        """Lists the powerset of n, that is,
+        the set containing all possible subsets of n elements.
+
+        Each subset is represented as a list of indices."""
         ...
 
     @staticmethod
     fn powerset_bin(n: Int) -> List[Int]:
+        """Lists the powerset of n, that is,
+        the set containing all possible subsets of n elements.
+
+        Each combination is represented as a binary set of bit flags,
+        indicating their presence in the set."""
         ...
 
     @staticmethod
     fn power_rank(n: Int, comb: List[Int]) -> Int:
+        """Gets the total order of a subset within the powerset of n elements.
+        """
         ...
 
     @staticmethod
     fn power_rank_bin(n: Int, comb: Int) -> Int:
+        """Gets the total order of a subset within the powerset of n elements.
+        """
         ...
 
     @staticmethod
     fn power_unrank(n: Int, var idx: Int) -> List[Int]:
+        """Returns the subset at position `idx` within the powerset of n elements.
+        """
         ...
 
     @staticmethod
     fn power_unrank_bin(n: Int, var idx: Int) -> Int:
+        """Returns the subset at position `idx` within the powerset of n elements.
+        """
+        ...
+
+    @staticmethod
+    fn grade(n: Int, idx: Int) -> Int:
+        """Returns the number of elements in the subset at position `idx`."""
         ...
 
     # +------( combinations )------+ #
     #
     @staticmethod
-    fn combinations(n: Int, r: Int) -> List[List[Int]]:
-        ...
+    fn combinations(n: Int, r: Int, out result: List[List[Int]]):
+        """Lists all possible combinations of `r` elements selected from a set `n`.
+
+        Each combination is represented as a list of indices."""
+        var num_combs = pascal(n, r)
+        result = List[List[Int]](capacity=num_combs)
+        var i = ~(-1 << r)
+        while len(result) < num_combs:
+            var l = List[Int](capacity=r)
+            for bit_idx in SetBitIter(i):
+                l.append(bit_idx + 1)
+            result.append(l^)
+            i = Self.next_bin(n, i)
 
     @staticmethod
-    fn combinations_bin(n: Int, r: Int) -> List[Int]:
-        ...
+    fn combinations_bin(n: Int, r: Int, out result: List[Int]):
+        """Lists all possible combinations of `r` elements selected from a set `n`.
+
+        Each combination is represented as a binary set of bit flags,
+        indicating their presence in the set."""
+        var num_combs = pascal(n, r)
+        result = List[Int](capacity=num_combs)
+        var i = ~(-1 << r)
+        while len(result) < num_combs:
+            result.append(i)
+            i = Self.next_bin(n, i)
 
     @staticmethod
     fn rank(n: Int, comb: List[Int]) -> Int:
+        """Gets the order of a combination within the set of
+        possible combinations chosen from n elements.
+        """
         ...
 
     @staticmethod
     fn rank_bin(n: Int, comb: Int) -> Int:
+        """Gets the order of a combination within the set of
+        possible combinations of n elements.
+        """
         ...
 
     @staticmethod
     fn unrank(n: Int, var r: Int, var idx: Int) -> List[Int]:
+        """Returns the combination at position `idx` within the set of
+        possible combinations of n elements.
+        """
         ...
 
     @staticmethod
     fn unrank_bin(n: Int, var r: Int, var idx: Int) -> Int:
+        """Returns the combination at position `idx` within the set of
+        possible combinations of n elements.
+        """
         ...
 
     # +------( iteration )------+ #
     #
     @staticmethod
     fn next_bin(n: Int, bin: Int, out next_comb: Int):
+        """Returns the combination immediately after `bin`,
+        in the order defined by the subsumed type.
+        """
         ...
 
 
@@ -132,20 +193,13 @@ struct SetOrder_Binary(SetOrder):
     fn power_unrank_bin(n: Int, var idx: Int) -> Int:
         return idx
 
+    @staticmethod
+    @always_inline
+    fn grade(n: Int, idx: Int) -> Int:
+        return pop_count(idx)
+
     # +------( combinations )------+ #
     #
-    @staticmethod
-    @always_inline
-    fn combinations(n: Int, r: Int, out result: List[List[Int]]):
-        """Returns the combinations of `n` choose `r` with binary sorting."""
-        result = _combinations[Self](n, r)
-
-    @staticmethod
-    @always_inline
-    fn combinations_bin(n: Int, r: Int, out result: List[Int]):
-        """Returns the combinations of `n` choose `r` with binary sorting."""
-        result = _combinations_bin[Self](n, r)
-
     @staticmethod
     @always_inline
     fn rank(n: Int, comb: List[Int]) -> Int:
@@ -172,14 +226,16 @@ struct SetOrder_Binary(SetOrder):
     @always_inline
     fn next_bin(n: Int, comb: Int, out next_comb: Int):
         var t = comb | (comb - 1)
-        next_comb = (t + 1) | (((~t & -~t) - 1) >> (count_trailing_zeros(comb) + 1))
+        next_comb = (t + 1) | (
+            ((~t & -~t) - 1) >> (count_trailing_zeros(comb) + 1)
+        )
 
 
 # +----------------------------------------------------------------------------------------------+ #
 # | SetOrder: Size, Lexicographic
 # +----------------------------------------------------------------------------------------------+ #
 #
-struct SetOrder_SizeLexic(SetOrder):
+struct SetOrder_Slexic(SetOrder):
     """Sorted by size first, then lexicographic.
 
     Example:
@@ -194,7 +250,7 @@ struct SetOrder_SizeLexic(SetOrder):
         """Returns the power set with size-lexic sorting."""
         result = List[List[Int]](capacity=2**n)
         for k in range(n + 1):
-            result.extend(_combinations[Self](n, k))
+            result.extend(Self.combinations(n, k))
 
     @staticmethod
     @always_inline
@@ -202,7 +258,7 @@ struct SetOrder_SizeLexic(SetOrder):
         """Returns the power set with size-lexic sorting."""
         result = List[Int](capacity=2**n)
         for k in range(n + 1):
-            result.extend(_combinations_bin[Self](n, k))
+            result.extend(Self.combinations_bin(n, k))
 
     @staticmethod
     @always_inline
@@ -267,20 +323,14 @@ struct SetOrder_SizeLexic(SetOrder):
         var r = pascal_degrade(n, idx)
         result = Self.unrank_bin(n, r, idx)
 
+    @staticmethod
+    @always_inline
+    fn grade(n: Int, idx: Int) -> Int:
+        var _idx = idx
+        return pascal_degrade(n, _idx)
+
     # +------( combinations )------+ #
     #
-    @staticmethod
-    @always_inline
-    fn combinations(n: Int, r: Int, out result: List[List[Int]]):
-        """Returns the combinations of `n` choose `r` with size-lexic sorting."""
-        result = _combinations[Self](n, r)
-
-    @staticmethod
-    @always_inline
-    fn combinations_bin(n: Int, r: Int, out result: List[Int]):
-        """Returns the combinations of `n` choose `r` with size-lexic sorting."""
-        result = _combinations_bin[Self](n, r)
-
     @staticmethod
     @always_inline
     fn rank(n: Int, comb: List[Int], out result: Int):
@@ -369,7 +419,9 @@ struct SetOrder_SizeLexic(SetOrder):
         next_comb = reverse_bits(~comb, n)
         var t = next_comb | (next_comb - 1)
         # TODO: remove min() when mojo #3613 is resolved
-        next_comb = (t + 1) | (((~t & -~t) - 1) >> min(count_trailing_zeros(next_comb) + 1, 31))
+        next_comb = (t + 1) | (
+            ((~t & -~t) - 1) >> min(count_trailing_zeros(next_comb) + 1, 31)
+        )
         next_comb = reverse_bits(~next_comb, n)
 
 
@@ -390,40 +442,40 @@ fn powerset[T: Copyable & Movable, //](list: List[T]) -> List[List[T]]:
 
 
 @always_inline
-fn powerset[Sorting: SetOrder = SetOrder_SizeLexic](n: Int) -> List[List[Int]]:
+fn powerset[Sorting: SetOrder = DefaultSort](n: Int) -> List[List[Int]]:
     """Returns the power set with the provided ordering."""
     return Sorting.powerset(n)
 
 
 @always_inline
-fn powerset_bin[Sorting: SetOrder = SetOrder_SizeLexic](n: Int) -> List[Int]:
+fn powerset_bin[Sorting: SetOrder = DefaultSort](n: Int) -> List[Int]:
     """Returns the power set with the provided ordering."""
     return Sorting.powerset_bin(n)
 
 
 @always_inline
-fn power_rank[Sorting: SetOrder = SetOrder_SizeLexic](n: Int, comb: List[Int]) -> Int:
+fn power_rank[Sorting: SetOrder = DefaultSort](n: Int, comb: List[Int]) -> Int:
     return Sorting.power_rank(n, comb)
 
 
 @always_inline
-fn power_rank_bin[Sorting: SetOrder = SetOrder_SizeLexic](n: Int, comb: Int) -> Int:
+fn power_rank_bin[Sorting: SetOrder = DefaultSort](n: Int, comb: Int) -> Int:
     return Sorting.power_rank_bin(n, comb)
 
 
 @always_inline
-fn power_unrank[Sorting: SetOrder = SetOrder_SizeLexic](n: Int, idx: Int) -> List[Int]:
+fn power_unrank[Sorting: SetOrder = DefaultSort](n: Int, idx: Int) -> List[Int]:
     return Sorting.power_unrank(n, idx)
 
 
 @always_inline
-fn power_unrank_bin[Sorting: SetOrder = SetOrder_SizeLexic](n: Int, idx: Int) -> Int:
+fn power_unrank_bin[Sorting: SetOrder = DefaultSort](n: Int, idx: Int) -> Int:
     return Sorting.power_unrank_bin(n, idx)
 
 
 @always_inline
-fn grade_of(n: Int, var power_rank: Int) -> Int:
-    return pascal_degrade(n, power_rank)
+fn grade_of[Sorting: SetOrder = DefaultSort](n: Int, power_rank: Int) -> Int:
+    return Sorting.grade(n, power_rank)
 
 
 @always_inline
@@ -437,62 +489,40 @@ fn degrade(n: Int, var power_rank: Int) -> Int:
 # +----------------------------------------------------------------------------------------------+ #
 #
 @always_inline
-fn _combinations[Sorting: SetOrder](n: Int, r: Int, out result: List[List[Int]]):
-    var num_combs = pascal(n, r)
-    result = List[List[Int]](capacity=num_combs)
-    var i = ~(-1 << r)
-    while len(result) < num_combs:
-        var l = List[Int](capacity=r)
-        for bit_idx in SetBitIter(i):
-            l.append(bit_idx + 1)
-        result.append(l^)
-        i = Sorting.next_bin(n, i)
-
-
-@always_inline
 fn combinations[
-    Sorting: SetOrder = SetOrder_SizeLexic
+    Sorting: SetOrder = DefaultSort
 ](n: Int, r: Int, out result: List[List[Int]]):
     """Returns the combinations of `n` choose `r` with the provided ordering."""
     result = Sorting.combinations(n, r)
 
 
 @always_inline
-fn _combinations_bin[Sorting: SetOrder](n: Int, r: Int, out result: List[Int]):
-    """Returns the combinations of `n` choose `r` with binary sorting."""
-    var num_combs = pascal(n, r)
-    result = List[Int](capacity=num_combs)
-    var i = ~(-1 << r)
-    while len(result) < num_combs:
-        result.append(i)
-        i = Sorting.next_bin(n, i)
-
-
-@always_inline
 fn combinations_bin[
-    Sorting: SetOrder = SetOrder_SizeLexic
+    Sorting: SetOrder = DefaultSort
 ](n: Int, r: Int, out result: List[Int]):
     """Returns the combinations of `n` choose `r` with binary sorting."""
     result = Sorting.combinations_bin(n, r)
 
 
 @always_inline
-fn rank[Sorting: SetOrder = SetOrder_SizeLexic](n: Int, comb: List[Int]) -> Int:
+fn rank[Sorting: SetOrder = DefaultSort](n: Int, comb: List[Int]) -> Int:
     return Sorting.rank(n, comb)
 
 
 @always_inline
-fn rank_bin[Sorting: SetOrder = SetOrder_SizeLexic](n: Int, comb: Int) -> Int:
+fn rank_bin[Sorting: SetOrder = DefaultSort](n: Int, comb: Int) -> Int:
     return Sorting.rank_bin(n, comb)
 
 
 @always_inline
-fn unrank[Sorting: SetOrder = SetOrder_SizeLexic](n: Int, r: Int, idx: Int) -> List[Int]:
+fn unrank[
+    Sorting: SetOrder = DefaultSort
+](n: Int, r: Int, idx: Int) -> List[Int]:
     return Sorting.unrank(n, r, idx)
 
 
 @always_inline
-fn unrank_bin[Sorting: SetOrder = SetOrder_SizeLexic](n: Int, r: Int, idx: Int) -> Int:
+fn unrank_bin[Sorting: SetOrder = DefaultSort](n: Int, r: Int, idx: Int) -> Int:
     return Sorting.unrank_bin(n, r, idx)
 
 
@@ -663,7 +693,9 @@ fn pascal_degrade(n: Int, mut power_rank: Int, out grade: Int):
 fn next_pascal(mut n: Int, mut r: Int, mut current: Int, *, next_r: Bool):
     n += 1
     r += Int(next_r)
-    current = ((current * n) // _select_register_value(next_r, r, n - r)) or Int(r <= n)
+    current = (
+        (current * n) // _select_register_value(next_r, r, n - r)
+    ) or Int(r <= n)
 
 
 # +----------------------------------------------------------------------------------------------+ #

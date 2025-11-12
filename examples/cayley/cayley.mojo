@@ -10,6 +10,7 @@ from math import align_up
 from sys import argv
 
 from blade import Signature
+from blade.math.combinatorics import SetOrder_Binary, SetOrder_Slexic
 
 
 # +--------------------------------------------------------------------------+ #
@@ -23,12 +24,12 @@ from blade import Signature
 #
 def main():
     # Set args
-    var args = [3, 3, 3]
+    var args = [3, 3, 3] if len(argv()) == 1 else [0, 0, 0]
     for idx in range(1, len(argv())):
-        args[idx] = Int(argv()[idx])
+        args[idx - 1] = Int(argv()[idx])
 
     # Define the signature
-    var sig = Signature(args[0], args[1], args[2])
+    var sig = Signature[SetOrder_Binary](args[0], args[1], args[2])
 
     # Define the pixel function
     @parameter
@@ -37,6 +38,7 @@ def main():
         c = m.sign
         v = (m.idx * 255) // sig.dims
         return ColorBGR888(v * Int(c == -1), v * Int(c == 0), v * Int(c == 1))
+        # return ColorBGR888(v, v, v)
 
     # Write the image to a bitmap file
     write_bmp[_sample](Path("./img.bmp"), sig.dims, sig.dims)
