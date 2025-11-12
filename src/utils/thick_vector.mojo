@@ -10,7 +10,10 @@ from .memory import memclr, simd_load, simd_store
 
 @always_inline
 fn _thick_vector_construction_checks[size: Int, width: Int]():
-    constrained[size >= 0 and width > 0, "number of elements in `SmallArray` must be >= 0"]()
+    constrained[
+        size >= 0 and width > 0,
+        "number of elements in `SmallArray` must be >= 0",
+    ]()
 
 
 # +----------------------------------------------------------------------------------------------+ #
@@ -18,14 +21,18 @@ fn _thick_vector_construction_checks[size: Int, width: Int]():
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct ThickVector[type: DType, size: Int, thickness: Int = 1](Copyable, Movable):
+struct ThickVector[type: DType, size: Int, thickness: Int = 1](
+    Copyable, Movable
+):
     """A thick vector."""
 
     # +------[ Alias ]------+ #
     #
     alias Coef = SIMD[type, thickness]
     alias Lane = ThickVector[type, size, 1]
-    alias Data = __mlir_type[`!pop.array<`, size._mlir_value, `, `, Self.Coef, `>`]
+    alias Data = __mlir_type[
+        `!pop.array<`, size._mlir_value, `, `, Self.Coef, `>`
+    ]
 
     # +------< Data >------+ #
     #
@@ -36,7 +43,9 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1](Copyable, Movable
     @always_inline
     fn __init__[init: Bool = True](out self):
         _thick_vector_construction_checks[size, thickness]()
-        __mlir_op.`lit.ownership.mark_initialized`(__get_mvalue_as_litref(self._data))
+        __mlir_op.`lit.ownership.mark_initialized`(
+            __get_mvalue_as_litref(self._data)
+        )
 
         @parameter
         if init:
@@ -50,7 +59,9 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1](Copyable, Movable
             self[idx] = values[idx]
 
     @always_inline
-    fn __init__[clear: Bool = True](out self, var values: VariadicListMem[Self.Coef]):
+    fn __init__[
+        clear: Bool = True
+    ](out self, var values: VariadicListMem[Self.Coef]):
         self = self.__init__[False]()
         for idx in range(size):
             self[idx] = values[idx]
@@ -66,7 +77,9 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1](Copyable, Movable
             result[coef_idx] = self[coef_idx][idx]
 
     @always_inline
-    fn __getitem__[width: Int](ref self: Self.Lane, var idx: Int) -> SIMD[type, width]:
+    fn __getitem__[
+        width: Int
+    ](ref self: Self.Lane, var idx: Int) -> SIMD[type, width]:
         return simd_load[width](self.unsafe_ptr(), idx)
 
     @always_inline
@@ -76,21 +89,23 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1](Copyable, Movable
     @always_inline
     fn __setitem__[
         lif: MutOrigin, //, width: Int
-    ](ref [lif]self: ThickVector[type, size, 1], var idx: Int, value: SIMD[type, width]):
+    ](
+        ref [lif]self: ThickVector[type, size, 1],
+        var idx: Int,
+        value: SIMD[type, width],
+    ):
         simd_store[width](self.unsafe_ptr(), idx, value)
 
     @always_inline
-    fn __setitem__[lif: MutOrigin, //](ref [lif]self, var idx: Int, var value: Self.Coef):
+    fn __setitem__[
+        lif: MutOrigin, //
+    ](ref [lif]self, var idx: Int, var value: Self.Coef):
         (self.unsafe_ptr() + idx)[] = value
 
     @always_inline
     fn unsafe_ptr(
         ref self,
-    ) -> UnsafePointer[
-        Self.Coef,
-        mut = Origin(origin_of(self)).mut,
-        origin = origin_of(self),
-    ]:
+    ) -> UnsafePointer[Self.Coef, origin = origin_of(self._data)]:
         return UnsafePointer(to=self._data).bitcast[Self.Coef]()
 
     # @always_inline

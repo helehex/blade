@@ -10,7 +10,7 @@ from math import align_up
 from sys import argv
 
 from blade import Signature
-from blade.math.combinatorics import SetOrder_Binary, SetOrder_Slexic
+from blade.combinatorics import BinaryOrdering, SlexicOrdering
 
 
 # +--------------------------------------------------------------------------+ #
@@ -29,7 +29,7 @@ def main():
         args[idx - 1] = Int(argv()[idx])
 
     # Define the signature
-    var sig = Signature[SetOrder_Binary](args[0], args[1], args[2])
+    var sig = Signature[BinaryOrdering](args[0], args[1], args[2])
 
     # Define the pixel function
     @parameter

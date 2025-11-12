@@ -6,25 +6,22 @@
 from collections.string import StringSlice
 from bit import pop_count
 from utils._select import _select_register_value
-
-from .basis import Basis, SignedBasis, ScaledBasis, BasisIndex, SignedBasisIndex
-from ..utils import ansi
-from ..utils.algorithm import counted_sort
-from ..utils.control import _assert
-from ..utils.format import ctoi, stoi, write_repeat
-from ..utils.bit import SetBitIter, rsign
-from ..math import (
-    SetOrder,
-    SetOrder_Slexic,
+from blade.utils import ansi
+from blade.utils.algorithm import counted_sort
+from blade.utils.control import _assert
+from blade.utils.format import ctoi, stoi, write_repeat
+from blade.bit import PopIter, rsign
+from blade.combinatorics import (
+    Ordering,
+    DefaultOrder,
     pascal,
-    # powerset,
     power_unrank,
     power_rank,
     power_unrank_bin,
     power_rank_bin,
-    grade_of,
-    # degrade,
+    grade,
 )
+from .basis import Basis, SignedBasis, ScaledBasis, BasisIndex, SignedBasisIndex
 
 
 # +----------------------------------------------------------------------------------------------+ #
@@ -32,7 +29,7 @@ from ..math import (
 # +----------------------------------------------------------------------------------------------+ #
 #
 @fieldwise_init
-struct Signature[Sorting: SetOrder = SetOrder_Slexic](Writable):
+struct Signature[Order: Ordering = DefaultOrder](Writable):
     """Signature."""
 
     # +------< Data >------+ #
@@ -146,7 +143,7 @@ struct Signature[Sorting: SetOrder = SetOrder_Slexic](Writable):
         var basis = ~(-1 << grade)
         for _ in range(elements):
             mask.entries.append(Basis(bin=basis))
-            basis = Sorting.next_bin(self.vecs, basis)
+            basis = Order.next_bin(self.vecs, basis)
 
     @always_inline
     fn even_mask(self, out mask: BasisMask):
@@ -155,7 +152,7 @@ struct Signature[Sorting: SetOrder = SetOrder_Slexic](Writable):
             var basis = ~(-1 << grade)
             for _ in range(pascal(self.vecs, grade)):
                 mask.entries.append(Basis(bin=basis))
-                basis = Sorting.next_bin(self.vecs, basis)
+                basis = Order.next_bin(self.vecs, basis)
 
     @always_inline
     fn scalar_mask(self, out mask: BasisMask):
@@ -200,7 +197,7 @@ struct Signature[Sorting: SetOrder = SetOrder_Slexic](Writable):
     # +------( Basis )------+ #
     #
     fn basis(self, idx: BasisIndex) -> Basis:
-        return Basis(bin=power_unrank_bin[Sorting](self.vecs, Int(idx)))
+        return Basis(bin=power_unrank_bin[Order](self.vecs, Int(idx)))
 
     fn basis(self, string: StringSlice, out result: Basis):
         result = Basis()
@@ -256,7 +253,7 @@ struct Signature[Sorting: SetOrder = SetOrder_Slexic](Writable):
     @always_inline
     fn signed_basis(self, idx: SignedBasisIndex) -> SignedBasis:
         return SignedBasis(
-            idx.sign, bin=power_unrank_bin[Sorting](self.vecs, idx.idx)
+            idx.sign, bin=power_unrank_bin[Order](self.vecs, idx.idx)
         )
 
     fn signed_basis(self, string: StringSlice, out result: SignedBasis):
@@ -304,15 +301,15 @@ struct Signature[Sorting: SetOrder = SetOrder_Slexic](Writable):
     #
     @always_inline
     fn basis_index(self, basis: Basis) -> BasisIndex:
-        return power_rank_bin[Sorting](self.vecs, basis.bin)
+        return power_rank_bin[Order](self.vecs, basis.bin)
 
     @always_inline
     fn basis_index(self, basis: SignedBasis) -> BasisIndex:
-        return power_rank_bin[Sorting](self.vecs, basis.bin)
+        return power_rank_bin[Order](self.vecs, basis.bin)
 
     @always_inline
     fn basis_index(self, string: StringSlice) -> BasisIndex:
-        return power_rank_bin[Sorting](self.vecs, self.basis(string).bin)
+        return power_rank_bin[Order](self.vecs, self.basis(string).bin)
 
     # +------( SignedBasisIndex )------+ #
     #
@@ -343,11 +340,11 @@ struct Signature[Sorting: SetOrder = SetOrder_Slexic](Writable):
 
     @always_inline
     fn grade(self, idx: BasisIndex) -> Int:
-        return grade_of[Sorting](self.vecs, Int(idx))
+        return grade[Order](self.vecs, Int(idx))
 
     @always_inline
     fn grade(self, idx: SignedBasisIndex) -> Int:
-        return grade_of[Sorting](self.vecs, idx.idx)
+        return grade[Order](self.vecs, idx.idx)
 
     # +------( Product )------+ #
     #
@@ -363,13 +360,13 @@ struct Signature[Sorting: SetOrder = SetOrder_Slexic](Writable):
     @always_inline
     fn mul(self, lhs: Basis, rhs: Basis, out result: SignedBasis):
         result = lhs
-        for vec in SetBitIter(rhs.bin):
+        for vec in PopIter(rhs.bin):
             self.squash_vec(result, vec + 1)
 
     @always_inline
     fn mul(self, lhs: SignedBasis, rhs: SignedBasis, out result: SignedBasis):
         result = SignedBasis(lhs.sign * rhs.sign, bin=lhs.bin)
-        for vec in SetBitIter(rhs.bin):
+        for vec in PopIter(rhs.bin):
             self.squash_vec(result, vec + 1)
 
     @always_inline
@@ -425,11 +422,11 @@ struct Signature[Sorting: SetOrder = SetOrder_Slexic](Writable):
         if self.vecs < 10:
             if basis.bin != 0:
                 writer.write("e")
-            for vec in SetBitIter(basis.bin):
+            for vec in PopIter(basis.bin):
                 writer.write(vec + 1)
             writer.write(ansi.clear)
         else:
-            for vec in SetBitIter(basis.bin):
+            for vec in PopIter(basis.bin):
                 writer.write("e", vec + 1)
             writer.write(ansi.clear)
 
@@ -509,11 +506,11 @@ struct Signature[Sorting: SetOrder = SetOrder_Slexic](Writable):
     #
     @always_inline
     fn ibasis_to_ebasis(self, ibasis: Int) -> List[Int]:
-        return power_unrank[Sorting](self.vecs, ibasis)
+        return power_unrank[Order](self.vecs, ibasis)
 
     @always_inline
     fn ebasis_to_ibasis(self, ebasis: List[Int]) -> Int:
-        return power_rank[Sorting](self.vecs, ebasis)
+        return power_rank[Order](self.vecs, ebasis)
 
     @always_inline
     fn squash_basis(self, mut basis: List[Int], mut sign: Int):

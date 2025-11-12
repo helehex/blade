@@ -54,4 +54,3 @@ def test_basis_mask():
     assert_equal(mask.get_entry(Basis(bin=0b010)), 0)
     assert_equal(mask.get_entry(Basis(bin=0b100)), 1)
     assert_equal(mask.get_entry(Basis(bin=0b110)), -1)
-    

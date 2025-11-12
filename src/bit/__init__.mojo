@@ -2,5 +2,7 @@
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
 # x----------------------------------------------------------------------------------------------x #
+"""Bit utilities."""
 
-from .constants import *
+from ._bit import *
+from .popiter import PopIter

@@ -4,14 +4,13 @@
 # x----------------------------------------------------------------------------------------------x #
 """Helper struct for basis masking."""
 
-from collections.string import StringSlice
-from .basis import Basis
-from ..math.combinatorics import power_unrank_bin
 from bit import next_power_of_two
+from blade.combinatorics import power_unrank_bin, SlexicOrdering
+from .basis import Basis
 
 
 @fieldwise_init
-struct BasisMask(Sized, ImplicitlyCopyable, Movable):
+struct BasisMask(ImplicitlyCopyable, Movable, Sized):
     var full: Int
     var entries: List[Basis]
 
@@ -22,7 +21,7 @@ struct BasisMask(Sized, ImplicitlyCopyable, Movable):
 
     @always_inline
     fn __init__(out self, *bases: Basis):
-        self = Self(capacity = len(bases))
+        self = Self(capacity=len(bases))
         for basis in bases:
             self.unmask(basis)
 
@@ -44,7 +43,9 @@ struct BasisMask(Sized, ImplicitlyCopyable, Movable):
 
     @always_inline
     fn get_basis(self, entry: Int) -> Basis:
-        return Basis(bin=power_unrank_bin(self.full, entry)) if self.full != -1 else self.entries[entry]
+        if self.full == -1:
+            return self.entries[entry]
+        return Basis(bin=power_unrank_bin[SlexicOrdering](self.full, entry))
 
     @always_inline
     fn get_entry(self, basis: Basis) -> Int:
@@ -72,12 +73,14 @@ struct BasisMask(Sized, ImplicitlyCopyable, Movable):
 
         while True:
             if lhs_idx < len(lhs.entries) and (
-                rhs_idx >= len(rhs.entries) or lhs.entries[lhs_idx] < rhs.entries[rhs_idx]
+                rhs_idx >= len(rhs.entries)
+                or lhs.entries[lhs_idx] < rhs.entries[rhs_idx]
             ):
                 result.entries.append(lhs.entries[lhs_idx])
                 lhs_idx += 1
             elif rhs_idx < len(rhs.entries) and (
-                lhs_idx >= len(lhs.entries) or lhs.entries[lhs_idx] > rhs.entries[rhs_idx]
+                lhs_idx >= len(lhs.entries)
+                or lhs.entries[lhs_idx] > rhs.entries[rhs_idx]
             ):
                 result.entries.append(rhs.entries[rhs_idx])
                 rhs_idx += 1

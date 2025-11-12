@@ -3,11 +3,9 @@
 # | Copyright (c) 2023-2025 Helehex
 # x----------------------------------------------------------------------------------------------x #
 
-from collections.string import StringSlice
-from bit import pop_count, bit_reverse
-from ..utils.control import _assert
-from ..utils.format import ctoi, stoi, write_sign
-from ..utils.bit import SetBitIter
+from bit import pop_count
+from blade.utils.format import ctoi, stoi, write_sign
+from blade.bit import PopIter, reverse_bits
 
 
 # +----------------------------------------------------------------------------------------------+ #
@@ -15,7 +13,9 @@ from ..utils.bit import SetBitIter
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct BasisLiteral[sig: Signature, basis: SignedBasis](Copyable, Defaultable, EqualityComparable, Movable, Writable):
+struct BasisLiteral[sig: Signature, basis: SignedBasis](
+    Copyable, Defaultable, EqualityComparable, Movable, Writable
+):
     @always_inline("builtin")
     fn __init__(out self):
         pass
@@ -24,7 +24,9 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](Copyable, Defaultable, E
     fn __add__(
         lhs,
         rhs: BasisLiteral[sig, _],
-        out result: Multivector[sig, sig.basis_mask(lhs.basis) | sig.basis_mask(rhs.basis)],
+        out result: Multivector[
+            sig, sig.basis_mask(lhs.basis) | sig.basis_mask(rhs.basis)
+        ],
     ):
         result = result.__init__[False]()
         var lhs_entry = result.mask.get_entry(Basis(bin=lhs.basis.bin))
@@ -35,26 +37,38 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](Copyable, Defaultable, E
     fn __sub__(
         lhs,
         rhs: BasisLiteral[sig, _],
-        out result: Multivector[sig, sig.basis_mask(lhs.basis) | sig.basis_mask(-rhs.basis)],
+        out result: Multivector[
+            sig, sig.basis_mask(lhs.basis) | sig.basis_mask(-rhs.basis)
+        ],
     ):
         result = lhs + -rhs
 
     @always_inline("builtin")
     fn __mul__(
-        lhs, rhs: BasisLiteral[sig, _], out result: BasisLiteral[sig, sig.mul(lhs.basis, rhs.basis)]
+        lhs,
+        rhs: BasisLiteral[sig, _],
+        out result: BasisLiteral[sig, sig.mul(lhs.basis, rhs.basis)],
     ):
         result = result.__init__()
 
     @always_inline
     fn __mul__(
-        lhs, rhs: SIMD, out result: Multivector[sig, sig.basis_mask(basis), rhs.dtype, rhs.size]
+        lhs,
+        rhs: SIMD,
+        out result: Multivector[
+            sig, sig.basis_mask(basis), rhs.dtype, rhs.size
+        ],
     ):
         result = result.__init__[False]()
         result._data[0] = rhs
 
     @always_inline
     fn __rmul__(
-        rhs, lhs: SIMD, out result: Multivector[sig, sig.basis_mask(basis), lhs.dtype, lhs.size]
+        rhs,
+        lhs: SIMD,
+        out result: Multivector[
+            sig, sig.basis_mask(basis), lhs.dtype, lhs.size
+        ],
     ):
         result = rhs * lhs
 
@@ -92,7 +106,15 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](Copyable, Defaultable, E
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Basis(Copyable, Defaultable, EqualityComparable, Movable, Writable, Stringable, Representable):
+struct Basis(
+    Copyable,
+    Defaultable,
+    EqualityComparable,
+    Movable,
+    Representable,
+    Stringable,
+    Writable,
+):
     var bin: Int
 
     @always_inline("builtin")
@@ -119,14 +141,16 @@ struct Basis(Copyable, Defaultable, EqualityComparable, Movable, Writable, Strin
         var lhs_vecs = pop_count(lhs.bin)
         var rhs_vecs = pop_count(rhs.bin)
         return (lhs_vecs < rhs_vecs) | (
-            (lhs_vecs == rhs_vecs) & (UInt(bit_reverse(lhs.bin)) > UInt(bit_reverse(rhs.bin)))
+            (lhs_vecs == rhs_vecs)
+            & (UInt(reverse_bits(lhs.bin)) > UInt(reverse_bits(rhs.bin)))
         )
 
     fn __gt__(lhs, rhs: Self) -> Bool:
         var lhs_vecs = pop_count(lhs.bin)
         var rhs_vecs = pop_count(rhs.bin)
         return (lhs_vecs > rhs_vecs) | (
-            (lhs_vecs == rhs_vecs) & (UInt(bit_reverse(lhs.bin)) < UInt(bit_reverse(rhs.bin)))
+            (lhs_vecs == rhs_vecs)
+            & (UInt(reverse_bits(lhs.bin)) < UInt(reverse_bits(rhs.bin)))
         )
 
     @no_inline
@@ -142,7 +166,7 @@ struct Basis(Copyable, Defaultable, EqualityComparable, Movable, Writable, Strin
         if self.bin == 0:
             writer.write("1")
         else:
-            for vec in SetBitIter(self.bin):
+            for vec in PopIter(self.bin):
                 writer.write("e", vec + 1)
 
 
@@ -151,7 +175,9 @@ struct Basis(Copyable, Defaultable, EqualityComparable, Movable, Writable, Strin
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct SignedBasis(Copyable, Defaultable, EqualityComparable, Movable, Writable, Stringable):
+struct SignedBasis(
+    Copyable, Defaultable, EqualityComparable, Movable, Stringable, Writable
+):
     var sign: Int
     var bin: Int
 
@@ -203,7 +229,9 @@ struct SignedBasis(Copyable, Defaultable, EqualityComparable, Movable, Writable,
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct ScaledBasis[dtype: DType, width: Int](Writable, EqualityComparable, Defaultable):
+struct ScaledBasis[dtype: DType, width: Int](
+    Defaultable, EqualityComparable, Writable
+):
     var scale: SIMD[dtype, width]
     var bin: Int
 
@@ -262,8 +290,12 @@ struct ScaledBasis[dtype: DType, width: Int](Writable, EqualityComparable, Defau
 
             @parameter
             for lane in range(width - 1):
-                writer.write(ScaledBasis[dtype, 1](self.scale[lane], bin=self.bin), ", ")
-            writer.write(ScaledBasis[dtype, 1](self.scale[width - 1], bin=self.bin), "]")
+                writer.write(
+                    ScaledBasis[dtype, 1](self.scale[lane], bin=self.bin), ", "
+                )
+            writer.write(
+                ScaledBasis[dtype, 1](self.scale[width - 1], bin=self.bin), "]"
+            )
 
 
 # +----------------------------------------------------------------------------------------------+ #
@@ -271,7 +303,7 @@ struct ScaledBasis[dtype: DType, width: Int](Writable, EqualityComparable, Defau
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct BasisIndex(Copyable, EqualityComparable, Intable, Writable, Stringable):
+struct BasisIndex(Copyable, EqualityComparable, Intable, Stringable, Writable):
     var idx: Int
 
     @implicit
@@ -309,7 +341,9 @@ struct BasisIndex(Copyable, EqualityComparable, Intable, Writable, Stringable):
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct SignedBasisIndex(Copyable, EqualityComparable, Movable, Writable, Stringable):
+struct SignedBasisIndex(
+    Copyable, EqualityComparable, Movable, Stringable, Writable
+):
     var sign: Int
     var idx: Int
 

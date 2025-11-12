@@ -5,7 +5,7 @@
 """Multivector."""
 
 from math import sqrt
-from ..utils.thick_vector import ThickVector
+from blade.utils.thick_vector import ThickVector
 from .basis import Basis, SignedBasis, ScaledBasis
 
 
@@ -14,9 +14,9 @@ from .basis import Basis, SignedBasis, ScaledBasis
 # +----------------------------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64, size: Int = 1](
-    Writable & Copyable & Movable
-):
+struct Multivector[
+    sig: Signature, mask: BasisMask, dtype: DType = DType.float64, size: Int = 1
+](Writable & Copyable & Movable):
     """Multivector."""
 
     # +------[ Alias ]------+ #
@@ -47,7 +47,9 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
     # TODO: Uses precedence hacking to get default signature for implicit conversion from simd
     @implicit
     @always_inline
-    fn __init__[__: None = None](out self: Self.Mask[sig.scalar_mask()], scalar: Self.Coef):
+    fn __init__[
+        __: None = None
+    ](out self: Self.Mask[sig.scalar_mask()], scalar: Self.Coef):
         self = self.__init__[False]()
         self._data[0] = scalar
 
@@ -55,13 +57,18 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
     @always_inline
     fn __init__[
         basis: SignedBasis, //, __: None = None
-    ](out self: Self.Mask[sig.basis_mask(basis)], scalar: BasisLiteral[sig, basis]):
+    ](
+        out self: Self.Mask[sig.basis_mask(basis)],
+        scalar: BasisLiteral[sig, basis],
+    ):
         self = self.__init__[False]()
         self._data[0] = basis.sign
 
     @implicit
     @always_inline
-    fn __init__[__: None = None](out self: Self.Mask[sig.scalar_mask()], scalar: Int):
+    fn __init__[
+        __: None = None
+    ](out self: Self.Mask[sig.scalar_mask()], scalar: Int):
         self = Self.Coef(scalar)
 
     @always_inline
@@ -70,7 +77,9 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
 
         @parameter
         if len(mask) != 1:
-            abort("incorrect number of coefficient passed to masked multivector")
+            abort(
+                "incorrect number of coefficient passed to masked multivector"
+            )
         self._data = self._data.__init__()
         self._data[0] = coef
 
@@ -86,7 +95,9 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
     fn __init__(out self, var coefs: VariadicListMem[Self.Coef]):
         self = self.__init__[False]()
         if len(coefs) != len(mask):
-            abort("incorrect number of coefficient passed to masked multivector")
+            abort(
+                "incorrect number of coefficient passed to masked multivector"
+            )
         self._data = self._data.__init__(coefs^)
 
     @always_inline
@@ -136,10 +147,14 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
             @parameter
             for entry in range(length):
                 # TODO: reduce verbosity with ScaledBasisIndex
-                var element = ScaledBasis(abs(self._data[entry]), self.mask.get_basis(entry))
+                var element = ScaledBasis(
+                    abs(self._data[entry]), self.mask.get_basis(entry)
+                )
                 materialize[sig]().write_basis_to(writer, element)
                 writer.write(" - " if self._data[entry + 1] < 0 else " + ")
-            var element = ScaledBasis(abs(self._data[length]), self.mask.get_basis(length))
+            var element = ScaledBasis(
+                abs(self._data[length]), self.mask.get_basis(length)
+            )
             materialize[sig]().write_basis_to(writer, element)
         else:
             for lane_idx in range(size - 1):
@@ -259,7 +274,9 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
         return sqrt(abs((self * self.__conj__()).s))
 
     @always_inline
-    fn normalized(self) -> Multivector[sig, sig.mul(mask, sig.scalar_mask()), dtype, size]:
+    fn normalized(
+        self,
+    ) -> Multivector[sig, sig.mul(mask, sig.scalar_mask()), dtype, size]:
         return self * (1 / self.norm())
 
     # +------( Arithmetic )------+ #
@@ -276,7 +293,9 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
 
             @parameter
             if (self_entry != -1) and (other_entry != -1):
-                result._data[entry] = lhs._data[self_entry] + rhs._data[other_entry]
+                result._data[entry] = (
+                    lhs._data[self_entry] + rhs._data[other_entry]
+                )
             elif self_entry != -1:
                 result._data[entry] = lhs._data[self_entry]
             elif other_entry != -1:
@@ -298,7 +317,9 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
 
             @parameter
             if (lhs_entry != -1) and (rhs_entry != -1):
-                result._data[entry] = lhs._data[lhs_entry] - rhs._data[rhs_entry]
+                result._data[entry] = (
+                    lhs._data[lhs_entry] - rhs._data[rhs_entry]
+                )
             elif lhs_entry != -1:
                 result._data[entry] = lhs._data[lhs_entry]
             elif rhs_entry != -1:
@@ -309,7 +330,13 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
         return lhs - rhs
 
     @always_inline
-    fn __mul__[lhs_origin: ImmutOrigin, rhs_origin: ImmutOrigin, //](ref [lhs_origin]lhs, ref [rhs_origin]rhs: Self.Mask, out result: Self.Mask[sig.mul(lhs.mask, rhs.mask)]):
+    fn __mul__[
+        lhs_origin: ImmutOrigin, rhs_origin: ImmutOrigin, //
+    ](
+        ref [lhs_origin]lhs,
+        ref [rhs_origin]rhs: Self.Mask,
+        out result: Self.Mask[sig.mul(lhs.mask, rhs.mask)],
+    ):
         result = result.__init__[True]()
 
         @parameter
@@ -325,11 +352,19 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
                 @parameter
                 if entry >= 0:
                     result._data[entry] += (
-                        res_basis.sign * lhs._data[lhs_entry] * rhs._data[rhs_entry]
+                        res_basis.sign
+                        * lhs._data[lhs_entry]
+                        * rhs._data[rhs_entry]
                     )
 
     @always_inline
-    fn __mul__[origin: ImmutOrigin, //](ref [origin]lhs, ref [origin]rhs: Self, out result: Self.Mask[sig.sqr(rhs.mask)]):
+    fn __mul__[
+        origin: ImmutOrigin, //
+    ](
+        ref [origin]lhs,
+        ref [origin]rhs: Self,
+        out result: Self.Mask[sig.sqr(rhs.mask)],
+    ):
         result = lhs**2
 
     @always_inline
@@ -337,7 +372,11 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
         return lhs * rhs
 
     @always_inline
-    fn __pow__(lhs, rhs: IntLiteral[(2).value], out result: Self.Mask[sig.sqr(lhs.mask)]):
+    fn __pow__(
+        lhs,
+        rhs: IntLiteral[(2).value],
+        out result: Self.Mask[sig.sqr(lhs.mask)],
+    ):
         result = result.__init__[True]()
 
         @parameter
@@ -349,12 +388,17 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
                 alias rhs_basis = lhs.mask.get_basis(rhs_entry)
                 alias res_basis = sig.mul(lhs_basis, rhs_basis)
                 alias rev_basis = sig.mul(rhs_basis, lhs_basis)
-                alias res_entry = result.mask.get_entry(Basis(bin=res_basis.bin))
+                alias res_entry = result.mask.get_entry(
+                    Basis(bin=res_basis.bin)
+                )
 
                 @parameter
                 if res_basis.sign != -rev_basis.sign:
                     result._data[res_entry] += (
-                        res_basis.sign * lhs._data[lhs_entry] * lhs._data[rhs_entry] * 2
+                        res_basis.sign
+                        * lhs._data[lhs_entry]
+                        * lhs._data[rhs_entry]
+                        * 2
                     )
 
             alias res_basis = sig.mul(lhs_basis, lhs_basis)

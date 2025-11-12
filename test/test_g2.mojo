@@ -6,7 +6,7 @@
 from testing import assert_true, assert_false, assert_equal, assert_not_equal
 from _testing import _assert_equal, _assert_not_equal
 
-from blade.hard.g2 import *
+from hard.g2 import *
 
 
 def main():
