@@ -17,4 +17,4 @@ format = "mojo format -l 100 src"
 
 [dependencies]
 mojo = ">=0.25.7.0.dev2025111205,<0.26"
-max = ">=25.7.0.dev2025111205,<26"
+max = "==25.7.0.dev2025111305"

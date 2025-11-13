@@ -1,7 +1,7 @@
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 """
 Geometric Algebra.
 
@@ -16,47 +16,47 @@ from .algebra.multivector import Multivector
 from .algebra.signature import Signature
 
 
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 # | Flavor Aliases
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 #
-alias Split = ga(1)
+comptime Split = ga(1)
 """Split Numbers."""
 
-alias Complex = ga(0, 1)
+comptime Complex = ga(0, 1)
 """Complex Numbers."""
 
-alias Dual = ga(0, 0, 1)
+comptime Dual = ga(0, 0, 1)
 """Dual Numbers."""
 
-alias G2 = ga(2)
+comptime G2 = ga(2)
 """2D Vector Algebra."""
 
-alias G3 = ga(3)
+comptime G3 = ga(3)
 """3D Vector Algebra."""
 
-alias PG2 = ga(2, 0, 1)
+comptime PG2 = ga(2, 0, 1)
 """2D Projective Algebra."""
 
-alias PG3 = ga(3, 0, 1)
+comptime PG3 = ga(3, 0, 1)
 """3D Projective Algebra."""
 
-alias CG2 = ga(3, 1)
+comptime CG2 = ga(3, 1)
 """2D Conformal Algebra."""
 
-alias CG3 = ga(4, 1)
+comptime CG3 = ga(4, 1)
 """3D Conformal Algebra."""
 
-alias SG2 = ga(1, 2)
+comptime SG2 = ga(1, 2)
 """2D Spacetime Algebra."""
 
-alias SG3 = ga(1, 3)
+comptime SG3 = ga(1, 3)
 """3D Spacetime Algebra."""
 
 
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 # | Geometric Algebra
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 #
 # This is the general wrapper for static signature parsing and generation.
 #
@@ -122,9 +122,9 @@ struct GA[sig: Signature]:
 
     # +------( Subspace Constructors )------+ #
     #
-    alias Multivector = Multivector[sig, dtype=_, size=_, mask=_]
-    alias Vector = Multivector[sig,]
-    alias i = Multivector[sig, Self.antiscalar_mask, _, _](1)
+    comptime Multivector = Multivector[sig, dtype=_, size=_, mask=_]
+    comptime Vector = Multivector[sig,]
+    comptime i = Multivector[sig, Self.antiscalar_mask, _, _](1)
 
     @staticmethod
     @always_inline
@@ -151,18 +151,18 @@ struct GA[sig: Signature]:
 
     # +------( Mask Aliases )------+ #
     #
-    alias empty_mask = sig.empty_mask()
-    alias full_mask = sig.full_mask()
-    alias even_mask = sig.even_mask()
+    comptime empty_mask = sig.empty_mask()
+    comptime full_mask = sig.full_mask()
+    comptime even_mask = sig.even_mask()
 
-    alias scalar_mask = sig.scalar_mask()
-    alias vector_mask = sig.vector_mask()
-    alias bivector_mask = sig.bivector_mask()
-    alias trivector_mask = sig.trivector_mask()
-    alias quadvector_mask = sig.quadvector_mask()
+    comptime scalar_mask = sig.scalar_mask()
+    comptime vector_mask = sig.vector_mask()
+    comptime bivector_mask = sig.bivector_mask()
+    comptime trivector_mask = sig.trivector_mask()
+    comptime quadvector_mask = sig.quadvector_mask()
 
-    alias antiscalar_mask = sig.antiscalar_mask()
-    alias antivector_mask = sig.antivector_mask()
-    alias antibivector_mask = sig.antibivector_mask()
-    alias antitrivector_mask = sig.antitrivector_mask()
-    alias antiquadvector_mask = sig.antiquadvector_mask()
+    comptime antiscalar_mask = sig.antiscalar_mask()
+    comptime antivector_mask = sig.antivector_mask()
+    comptime antibivector_mask = sig.antibivector_mask()
+    comptime antitrivector_mask = sig.antitrivector_mask()
+    comptime antiquadvector_mask = sig.antiquadvector_mask()

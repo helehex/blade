@@ -56,10 +56,10 @@ struct ColorBGR888:
     var r: UInt8
 
 
-alias _UInt16 = InlineArray[UInt8, size_of[UInt16]()]
+comptime _UInt16 = InlineArray[UInt8, size_of[UInt16]()]
 """Used to avoid padding to the highest multiple of the highest sized field."""
 
-alias _UInt32 = InlineArray[UInt8, size_of[UInt32]()]
+comptime _UInt32 = InlineArray[UInt8, size_of[UInt32]()]
 """Used to avoid padding to the highest multiple of the highest sized field."""
 
 
@@ -183,7 +183,7 @@ struct BitmapInfoHeader(Copyable & Movable):
         self.icc = icc.as_bytes()
 
 
-alias fn_sampler = fn (x: Int, y: Int) capturing [_] -> ColorBGR888
+comptime fn_sampler = fn (x: Int, y: Int) capturing [_] -> ColorBGR888
 
 
 def write_bmp[sampler: fn_sampler](path: Path, width: Int, height: Int):

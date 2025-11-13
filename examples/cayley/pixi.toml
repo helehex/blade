@@ -9,4 +9,4 @@ version = "0.1.0"
 cayley = "mojo cayley.mojo"
 
 [dependencies]
-mojo = ">=0.25.7.0.dev2025111005,<0.26"
+mojo = ">=0.25.7.0.dev2025111205,<0.26"

@@ -1,7 +1,7 @@
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 """Format"""
 
 from collections.string import StringSlice
@@ -10,11 +10,17 @@ from collections.string.string import _chr_ascii
 
 @always_inline
 fn write_sign[WriterType: Writer](mut writer: WriterType, sign: Int):
-    writer.write(_chr_ascii(((-(sign == 0).__int__() & 5) | (-(sign < 0).__int__() & 2)) + 43))
+    writer.write(
+        _chr_ascii(
+            ((-(sign == 0).__int__() & 5) | (-(sign < 0).__int__() & 2)) + 43
+        )
+    )
 
 
 @always_inline
-fn write_repeat[WriterType: Writer](mut writer: WriterType, reps: Int, string: String = " "):
+fn write_repeat[
+    WriterType: Writer
+](mut writer: WriterType, reps: Int, string: String = " "):
     for _ in range(reps):
         writer.write(string)
 

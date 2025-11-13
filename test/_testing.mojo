@@ -19,13 +19,9 @@ fn _str[T: Copyable & Movable & Representable & EqualityComparable](l: List[List
 
 
 @always_inline
-fn _assert_equal[T: Copyable & Movable & Representable & EqualityComparable](
-    lhs: List[T],
-    rhs: List[T],
-    msg: String = "",
-    *,
-    location: Optional[_SourceLocation] = None,
-) raises:
+fn _assert_equal[
+    T: Copyable & Movable & Representable & EqualityComparable
+](lhs: List[T], rhs: List[T], msg: String = "", *, location: Optional[_SourceLocation] = None,) raises:
     var eq = len(lhs) == len(rhs)
 
     if eq:
@@ -33,21 +29,20 @@ fn _assert_equal[T: Copyable & Movable & Representable & EqualityComparable](
             if lhs[idx] != rhs[idx]:
                 eq = False
                 break
-    
+
     if not eq:
         raise _assert_cmp_error["`left == right` comparison"](
-            lhs.__str__(), rhs.__str__(), msg=msg, loc=location.or_else(__call_location())
+            lhs.__str__(),
+            rhs.__str__(),
+            msg=msg,
+            loc=location.or_else(__call_location()),
         )
 
 
 @always_inline
-fn _assert_not_equal[T: Copyable & Movable & Representable & EqualityComparable](
-    lhs: List[T],
-    rhs: List[T],
-    msg: String = "",
-    *,
-    location: Optional[_SourceLocation] = None,
-) raises:
+fn _assert_not_equal[
+    T: Copyable & Movable & Representable & EqualityComparable
+](lhs: List[T], rhs: List[T], msg: String = "", *, location: Optional[_SourceLocation] = None,) raises:
     var ne = len(lhs) != len(rhs)
 
     if not ne:
@@ -58,18 +53,17 @@ fn _assert_not_equal[T: Copyable & Movable & Representable & EqualityComparable]
 
     if not ne:
         raise _assert_cmp_error["`left != right` comparison"](
-            lhs.__str__(), rhs.__str__(), msg=msg, loc=location.or_else(__call_location())
+            lhs.__str__(),
+            rhs.__str__(),
+            msg=msg,
+            loc=location.or_else(__call_location()),
         )
 
 
 @always_inline
-fn _assert_equal[T: Copyable & Movable & Representable & EqualityComparable](
-    lhs: List[List[T]],
-    rhs: List[List[T]],
-    msg: String = "",
-    *,
-    location: Optional[_SourceLocation] = None,
-) raises:
+fn _assert_equal[
+    T: Copyable & Movable & Representable & EqualityComparable
+](lhs: List[List[T]], rhs: List[List[T]], msg: String = "", *, location: Optional[_SourceLocation] = None,) raises:
     var eq = len(lhs) == len(rhs)
 
     if eq:
@@ -77,21 +71,20 @@ fn _assert_equal[T: Copyable & Movable & Representable & EqualityComparable](
             if lhs[idx] != rhs[idx]:
                 eq = False
                 break
-    
+
     if not eq:
         raise _assert_cmp_error["`left == right` comparison"](
-            _str(lhs), _str(rhs), msg=msg, loc=location.or_else(__call_location())
+            _str(lhs),
+            _str(rhs),
+            msg=msg,
+            loc=location.or_else(__call_location()),
         )
 
 
 @always_inline
-fn _assert_not_equal[T: Copyable & Movable & Representable & EqualityComparable](
-    lhs: List[List[T]],
-    rhs: List[List[T]],
-    msg: String = "",
-    *,
-    location: Optional[_SourceLocation] = None,
-) raises:
+fn _assert_not_equal[
+    T: Copyable & Movable & Representable & EqualityComparable
+](lhs: List[List[T]], rhs: List[List[T]], msg: String = "", *, location: Optional[_SourceLocation] = None,) raises:
     var ne = len(lhs) != len(rhs)
 
     if not ne:
@@ -102,5 +95,8 @@ fn _assert_not_equal[T: Copyable & Movable & Representable & EqualityComparable]
 
     if not ne:
         raise _assert_cmp_error["`left != right` comparison"](
-            _str(lhs), _str(rhs), msg=msg, loc=location.or_else(__call_location())
+            _str(lhs),
+            _str(rhs),
+            msg=msg,
+            loc=location.or_else(__call_location()),
         )

@@ -1,7 +1,7 @@
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 """Thick Vector."""
 
 from memory import UnsafePointer
@@ -16,9 +16,9 @@ fn _thick_vector_construction_checks[size: Int, width: Int]():
     ]()
 
 
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 # | Thick Vector
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
 struct ThickVector[type: DType, size: Int, thickness: Int = 1](
@@ -28,9 +28,9 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1](
 
     # +------[ Alias ]------+ #
     #
-    alias Coef = SIMD[type, thickness]
-    alias Lane = ThickVector[type, size, 1]
-    alias Data = __mlir_type[
+    comptime Coef = SIMD[type, thickness]
+    comptime Lane = ThickVector[type, size, 1]
+    comptime Data = __mlir_type[
         `!pop.array<`, size._mlir_value, `, `, Self.Coef, `>`
     ]
 

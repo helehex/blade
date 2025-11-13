@@ -10,8 +10,7 @@ from blade.combinatorics import Combinadic
 
 
 def main():
-    pass
-    # test_init()
+    test_init()
     # test_inc()
     # test_int()
 

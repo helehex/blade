@@ -1,10 +1,4 @@
-# files
-**/temp.**
-**/temp/
-**kgen.trace**
+**/.**
+!.git*
 
-# environments
-.pixi
-
-# packages
 *.mojopkg

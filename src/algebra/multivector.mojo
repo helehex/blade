@@ -1,7 +1,7 @@
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 """Multivector."""
 
 from math import sqrt
@@ -9,9 +9,9 @@ from blade.utils.thick_vector import ThickVector
 from .basis import Basis, SignedBasis, ScaledBasis
 
 
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 # | Multivector
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
 struct Multivector[
@@ -21,11 +21,11 @@ struct Multivector[
 
     # +------[ Alias ]------+ #
     #
-    alias DataType = ThickVector[dtype, len(mask), size]
-    alias Coef = SIMD[dtype, size]
-    alias Lane = Multivector[sig, mask, dtype, 1]
+    comptime DataType = ThickVector[dtype, len(mask), size]
+    comptime Coef = SIMD[dtype, size]
+    comptime Lane = Multivector[sig, mask, dtype, 1]
     # TODO: rename to something less misleading
-    alias Mask = Multivector[sig, _, dtype, size]
+    comptime Mask = Multivector[sig, _, dtype, size]
 
     # +------< Data >------+ #
     #
@@ -113,7 +113,7 @@ struct Multivector[
     #
     @always_inline
     fn __getattr__[key: String](ref self) -> Self.Coef:
-        alias entry = mask.get_entry(sig.basis(key))
+        comptime entry = mask.get_entry(sig.basis(key))
 
         @parameter
         if entry == -1:
@@ -140,7 +140,7 @@ struct Multivector[
                 writer.write("0")
                 return
 
-            alias length = len(mask) - 1
+            comptime length = len(mask) - 1
             if self._data[0] < 0:
                 writer.write("-")
 
@@ -169,8 +169,8 @@ struct Multivector[
         # TODO: this doesnt have to unroll every element in the algebra
         @parameter
         for basis in range(sig.dims):
-            alias lhs_entry = lhs.mask.get_entry(Basis(bin=basis))
-            alias rhs_entry = rhs.mask.get_entry(Basis(bin=basis))
+            comptime lhs_entry = lhs.mask.get_entry(Basis(bin=basis))
+            comptime rhs_entry = rhs.mask.get_entry(Basis(bin=basis))
 
             @parameter
             if (lhs_entry != -1) and (rhs_entry != -1):
@@ -190,8 +190,8 @@ struct Multivector[
         # TODO: this doesnt have to unroll every element in the algebra
         @parameter
         for basis in range(sig.dims):
-            alias lhs_entry = lhs.mask.get_entry(Basis(bin=basis))
-            alias rhs_entry = rhs.mask.get_entry(Basis(bin=basis))
+            comptime lhs_entry = lhs.mask.get_entry(Basis(bin=basis))
+            comptime rhs_entry = rhs.mask.get_entry(Basis(bin=basis))
 
             @parameter
             if (lhs_entry != -1) and (rhs_entry != -1):
@@ -229,7 +229,7 @@ struct Multivector[
 
         @parameter
         for entry in range(len(result.mask)):
-            alias sign = 1 - (sig.grade(self.mask.get_basis(entry)) & 2)
+            comptime sign = 1 - (sig.grade(self.mask.get_basis(entry)) & 2)
             result._data[entry] = self._data[entry] * sign
 
         return result
@@ -241,7 +241,9 @@ struct Multivector[
 
         @parameter
         for entry in range(len(result.mask)):
-            alias sign = ((sig.grade(self.mask.get_basis(entry)) & 1) << 1) - 1
+            comptime sign = (
+                (sig.grade(self.mask.get_basis(entry)) & 1) << 1
+            ) - 1
             result._data[entry] = self._data[entry] * sign
 
         return result
@@ -253,7 +255,9 @@ struct Multivector[
 
         @parameter
         for entry in range(len(result.mask)):
-            alias sign = 1 - ((sig.grade(self.mask.get_basis(entry)) + 1) & 2)
+            comptime sign = 1 - (
+                (sig.grade(self.mask.get_basis(entry)) + 1) & 2
+            )
             result._data[entry] = self._data[entry] * sign
 
         return result
@@ -287,9 +291,9 @@ struct Multivector[
 
         @parameter
         for entry in range(len(result.mask)):
-            alias result_basis = result.mask.get_basis(entry)
-            alias self_entry = lhs.mask.get_entry(result_basis)
-            alias other_entry = rhs.mask.get_entry(result_basis)
+            comptime result_basis = result.mask.get_basis(entry)
+            comptime self_entry = lhs.mask.get_entry(result_basis)
+            comptime other_entry = rhs.mask.get_entry(result_basis)
 
             @parameter
             if (self_entry != -1) and (other_entry != -1):
@@ -311,9 +315,9 @@ struct Multivector[
 
         @parameter
         for entry in range(len(result.mask)):
-            alias result_basis = result.mask.get_basis(entry)
-            alias lhs_entry = lhs.mask.get_entry(result_basis)
-            alias rhs_entry = rhs.mask.get_entry(result_basis)
+            comptime result_basis = result.mask.get_basis(entry)
+            comptime lhs_entry = lhs.mask.get_entry(result_basis)
+            comptime rhs_entry = rhs.mask.get_entry(result_basis)
 
             @parameter
             if (lhs_entry != -1) and (rhs_entry != -1):
@@ -341,13 +345,13 @@ struct Multivector[
 
         @parameter
         for lhs_entry in range(len(lhs.mask)):
-            alias lhs_basis = lhs.mask.get_basis(lhs_entry)
+            comptime lhs_basis = lhs.mask.get_basis(lhs_entry)
 
             @parameter
             for rhs_entry in range(len(rhs.mask)):
-                alias rhs_basis = rhs.mask.get_basis(rhs_entry)
-                alias res_basis = sig.mul(lhs_basis, rhs_basis)
-                alias entry = result.mask.get_entry(Basis(bin=res_basis.bin))
+                comptime rhs_basis = rhs.mask.get_basis(rhs_entry)
+                comptime res_basis = sig.mul(lhs_basis, rhs_basis)
+                comptime entry = result.mask.get_entry(Basis(bin=res_basis.bin))
 
                 @parameter
                 if entry >= 0:
@@ -381,14 +385,14 @@ struct Multivector[
 
         @parameter
         for lhs_entry in range(len(lhs.mask)):
-            alias lhs_basis = lhs.mask.get_basis(lhs_entry)
+            comptime lhs_basis = lhs.mask.get_basis(lhs_entry)
 
             @parameter
             for rhs_entry in range(lhs_entry):
-                alias rhs_basis = lhs.mask.get_basis(rhs_entry)
-                alias res_basis = sig.mul(lhs_basis, rhs_basis)
-                alias rev_basis = sig.mul(rhs_basis, lhs_basis)
-                alias res_entry = result.mask.get_entry(
+                comptime rhs_basis = lhs.mask.get_basis(rhs_entry)
+                comptime res_basis = sig.mul(lhs_basis, rhs_basis)
+                comptime rev_basis = sig.mul(rhs_basis, lhs_basis)
+                comptime res_entry = result.mask.get_entry(
                     Basis(bin=res_basis.bin)
                 )
 
@@ -401,8 +405,8 @@ struct Multivector[
                         * 2
                     )
 
-            alias res_basis = sig.mul(lhs_basis, lhs_basis)
-            alias res_entry = result.mask.get_entry(Basis(bin=res_basis.bin))
+            comptime res_basis = sig.mul(lhs_basis, lhs_basis)
+            comptime res_entry = result.mask.get_entry(Basis(bin=res_basis.bin))
 
             @parameter
             if res_basis.sign != 0:

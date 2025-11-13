@@ -1,7 +1,7 @@
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 """Defines a G3 Multivector, and it's subspaces.
 
 Cl(3,0,0) ⇔ Mat2x2(C)
@@ -18,23 +18,23 @@ Cl(3,0,0) ⇔ Mat2x2(C)
 """
 
 
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 # | G3 Multivector
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
+struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Stringable, Writable):
     """A G3 Multivector."""
 
     # +------[ Alias ]------+ #
     #
-    alias Lane = Multivector[type, 1]
+    comptime Lane = Multivector[type, 1]
 
-    alias Rotor = Rotor[type, size]
-    alias Coef = SIMD[type, size]
-    alias Vect = Vector[type, size]
-    alias Bive = Bivector[type, size]
-    alias Anti = Antiox[type, size]
+    comptime Rotor = Rotor[type, size]
+    comptime Coef = SIMD[type, size]
+    comptime Vect = Vector[type, size]
+    comptime Bive = Bivector[type, size]
+    comptime Anti = Antiox[type, size]
 
     # +------< Data >------+ #
     #
@@ -143,24 +143,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, Equalit
     fn write_to[WriterType: Writer, //, sep: StringLiteral](self, mut writer: WriterType):
         @parameter
         if size == 1:
-            writer.write(
-                self.s,
-                " + ",
-                self.v.x,
-                "x + ",
-                self.v.y,
-                "y + ",
-                self.v.z,
-                "z + ",
-                self.b.i,
-                "i + ",
-                self.b.j,
-                "j + ",
-                self.b.k,
-                "k + ",
-                self.a.a,
-                "a",
-            )
+            writer.write(self.s, " + ", self.v.x, "x + ", self.v.y, "y + ", self.v.z, "z + ", self.b.i, "i + ", self.b.j, "j + ", self.b.k, "k + ", self.a.a, "a")
         else:
 
             @parameter
@@ -175,20 +158,10 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, Equalit
         return (self.s.eq(other.s)) & (self.v.eq(other.v)) & (self.b.eq(other.b)) & (self.a.eq(other.a))
 
     fn eq(self, other: Self.Rotor) -> SIMD[DType.bool, size]:
-        return (
-            (self.s.eq(other.s))
-            & (self.v.eq(Self.Vect()))
-            & (self.b.eq(other.b))
-            & (self.a.eq(Self.Anti()))
-        )
+        return (self.s.eq(other.s)) & (self.v.eq(Self.Vect())) & (self.b.eq(other.b)) & (self.a.eq(Self.Anti()))
 
     fn eq(self, other: Self.Coef) -> SIMD[DType.bool, size]:
-        return (
-            (self.s.eq(other))
-            & (self.v.eq(Self.Vect()))
-            & (self.b.eq(Self.Bive()))
-            & (self.a.eq(Self.Anti()))
-        )
+        return (self.s.eq(other)) & (self.v.eq(Self.Vect())) & (self.b.eq(Self.Bive())) & (self.a.eq(Self.Anti()))
 
     fn eq(self, other: Self.Vect) -> SIMD[DType.bool, size]:
         return (self.s.eq(0)) & (self.v.eq(other)) & (self.b.eq(Self.Bive())) & (self.a.eq(Self.Anti()))
@@ -221,20 +194,10 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, Equalit
         return (self.s.ne(other.s)) | (self.v.ne(other.v)) | (self.b.ne(other.b)) | (self.a.ne(other.a))
 
     fn ne(self, other: Self.Rotor) -> SIMD[DType.bool, size]:
-        return (
-            (self.s.ne(other.s))
-            | (self.v.ne(Self.Vect()))
-            | (self.b.ne(other.b))
-            | (self.a.ne(Self.Anti()))
-        )
+        return (self.s.ne(other.s)) | (self.v.ne(Self.Vect())) | (self.b.ne(other.b)) | (self.a.ne(Self.Anti()))
 
     fn ne(self, other: Self.Coef) -> SIMD[DType.bool, size]:
-        return (
-            (self.s.ne(other))
-            | (self.v.ne(Self.Vect()))
-            | (self.b.ne(Self.Bive()))
-            | (self.a.ne(Self.Anti()))
-        )
+        return (self.s.ne(other)) | (self.v.ne(Self.Vect())) | (self.b.ne(Self.Bive())) | (self.a.ne(Self.Anti()))
 
     fn ne(self, other: Self.Vect) -> SIMD[DType.bool, size]:
         return (self.s.ne(0)) | (self.v.ne(other)) | (self.b.ne(Self.Bive())) | (self.a.ne(Self.Anti()))
@@ -271,7 +234,12 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, Equalit
     # +------( Arithmetic )------+ #
     #
     fn __add__(self, other: Self) -> Self:
-        return Self(self.s + other.s, self.v + other.v, self.b + other.b, self.a + other.a)
+        return Self(
+            self.s + other.s,
+            self.v + other.v,
+            self.b + other.b,
+            self.a + other.a,
+        )
 
     fn __add__(self, other: Self.Rotor) -> Self:
         return Self(self.s + other.s, self.v, self.b + other.b, self.a)
@@ -289,7 +257,12 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, Equalit
         return Self(self.s, self.v, self.b, self.a + other)
 
     fn __sub__(self, other: Self) -> Self:
-        return Self(self.s - other.s, self.v - other.v, self.b - other.b, self.a - other.a)
+        return Self(
+            self.s - other.s,
+            self.v - other.v,
+            self.b - other.b,
+            self.a - other.a,
+        )
 
     fn __sub__(self, other: Self.Rotor) -> Self:
         return Self(self.s - other.s, self.v, self.b - other.b, self.a)
@@ -307,36 +280,10 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, Equalit
         return Self(self.s, self.v, self.b, self.a - other)
 
     fn __mul__(self, other: Self) -> Self:
-        return (
-            +self.s * other.s
-            + self.s * other.v
-            + self.s * other.b
-            + self.s * other.a
-            + self.v * other.s
-            + self.v * other.v
-            + self.v * other.b
-            + self.v * other.a
-            + self.b * other.s
-            + self.b * other.v
-            + self.b * other.b
-            + self.b * other.a
-            + self.a * other.s
-            + self.a * other.v
-            + self.a * other.b
-            + self.a * other.a
-        )
+        return +self.s * other.s + self.s * other.v + self.s * other.b + self.s * other.a + self.v * other.s + self.v * other.v + self.v * other.b + self.v * other.a + self.b * other.s + self.b * other.v + self.b * other.b + self.b * other.a + self.a * other.s + self.a * other.v + self.a * other.b + self.a * other.a
 
     fn __mul__(self, other: Self.Rotor) -> Self:
-        return (
-            +self.s * other.s
-            + self.s * other.b
-            + self.v * other.s
-            + self.v * other.b
-            + self.b * other.s
-            + self.b * other.b
-            + self.a * other.s
-            + self.a * other.b
-        )
+        return +self.s * other.s + self.s * other.b + self.v * other.s + self.v * other.b + self.b * other.s + self.b * other.b + self.a * other.s + self.a * other.b
 
     fn __mul__(self, other: Self.Coef) -> Self:
         return Self(self.s * other, self.v * other, self.b * other, self.a * other)
@@ -362,23 +309,23 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, Equalit
         return Self(other * self.s, other * self.v, other * self.b, other * self.a)
 
 
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 # | G3 Rotor
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Rotor[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
+struct Rotor[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Stringable, Writable):
     """A G3 Rotor. The even sub-algebra of G3. Isomorphic with Quaternions."""
 
     # +------[ Alias ]------+ #
     #
-    alias Lane = Rotor[type, 1]
+    comptime Lane = Rotor[type, 1]
 
-    alias Multi = Multivector[type, size]
-    alias Coef = SIMD[type, size]
-    alias Vect = Vector[type, size]
-    alias Bive = Bivector[type, size]
-    alias Anti = Antiox[type, size]
+    comptime Multi = Multivector[type, size]
+    comptime Coef = SIMD[type, size]
+    comptime Vect = Vector[type, size]
+    comptime Bive = Bivector[type, size]
+    comptime Anti = Antiox[type, size]
 
     # +------< Data >------+ #
     #
@@ -435,7 +382,7 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](Copyable, EqualityCompa
     @always_inline
     fn __simd_bool__(self) -> SIMD[DType.bool, size]:
         return self.is_zero()
-    
+
     @always_inline
     fn is_zero(self) -> SIMD[DType.bool, size]:
         return (self.s == 0) & self.b.is_zero()
@@ -586,23 +533,23 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](Copyable, EqualityCompa
         return Self(other * self.s, other * self.b)
 
 
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 # | G3 Vector
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Vector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
+struct Vector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Stringable, Writable):
     """A G3 Vector."""
 
     # +------[ Alias ]------+ #
     #
-    alias Lane = Vector[type, 1]
+    comptime Lane = Vector[type, 1]
 
-    alias Multi = Multivector[type, size]
-    alias Rotor = Rotor[type, size]
-    alias Coef = SIMD[type, size]
-    alias Bive = Bivector[type, size]
-    alias Anti = Antiox[type, size]
+    comptime Multi = Multivector[type, size]
+    comptime Rotor = Rotor[type, size]
+    comptime Coef = SIMD[type, size]
+    comptime Bive = Bivector[type, size]
+    comptime Anti = Antiox[type, size]
 
     # +------< Data >------+ #
     #
@@ -793,23 +740,23 @@ struct Vector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComp
         return Self(other * self.x, other * self.y, other * self.z)
 
 
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 # | G3 Bivector
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Bivector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
+struct Bivector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Stringable, Writable):
     """A G3 Bivector."""
 
     # +------[ Alias ]------+ #
     #
-    alias Lane = Bivector[type, 1]
+    comptime Lane = Bivector[type, 1]
 
-    alias Multi = Multivector[type, size]
-    alias Rotor = Rotor[type, size]
-    alias Coef = SIMD[type, size]
-    alias Vect = Vector[type, size]
-    alias Anti = Antiox[type, size]
+    comptime Multi = Multivector[type, size]
+    comptime Rotor = Rotor[type, size]
+    comptime Coef = SIMD[type, size]
+    comptime Vect = Vector[type, size]
+    comptime Anti = Antiox[type, size]
 
     # +------< Data >------+ #
     #
@@ -1012,23 +959,23 @@ struct Bivector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityCo
         return Self(other * self.i, other * self.j, other * self.k)
 
 
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 # | G3 Antiox
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Antiox[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
+struct Antiox[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Stringable, Writable):
     """A G3 Antiox."""
 
     # +------[ Alias ]------+ #
     #
-    alias Lane = Antiox[type, 1]
+    comptime Lane = Antiox[type, 1]
 
-    alias Multi = Multivector[type, size]
-    alias Rotor = Rotor[type, size]
-    alias Coef = SIMD[type, size]
-    alias Vect = Vector[type, size]
-    alias Bive = Bivector[type, size]
+    comptime Multi = Multivector[type, size]
+    comptime Rotor = Rotor[type, size]
+    comptime Coef = SIMD[type, size]
+    comptime Vect = Vector[type, size]
+    comptime Bive = Bivector[type, size]
 
     # +------< Data >------+ #
     #

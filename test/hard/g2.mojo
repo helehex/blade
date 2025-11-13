@@ -1,7 +1,7 @@
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 """Defines a G2 Multivector, and it's subspaces.
 
 Cl(2,0,0) ⇔ Mat2x2
@@ -16,23 +16,24 @@ Cl(2,0,0) ⇔ Mat2x2
 """
 
 from math import sqrt, cos, sin, atan2
+
 # from collections import Optional
 
 
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 # | G2 Multivector
-# +----------------------------------------------------------------------------------------------+ #
+# +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
+struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Stringable, Writable):
     """A G2 Multivector."""
 
     # +------[ Alias ]------+ #
     #
-    alias Coef = SIMD[type, size]
-    alias Vect = Vector[type, size]
-    alias Roto = Rotor[type, size]
-    alias Lane = Multivector[type, 1]
+    comptime Coef = SIMD[type, size]
+    comptime Vect = Vector[type, size]
+    comptime Roto = Rotor[type, size]
+    comptime Lane = Multivector[type, 1]
 
     # +------< Data >------+ #
     #
@@ -52,7 +53,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, Equalit
         self.s = 0
         self.v = None
         self.i = 0
-    
+
     @implicit
     @always_inline
     fn __init__(out self, none: None):
@@ -487,8 +488,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, Equalit
 
     @always_inline
     fn reduce_max_compose(self) -> Self.Lane:
-        """Treats each basis channel independently, then uses those to constuct a new multivector.
-        """
+        """Treats each basis channel independently, then uses those to constuct a new multivector."""
         return Self.Lane(
             self.s.reduce_max(),
             self.v.x.reduce_max(),
@@ -498,8 +498,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, Equalit
 
     @always_inline
     fn reduce_min_compose(self) -> Self.Lane:
-        """Treats each basis channel independently, then uses those to constuct a new multivector.
-        """
+        """Treats each basis channel independently, then uses those to constuct a new multivector."""
         return Self.Lane(
             self.s.reduce_min(),
             self.v.x.reduce_min(),
@@ -513,15 +512,15 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](Copyable, Equalit
 # +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Rotor[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
+struct Rotor[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Stringable, Writable):
     """The real and anti parts of a Multivector G2. Useful for rotating vectors."""
 
     # +------[ Alias ]------+ #
     #
-    alias Coef = SIMD[type, size]
-    alias Vect = Vector[type, size]
-    alias Multi = Multivector[type, size]
-    alias Lane = Rotor[type, 1]
+    comptime Coef = SIMD[type, size]
+    comptime Vect = Vector[type, size]
+    comptime Multi = Multivector[type, size]
+    comptime Lane = Rotor[type, 1]
 
     # +------< Data >------+ #
     #
@@ -849,13 +848,13 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](Copyable, EqualityCompa
 # +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct Vector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Writable, Stringable):
+struct Vector[type: DType = DType.float64, size: Int = 1](Copyable, EqualityComparable, Movable, Stringable, Writable):
     # +------[ Alias ]------+ #
     #
-    alias Coef = SIMD[type, size]
-    alias Roto = Rotor[type, size]
-    alias Multi = Multivector[type, size]
-    alias Lane = Vector[type, 1]
+    comptime Coef = SIMD[type, size]
+    comptime Roto = Rotor[type, size]
+    comptime Multi = Multivector[type, size]
+    comptime Lane = Vector[type, 1]
 
     # +------< Data >------+ #
     #

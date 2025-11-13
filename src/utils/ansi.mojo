@@ -1,35 +1,35 @@
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# x----------------------------------------------------------------------------------------------x #
+# +--------------------------------------------------------------------------+ #
 """Ansi Color Characters."""
 
-alias none = ""
+comptime none = ""
 
-alias bold = "\033[1m"
+comptime bold = "\033[1m"
 
-alias clear = "\033[0m"
-alias grey = "\033[30m"
-alias red = "\033[31m"
-alias green = "\033[32m"
-alias yellow = "\033[33m"
-alias blue = "\033[34m"
-alias pink = "\033[35m"
-alias cyan = "\033[36m"
-alias white = "\033[37m"
+comptime clear = "\033[0m"
+comptime grey = "\033[30m"
+comptime red = "\033[31m"
+comptime green = "\033[32m"
+comptime yellow = "\033[33m"
+comptime blue = "\033[34m"
+comptime pink = "\033[35m"
+comptime cyan = "\033[36m"
+comptime white = "\033[37m"
 
-alias bg_grey = "\033[40m"
-alias bg_red = "\033[41m"
-alias bg_green = "\033[42m"
-alias bg_yellow = "\033[43m"
-alias bg_blue = "\033[44m"
-alias bg_pink = "\033[45m"
-alias bg_cyan = "\033[46m"
-alias bg_white = "\033[47m"
+comptime bg_grey = "\033[40m"
+comptime bg_red = "\033[41m"
+comptime bg_green = "\033[42m"
+comptime bg_yellow = "\033[43m"
+comptime bg_blue = "\033[44m"
+comptime bg_pink = "\033[45m"
+comptime bg_cyan = "\033[46m"
+comptime bg_white = "\033[47m"
 
-alias colors = [grey, red, yellow, green, cyan, blue, pink, white]
+comptime colors = [grey, red, yellow, green, cyan, blue, pink, white]
 
-alias bg_colors = [
+comptime bg_colors = [
     bg_grey,
     bg_red,
     bg_yellow,
