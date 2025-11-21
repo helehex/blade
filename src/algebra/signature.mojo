@@ -143,7 +143,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
         var basis = ~(-1 << grade)
         for _ in range(elements):
             mask.entries.append(Basis(bin=basis))
-            basis = Order.next_bin(self.vecs, basis)
+            basis = Self.Order.next_bin(self.vecs, basis)
 
     @always_inline
     fn even_mask(self, out mask: BasisMask):
@@ -152,7 +152,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
             var basis = ~(-1 << grade)
             for _ in range(pascal(self.vecs, grade)):
                 mask.entries.append(Basis(bin=basis))
-                basis = Order.next_bin(self.vecs, basis)
+                basis = Self.Order.next_bin(self.vecs, basis)
 
     @always_inline
     fn scalar_mask(self, out mask: BasisMask):
@@ -197,7 +197,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
     # +------( Basis )------+ #
     #
     fn basis(self, idx: BasisIndex) -> Basis:
-        return Basis(bin=power_unrank_bin[Order](self.vecs, Int(idx)))
+        return Basis(bin=power_unrank_bin[Self.Order](self.vecs, Int(idx)))
 
     fn basis(self, string: StringSlice, out result: Basis):
         result = Basis()
@@ -253,7 +253,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
     @always_inline
     fn signed_basis(self, idx: SignedBasisIndex) -> SignedBasis:
         return SignedBasis(
-            idx.sign, bin=power_unrank_bin[Order](self.vecs, idx.idx)
+            idx.sign, bin=power_unrank_bin[Self.Order](self.vecs, idx.idx)
         )
 
     fn signed_basis(self, string: StringSlice, out result: SignedBasis):
@@ -301,15 +301,15 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
     #
     @always_inline
     fn basis_index(self, basis: Basis) -> BasisIndex:
-        return power_rank_bin[Order](self.vecs, basis.bin)
+        return power_rank_bin[Self.Order](self.vecs, basis.bin)
 
     @always_inline
     fn basis_index(self, basis: SignedBasis) -> BasisIndex:
-        return power_rank_bin[Order](self.vecs, basis.bin)
+        return power_rank_bin[Self.Order](self.vecs, basis.bin)
 
     @always_inline
     fn basis_index(self, string: StringSlice) -> BasisIndex:
-        return power_rank_bin[Order](self.vecs, self.basis(string).bin)
+        return power_rank_bin[Self.Order](self.vecs, self.basis(string).bin)
 
     # +------( SignedBasisIndex )------+ #
     #
@@ -340,11 +340,11 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
 
     @always_inline
     fn grade(self, idx: BasisIndex) -> Int:
-        return grade[Order](self.vecs, Int(idx))
+        return grade[Self.Order](self.vecs, Int(idx))
 
     @always_inline
     fn grade(self, idx: SignedBasisIndex) -> Int:
-        return grade[Order](self.vecs, idx.idx)
+        return grade[Self.Order](self.vecs, idx.idx)
 
     # +------( Product )------+ #
     #
@@ -506,11 +506,11 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
     #
     @always_inline
     fn ibasis_to_ebasis(self, ibasis: Int) -> List[Int]:
-        return power_unrank[Order](self.vecs, ibasis)
+        return power_unrank[Self.Order](self.vecs, ibasis)
 
     @always_inline
     fn ebasis_to_ibasis(self, ebasis: List[Int]) -> Int:
-        return power_rank[Order](self.vecs, ebasis)
+        return power_rank[Self.Order](self.vecs, ebasis)
 
     @always_inline
     fn squash_basis(self, mut basis: List[Int], mut sign: Int):

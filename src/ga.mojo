@@ -92,7 +92,7 @@ struct GA[sig: Signature]:
     #
     fn __getitem__[
         string: String
-    ](self, out result: Multivector[sig, sig.basis_mask(string)]):
+    ](self, out result: Multivector[Self.sig, Self.sig.basis_mask(string)]):
         result = result.__init__()
         var start = 0
         var stop = 1
@@ -104,7 +104,7 @@ struct GA[sig: Signature]:
             var idx_of_e = slice.find("e")
             idx_of_e = len(slice) if idx_of_e == -1 else idx_of_e
             try:
-                var basis = materialize[sig]().signed_basis(slice[idx_of_e:])
+                var basis = materialize[Self.sig]().signed_basis(slice[idx_of_e:])
                 var entry = result.mask.get_entry(Basis(bin=basis.bin))
                 var value = 1 if idx_of_e == start else result.Coef(
                     slice[:idx_of_e]
@@ -117,32 +117,32 @@ struct GA[sig: Signature]:
     @always_inline("builtin")
     fn __getattr__[
         attr: StringLiteral
-    ](self, out result: BasisLiteral[sig, sig.signed_basis(attr)]):
+    ](self, out result: BasisLiteral[Self.sig, Self.sig.signed_basis(attr)]):
         result = result.__init__()
 
     # +------( Subspace Constructors )------+ #
     #
-    comptime Multivector = Multivector[sig, dtype=_, size=_, mask=_]
-    comptime Vector = Multivector[sig,]
-    comptime i = Multivector[sig, Self.antiscalar_mask, _, _](1)
+    comptime Multivector = Multivector[Self.sig, dtype=_, size=_, mask=_]
+    comptime Vector = Multivector[Self.sig,]
+    comptime i = Multivector[Self.sig, Self.antiscalar_mask, _, _](1)
 
     @staticmethod
     @always_inline
     fn vector[
         type: DType = DType.float64, size: Int = 1
     ](var *coefs: SIMD[type, size]) -> Multivector[
-        sig, Self.vector_mask, type, size
+        Self.sig, Self.vector_mask, type, size
     ]:
-        return Multivector[sig, Self.vector_mask, type, size](coefs^)
+        return Multivector[Self.sig, Self.vector_mask, type, size](coefs^)
 
     @staticmethod
     @always_inline
     fn bivector[
         type: DType = DType.float64, size: Int = 1
     ](var *coefs: SIMD[type, size]) -> Multivector[
-        sig, Self.bivector_mask, type, size
+        Self.sig, Self.bivector_mask, type, size
     ]:
-        return Multivector[sig, Self.bivector_mask, type, size](coefs^)
+        return Multivector[Self.sig, Self.bivector_mask, type, size](coefs^)
 
     # @staticmethod
     # @always_inline
@@ -151,18 +151,18 @@ struct GA[sig: Signature]:
 
     # +------( Mask Aliases )------+ #
     #
-    comptime empty_mask = sig.empty_mask()
-    comptime full_mask = sig.full_mask()
-    comptime even_mask = sig.even_mask()
+    comptime empty_mask = Self.sig.empty_mask()
+    comptime full_mask = Self.sig.full_mask()
+    comptime even_mask = Self.sig.even_mask()
 
-    comptime scalar_mask = sig.scalar_mask()
-    comptime vector_mask = sig.vector_mask()
-    comptime bivector_mask = sig.bivector_mask()
-    comptime trivector_mask = sig.trivector_mask()
-    comptime quadvector_mask = sig.quadvector_mask()
+    comptime scalar_mask = Self.sig.scalar_mask()
+    comptime vector_mask = Self.sig.vector_mask()
+    comptime bivector_mask = Self.sig.bivector_mask()
+    comptime trivector_mask = Self.sig.trivector_mask()
+    comptime quadvector_mask = Self.sig.quadvector_mask()
 
-    comptime antiscalar_mask = sig.antiscalar_mask()
-    comptime antivector_mask = sig.antivector_mask()
-    comptime antibivector_mask = sig.antibivector_mask()
-    comptime antitrivector_mask = sig.antitrivector_mask()
-    comptime antiquadvector_mask = sig.antiquadvector_mask()
+    comptime antiscalar_mask = Self.sig.antiscalar_mask()
+    comptime antivector_mask = Self.sig.antivector_mask()
+    comptime antibivector_mask = Self.sig.antibivector_mask()
+    comptime antitrivector_mask = Self.sig.antitrivector_mask()
+    comptime antiquadvector_mask = Self.sig.antiquadvector_mask()

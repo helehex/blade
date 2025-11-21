@@ -26,7 +26,7 @@ struct PopIter[reversed: Bool = False]:
         self.bin = bin
 
         @parameter
-        if reversed:
+        if Self.reversed:
             self.idx = Int.BITWIDTH - count_leading_zeros(bin) - 1
         else:
             self.idx = count_trailing_zeros(bin)
@@ -36,15 +36,15 @@ struct PopIter[reversed: Bool = False]:
         return self
 
     @always_inline("nodebug")
-    fn __reversed__(self) -> PopIter[~reversed]:
-        return PopIter[~reversed](self.bin)
+    fn __reversed__(self) -> PopIter[~Self.reversed]:
+        return PopIter[~Self.reversed](self.bin)
 
     @always_inline("nodebug")
     fn __next__(mut self, out result: Int):
         result = self.idx
 
         @parameter
-        if reversed:
+        if Self.reversed:
             self._backward()
         else:
             self._forward()
@@ -62,7 +62,7 @@ struct PopIter[reversed: Bool = False]:
     @always_inline("nodebug")
     fn __has_next__(self) -> Bool:
         @parameter
-        if reversed:
+        if Self.reversed:
             return self.idx >= 0
         else:
             return self.idx < Int.BITWIDTH

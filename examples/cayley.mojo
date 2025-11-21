@@ -4,7 +4,7 @@
 # x--------------------------------------------------------------------------x #
 """Cayley table image generator."""
 
-from pathlib import Path
+from pathlib import Path, _dir_of_current_file
 from sys import size_of
 from math import align_up
 from sys import argv
@@ -38,10 +38,11 @@ def main():
         c = m.sign
         v = (m.idx * 255) // sig.dims
         return ColorBGR888(v * Int(c == -1), v * Int(c == 0), v * Int(c == 1))
-        # return ColorBGR888(v, v, v)
 
     # Write the image to a bitmap file
-    write_bmp[_sample](Path("./img.bmp"), sig.dims, sig.dims)
+    write_bmp[_sample](
+        _dir_of_current_file() / Path(".img.bmp"), sig.dims, sig.dims
+    )
 
 
 # +--------------------------------------------------------------------------+ #

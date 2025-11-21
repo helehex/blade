@@ -1,4 +1,4 @@
-# Blade ![Static Badge](https://img.shields.io/badge/build-0.1.0-orange) ![Static Badge](https://img.shields.io/badge/mojo-25.7.0.dev2025111305-red)
+# Blade ![Static Badge](https://img.shields.io/badge/build-0.1.0-orange) ![Static Badge](https://img.shields.io/badge/mojo-0.25.7.0-red)
 **Blade** is a geometric algebra library for Mojo 🔥
 
 ## Geometric Algebra

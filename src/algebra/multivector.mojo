@@ -21,11 +21,11 @@ struct Multivector[
 
     # +------[ Alias ]------+ #
     #
-    comptime DataType = ThickVector[dtype, len(mask), size]
-    comptime Coef = SIMD[dtype, size]
-    comptime Lane = Multivector[sig, mask, dtype, 1]
+    comptime DataType = ThickVector[Self.dtype, len(Self.mask), Self.size]
+    comptime Coef = SIMD[Self.dtype, Self.size]
+    comptime Lane = Multivector[Self.sig, Self.mask, Self.dtype, 1]
     # TODO: rename to something less misleading
-    comptime Mask = Multivector[sig, _, dtype, size]
+    comptime Mask = Multivector[Self.sig, _, Self.dtype, Self.size]
 
     # +------< Data >------+ #
     #
@@ -40,7 +40,7 @@ struct Multivector[
 
     @always_inline
     fn __init__[
-        init: Bool = True, *, _mask: BasisMask = sig.empty_mask()
+        init: Bool = True, *, _mask: BasisMask = Self.sig.empty_mask()
     ](out self: Self.Mask[_mask]):
         self._data = self._data.__init__[init]()
 
@@ -49,7 +49,7 @@ struct Multivector[
     @always_inline
     fn __init__[
         __: None = None
-    ](out self: Self.Mask[sig.scalar_mask()], scalar: Self.Coef):
+    ](out self: Self.Mask[Self.sig.scalar_mask()], scalar: Self.Coef):
         self = self.__init__[False]()
         self._data[0] = scalar
 
@@ -58,8 +58,8 @@ struct Multivector[
     fn __init__[
         basis: SignedBasis, //, __: None = None
     ](
-        out self: Self.Mask[sig.basis_mask(basis)],
-        scalar: BasisLiteral[sig, basis],
+        out self: Self.Mask[Self.sig.basis_mask(basis)],
+        scalar: BasisLiteral[Self.sig, basis],
     ):
         self = self.__init__[False]()
         self._data[0] = basis.sign
@@ -68,7 +68,7 @@ struct Multivector[
     @always_inline
     fn __init__[
         __: None = None
-    ](out self: Self.Mask[sig.scalar_mask()], scalar: Int):
+    ](out self: Self.Mask[Self.sig.scalar_mask()], scalar: Int):
         self = Self.Coef(scalar)
 
     @always_inline
@@ -76,7 +76,7 @@ struct Multivector[
         self = self.__init__[False]()
 
         @parameter
-        if len(mask) != 1:
+        if len(Self.mask) != 1:
             abort(
                 "incorrect number of coefficient passed to masked multivector"
             )
@@ -94,7 +94,7 @@ struct Multivector[
     @always_inline
     fn __init__(out self, var coefs: VariadicListMem[Self.Coef]):
         self = self.__init__[False]()
-        if len(coefs) != len(mask):
+        if len(coefs) != len(Self.mask):
             abort(
                 "incorrect number of coefficient passed to masked multivector"
             )
@@ -104,7 +104,9 @@ struct Multivector[
     fn __init__(out self, var **coefs: Self.Coef):
         self = self.__init__[True]()
         for item in coefs.items():
-            var entry = mask.get_entry(materialize[sig]().basis(item.key))
+            var entry = Self.mask.get_entry(
+                materialize[Self.sig]().basis(item.key)
+            )
             if entry == -1:
                 abort("basis is not a member of mask")
             self._data[entry] = item.value
@@ -113,7 +115,7 @@ struct Multivector[
     #
     @always_inline
     fn __getattr__[key: String](ref self) -> Self.Coef:
-        comptime entry = mask.get_entry(sig.basis(key))
+        comptime entry = Self.mask.get_entry(Self.sig.basis(key))
 
         @parameter
         if entry == -1:
@@ -133,14 +135,14 @@ struct Multivector[
     @no_inline
     fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
         @parameter
-        if size == 1:
+        if Self.size == 1:
 
             @parameter
-            if len(mask) == 0:
+            if len(Self.mask) == 0:
                 writer.write("0")
                 return
 
-            comptime length = len(mask) - 1
+            comptime length = len(Self.mask) - 1
             if self._data[0] < 0:
                 writer.write("-")
 
@@ -150,25 +152,27 @@ struct Multivector[
                 var element = ScaledBasis(
                     abs(self._data[entry]), self.mask.get_basis(entry)
                 )
-                materialize[sig]().write_basis_to(writer, element)
+                materialize[Self.sig]().write_basis_to(writer, element)
                 writer.write(" - " if self._data[entry + 1] < 0 else " + ")
             var element = ScaledBasis(
                 abs(self._data[length]), self.mask.get_basis(length)
             )
-            materialize[sig]().write_basis_to(writer, element)
+            materialize[Self.sig]().write_basis_to(writer, element)
         else:
-            for lane_idx in range(size - 1):
+            for lane_idx in range(Self.size - 1):
                 self.get_lane(lane_idx).write_to(writer)
                 writer.write("\n")
-            self.get_lane(size - 1).write_to(writer)
+            self.get_lane(Self.size - 1).write_to(writer)
 
     # +------( Comparison )------+ #
     #
     @always_inline
-    fn __eq__(lhs, rhs: Multivector[sig, _, dtype, size]) -> Bool:
+    fn __eq__(
+        lhs, rhs: Multivector[Self.sig, _, Self.dtype, Self.size]
+    ) -> Bool:
         # TODO: this doesnt have to unroll every element in the algebra
         @parameter
-        for basis in range(sig.dims):
+        for basis in range(Self.sig.dims):
             comptime lhs_entry = lhs.mask.get_entry(Basis(bin=basis))
             comptime rhs_entry = rhs.mask.get_entry(Basis(bin=basis))
 
@@ -186,10 +190,12 @@ struct Multivector[
         return True
 
     @always_inline
-    fn __ne__(lhs, rhs: Multivector[sig, _, dtype, size]) -> Bool:
+    fn __ne__(
+        lhs, rhs: Multivector[Self.sig, _, Self.dtype, Self.size]
+    ) -> Bool:
         # TODO: this doesnt have to unroll every element in the algebra
         @parameter
-        for basis in range(sig.dims):
+        for basis in range(Self.sig.dims):
             comptime lhs_entry = lhs.mask.get_entry(Basis(bin=basis))
             comptime rhs_entry = rhs.mask.get_entry(Basis(bin=basis))
 
@@ -210,7 +216,9 @@ struct Multivector[
     #
     @always_inline
     fn __neg__(self) -> Self:
-        var result = Multivector[sig, mask, dtype, size].__init__[False]()
+        var result = Multivector[
+            Self.sig, Self.mask, Self.dtype, Self.size
+        ].__init__[False]()
 
         @parameter
         for entry in range(len(result.mask)):
@@ -225,11 +233,13 @@ struct Multivector[
     @always_inline
     fn __rev__(self) -> Self:
         """Reverse operator, reverses the subscript of each basis element."""
-        var result = Multivector[sig, mask, dtype, size].__init__[False]()
+        var result = Multivector[
+            Self.sig, Self.mask, Self.dtype, Self.size
+        ].__init__[False]()
 
         @parameter
         for entry in range(len(result.mask)):
-            comptime sign = 1 - (sig.grade(self.mask.get_basis(entry)) & 2)
+            comptime sign = 1 - (Self.sig.grade(self.mask.get_basis(entry)) & 2)
             result._data[entry] = self._data[entry] * sign
 
         return result
@@ -237,12 +247,14 @@ struct Multivector[
     @always_inline
     fn __invo__(self) -> Self:
         """Involute operator."""
-        var result = Multivector[sig, mask, dtype, size].__init__[False]()
+        var result = Multivector[
+            Self.sig, Self.mask, Self.dtype, Self.size
+        ].__init__[False]()
 
         @parameter
         for entry in range(len(result.mask)):
             comptime sign = (
-                (sig.grade(self.mask.get_basis(entry)) & 1) << 1
+                (Self.sig.grade(self.mask.get_basis(entry)) & 1) << 1
             ) - 1
             result._data[entry] = self._data[entry] * sign
 
@@ -251,12 +263,14 @@ struct Multivector[
     @always_inline
     fn __conj__(self) -> Self:
         """Conjugate operator."""
-        var result = Multivector[sig, mask, dtype, size].__init__[False]()
+        var result = Multivector[
+            Self.sig, Self.mask, Self.dtype, Self.size
+        ].__init__[False]()
 
         @parameter
         for entry in range(len(result.mask)):
             comptime sign = 1 - (
-                (sig.grade(self.mask.get_basis(entry)) + 1) & 2
+                (Self.sig.grade(self.mask.get_basis(entry)) + 1) & 2
             )
             result._data[entry] = self._data[entry] * sign
 
@@ -265,7 +279,9 @@ struct Multivector[
     @always_inline
     fn __dual__(self) -> Self:
         """Dual operator, currently just reverses coefficients."""
-        var result = Multivector[sig, mask, dtype, size].__init__[False]()
+        var result = Multivector[
+            Self.sig, Self.mask, Self.dtype, Self.size
+        ].__init__[False]()
 
         @parameter
         for entry in range(len(result.mask)):
@@ -280,7 +296,12 @@ struct Multivector[
     @always_inline
     fn normalized(
         self,
-    ) -> Multivector[sig, sig.mul(mask, sig.scalar_mask()), dtype, size]:
+    ) -> Multivector[
+        Self.sig,
+        Self.sig.mul(Self.mask, Self.sig.scalar_mask()),
+        Self.dtype,
+        Self.size,
+    ]:
         return self * (1 / self.norm())
 
     # +------( Arithmetic )------+ #
@@ -339,7 +360,7 @@ struct Multivector[
     ](
         ref [lhs_origin]lhs,
         ref [rhs_origin]rhs: Self.Mask,
-        out result: Self.Mask[sig.mul(lhs.mask, rhs.mask)],
+        out result: Self.Mask[Self.sig.mul(lhs.mask, rhs.mask)],
     ):
         result = result.__init__[True]()
 
@@ -350,7 +371,7 @@ struct Multivector[
             @parameter
             for rhs_entry in range(len(rhs.mask)):
                 comptime rhs_basis = rhs.mask.get_basis(rhs_entry)
-                comptime res_basis = sig.mul(lhs_basis, rhs_basis)
+                comptime res_basis = Self.sig.mul(lhs_basis, rhs_basis)
                 comptime entry = result.mask.get_entry(Basis(bin=res_basis.bin))
 
                 @parameter
@@ -367,19 +388,21 @@ struct Multivector[
     ](
         ref [origin]lhs,
         ref [origin]rhs: Self,
-        out result: Self.Mask[sig.sqr(rhs.mask)],
+        out result: Self.Mask[Self.sig.sqr(rhs.mask)],
     ):
         result = lhs**2
 
     @always_inline
-    fn __rmul__(rhs, lhs: Self.Mask) -> Self.Mask[sig.mul(lhs.mask, rhs.mask)]:
+    fn __rmul__(
+        rhs, lhs: Self.Mask
+    ) -> Self.Mask[Self.sig.mul(lhs.mask, rhs.mask)]:
         return lhs * rhs
 
     @always_inline
     fn __pow__(
         lhs,
         rhs: IntLiteral[(2).value],
-        out result: Self.Mask[sig.sqr(lhs.mask)],
+        out result: Self.Mask[Self.sig.sqr(lhs.mask)],
     ):
         result = result.__init__[True]()
 
@@ -390,8 +413,8 @@ struct Multivector[
             @parameter
             for rhs_entry in range(lhs_entry):
                 comptime rhs_basis = lhs.mask.get_basis(rhs_entry)
-                comptime res_basis = sig.mul(lhs_basis, rhs_basis)
-                comptime rev_basis = sig.mul(rhs_basis, lhs_basis)
+                comptime res_basis = Self.sig.mul(lhs_basis, rhs_basis)
+                comptime rev_basis = Self.sig.mul(rhs_basis, lhs_basis)
                 comptime res_entry = result.mask.get_entry(
                     Basis(bin=res_basis.bin)
                 )
@@ -405,7 +428,7 @@ struct Multivector[
                         * 2
                     )
 
-            comptime res_basis = sig.mul(lhs_basis, lhs_basis)
+            comptime res_basis = Self.sig.mul(lhs_basis, lhs_basis)
             comptime res_entry = result.mask.get_entry(Basis(bin=res_basis.bin))
 
             @parameter
@@ -417,6 +440,8 @@ struct Multivector[
     @always_inline
     fn __call__(
         versor, operand: Self.Mask
-    ) -> Self.Mask[sig.mul(sig.mul(versor.mask, operand.mask), versor.mask)]:
+    ) -> Self.Mask[
+        Self.sig.mul(Self.sig.mul(versor.mask, operand.mask), versor.mask)
+    ]:
         """Shorthand for the sandwich operator."""
         return versor * operand * ~versor

@@ -23,9 +23,10 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](
     @always_inline
     fn __add__(
         lhs,
-        rhs: BasisLiteral[sig, _],
+        rhs: BasisLiteral[Self.sig, _],
         out result: Multivector[
-            sig, sig.basis_mask(lhs.basis) | sig.basis_mask(rhs.basis)
+            Self.sig,
+            Self.sig.basis_mask(lhs.basis) | Self.sig.basis_mask(rhs.basis),
         ],
     ):
         result = result.__init__[False]()
@@ -36,9 +37,10 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](
     @always_inline
     fn __sub__(
         lhs,
-        rhs: BasisLiteral[sig, _],
+        rhs: BasisLiteral[Self.sig, _],
         out result: Multivector[
-            sig, sig.basis_mask(lhs.basis) | sig.basis_mask(-rhs.basis)
+            Self.sig,
+            Self.sig.basis_mask(lhs.basis) | Self.sig.basis_mask(-rhs.basis),
         ],
     ):
         result = lhs + -rhs
@@ -46,8 +48,8 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](
     @always_inline("builtin")
     fn __mul__(
         lhs,
-        rhs: BasisLiteral[sig, _],
-        out result: BasisLiteral[sig, sig.mul(lhs.basis, rhs.basis)],
+        rhs: BasisLiteral[Self.sig, _],
+        out result: BasisLiteral[Self.sig, Self.sig.mul(lhs.basis, rhs.basis)],
     ):
         result = result.__init__()
 
@@ -56,7 +58,7 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](
         lhs,
         rhs: SIMD,
         out result: Multivector[
-            sig, sig.basis_mask(basis), rhs.dtype, rhs.size
+            Self.sig, Self.sig.basis_mask(Self.basis), rhs.dtype, rhs.size
         ],
     ):
         result = result.__init__[False]()
@@ -67,13 +69,13 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](
         rhs,
         lhs: SIMD,
         out result: Multivector[
-            sig, sig.basis_mask(basis), lhs.dtype, lhs.size
+            Self.sig, Self.sig.basis_mask(Self.basis), lhs.dtype, lhs.size
         ],
     ):
         result = rhs * lhs
 
     @always_inline("builtin")
-    fn __neg__(self, out result: BasisLiteral[sig, -basis]):
+    fn __neg__(self, out result: BasisLiteral[Self.sig, -Self.basis]):
         result = result.__init__()
 
     @always_inline("builtin")
@@ -81,7 +83,7 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](
         return True
 
     @always_inline("builtin")
-    fn __eq__(lhs, rhs: BasisLiteral[sig, _]) -> Bool:
+    fn __eq__(lhs, rhs: BasisLiteral[Self.sig, _]) -> Bool:
         return lhs.basis == rhs.basis
 
     @always_inline("builtin")
@@ -89,7 +91,7 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](
         return False
 
     @always_inline("builtin")
-    fn __ne__(lhs, rhs: BasisLiteral[sig, _]) -> Bool:
+    fn __ne__(lhs, rhs: BasisLiteral[Self.sig, _]) -> Bool:
         return lhs.basis != rhs.basis
 
     @no_inline
@@ -229,10 +231,8 @@ struct SignedBasis(
 # +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct ScaledBasis[dtype: DType, width: Int](
-    Defaultable, EqualityComparable, Writable
-):
-    var scale: SIMD[dtype, width]
+struct ScaledBasis[dtype: DType, width: Int](Defaultable, EqualityComparable, Writable):
+    var scale: SIMD[Self.dtype, Self.width]
     var bin: Int
 
     # TODO: should be inline builtin
@@ -255,12 +255,12 @@ struct ScaledBasis[dtype: DType, width: Int](
         self.bin = basis.bin
 
     @always_inline("builtin")
-    fn __init__(out self, scale: SIMD[dtype, width], *, bin: Int):
+    fn __init__(out self, scale: SIMD[Self.dtype, Self.width], *, bin: Int):
         self.scale = scale
         self.bin = bin
 
     @always_inline("builtin")
-    fn __init__(out self, scale: SIMD[dtype, width], basis: Basis):
+    fn __init__(out self, scale: SIMD[Self.dtype, Self.width], basis: Basis):
         self.scale = scale
         self.bin = basis.bin
 
@@ -283,18 +283,22 @@ struct ScaledBasis[dtype: DType, width: Int](
     @no_inline
     fn write_to[WriterType: Writer](self, mut writer: WriterType):
         @parameter
-        if width == 1:
+        if Self.width == 1:
             writer.write(self.scale, self.bin)
         else:
             writer.write("[")
 
             @parameter
-            for lane in range(width - 1):
+            for lane in range(Self.width - 1):
                 writer.write(
-                    ScaledBasis[dtype, 1](self.scale[lane], bin=self.bin), ", "
+                    ScaledBasis[Self.dtype, 1](self.scale[lane], bin=self.bin),
+                    ", ",
                 )
             writer.write(
-                ScaledBasis[dtype, 1](self.scale[width - 1], bin=self.bin), "]"
+                ScaledBasis[Self.dtype, 1](
+                    self.scale[Self.width - 1], bin=self.bin
+                ),
+                "]",
             )
 
 
@@ -341,9 +345,7 @@ struct BasisIndex(Copyable, EqualityComparable, Intable, Stringable, Writable):
 # +--------------------------------------------------------------------------+ #
 #
 @register_passable("trivial")
-struct SignedBasisIndex(
-    Copyable, EqualityComparable, Movable, Stringable, Writable
-):
+struct SignedBasisIndex(Copyable, EqualityComparable, Movable, Stringable, Writable):
     var sign: Int
     var idx: Int
 

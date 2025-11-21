@@ -22,17 +22,19 @@ struct Combinadic[width: Int, Order: Ordering = DefaultOrder](Intable):
 
     # Integer to Combinadic
     fn __init__(out self, var idx: Int):
-        constrained[width <= Int.BITWIDTH, "width must be <= Int.BITWIDTH"]()
-        idx %= 2**width
-        self._data = power_unrank_bin[Order](width, idx)
+        constrained[
+            Self.width <= Int.BITWIDTH, "width must be <= Int.BITWIDTH"
+        ]()
+        idx %= 2**Self.width
+        self._data = power_unrank_bin[Self.Order](Self.width, idx)
 
     # Combinadic to Integer
     fn __int__(self, out result: Int):
-        result = power_rank_bin[Order](width, self._data)
+        result = power_rank_bin[Self.Order](Self.width, self._data)
 
     fn __inc__(self, out result: Self):
         result = Self(data=self._data)
-        result._data = Order.next_bin(width, result._data)
+        result._data = Self.Order.next_bin(Self.width, result._data)
 
     fn __invert__(self) -> Self:
         return Self(data=~self._data)

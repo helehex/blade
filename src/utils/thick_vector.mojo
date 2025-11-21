@@ -28,10 +28,10 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1](
 
     # +------[ Alias ]------+ #
     #
-    comptime Coef = SIMD[type, thickness]
-    comptime Lane = ThickVector[type, size, 1]
+    comptime Coef = SIMD[Self.type, Self.thickness]
+    comptime Lane = ThickVector[Self.type, Self.size, 1]
     comptime Data = __mlir_type[
-        `!pop.array<`, size._mlir_value, `, `, Self.Coef, `>`
+        `!pop.array<`, Self.size._mlir_value, `, `, Self.Coef, `>`
     ]
 
     # +------< Data >------+ #
@@ -42,20 +42,20 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1](
     #
     @always_inline
     fn __init__[init: Bool = True](out self):
-        _thick_vector_construction_checks[size, thickness]()
+        _thick_vector_construction_checks[Self.size, Self.thickness]()
         __mlir_op.`lit.ownership.mark_initialized`(
             __get_mvalue_as_litref(self._data)
         )
 
         @parameter
         if init:
-            for idx in range(size):
+            for idx in range(Self.size):
                 self[idx] = 0
 
     @always_inline
     fn __init__[clear: Bool = True](out self, var values: VariadicListMem[Int]):
         self = self.__init__[False]()
-        for idx in range(size):
+        for idx in range(Self.size):
             self[idx] = values[idx]
 
     @always_inline
@@ -63,7 +63,7 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1](
         clear: Bool = True
     ](out self, var values: VariadicListMem[Self.Coef]):
         self = self.__init__[False]()
-        for idx in range(size):
+        for idx in range(Self.size):
             self[idx] = values[idx]
 
     # +------( Subscript )------+ #
@@ -73,13 +73,13 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1](
         result = result.__init__[False]()
 
         @parameter
-        for coef_idx in range(size):
+        for coef_idx in range(Self.size):
             result[coef_idx] = self[coef_idx][idx]
 
     @always_inline
     fn __getitem__[
         width: Int
-    ](ref self: Self.Lane, var idx: Int) -> SIMD[type, width]:
+    ](ref self: Self.Lane, var idx: Int) -> SIMD[Self.type, width]:
         return simd_load[width](self.unsafe_ptr(), idx)
 
     @always_inline
@@ -90,9 +90,9 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1](
     fn __setitem__[
         lif: MutOrigin, //, width: Int
     ](
-        ref [lif]self: ThickVector[type, size, 1],
+        ref [lif]self: ThickVector[Self.type, Self.size, 1],
         var idx: Int,
-        value: SIMD[type, width],
+        value: SIMD[Self.type, width],
     ):
         simd_store[width](self.unsafe_ptr(), idx, value)
 
@@ -120,7 +120,7 @@ struct ThickVector[type: DType, size: Int, thickness: Int = 1](
     #
     @always_inline
     fn __len__(self) -> Int:
-        return size
+        return Self.size
 
     @always_inline
     fn __bool__(self) -> Bool:

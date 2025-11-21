@@ -10,32 +10,35 @@ REPO_ROOT=$(cd -- $(realpath "$( dirname -- "${BASH_SOURCE[0]}" )/..") &> /dev/n
 MANIFEST_PATH="${REPO_ROOT}/pixi.toml"
 README_PATH="${REPO_ROOT}/README.md"
 
+STABLE_CHANNEL=https://conda.modular.com/max
+NIGHTLY_CHANNEL=https://conda.modular.com/max-nightly
+
 # get the correct modular channel
 if [ "$1" = "stable" ]; then
-    CHANNEL=https://conda.modular.com/max
+    CHANNEL=$STABLE_CHANNEL
+    sed -i "s|\"${NIGHTLY_CHANNEL}\"|\"${CHANNEL}\"|" $MANIFEST_PATH
 elif [ "$1" = "nightly" ]; then
-    CHANNEL=https://conda.modular.com/max-nightly
+    CHANNEL=$NIGHTLY_CHANNEL
+    sed -i "s|\"${STABLE_CHANNEL}\"|\"${CHANNEL}\"|" $MANIFEST_PATH
 else
     echo "use {stable|nightly}"
     return 1
 fi
 
-# get the version of max that the package currently uses
+# get the version of mojo that the package currently uses
 # TODO: consider unpinning the mojo version
-OLD_MAX_VERSION=$(grep "mojo =" $MANIFEST_PATH)
-OLD_MAX_VERSION=${OLD_MAX_VERSION%%'"'}
-OLD_MAX_VERSION=${OLD_MAX_VERSION##'max = "=='}
+OLD_MOJO_VERSION=$(grep -oPm1 "mojo = \"=*\K[^\"]+" $MANIFEST_PATH)
 
-# get the latest version of max from the correct channel
-NEW_MAX_VERSION=$(pixi search max -c $CHANNEL | grep "Version" | head -1 )
-NEW_MAX_VERSION=${NEW_MAX_VERSION##"Version"* }
+# get the latest version of mojo from the correct channel
+NEW_MOJO_VERSION=$(pixi search mojo=0.* -c $CHANNEL | grep "Version" | head -1 )
+NEW_MOJO_VERSION=${NEW_MOJO_VERSION##"Version"* }
 
-# update max if a newer version exists
-if [ "$OLD_MAX_VERSION" = "$NEW_MAX_VERSION" ]; then
+# update mojo if a newer version exists
+if [ "$OLD_MOJO_VERSION" = "$NEW_MOJO_VERSION" ]; then
     echo -e "no update"
     return 1
 else
-    pixi add "max==${NEW_MAX_VERSION}"
-    sed -i "s:badge/mojo-.*-:badge/mojo-${NEW_MAX_VERSION}-:" $README_PATH
-    echo -e "max updated to ${NEW_MAX_VERSION}"
+    sed -i "s:mojo = \".*\":mojo = \"==${NEW_MOJO_VERSION}\":" $MANIFEST_PATH
+    sed -i "s:badge/mojo-.*-:badge/mojo-${NEW_MOJO_VERSION}-:" $README_PATH
+    echo -e "mojo updated from ${OLD_MOJO_VERSION} to ${NEW_MOJO_VERSION}"
 fi
