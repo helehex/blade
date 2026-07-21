@@ -4,9 +4,12 @@
 # +--------------------------------------------------------------------------+ #
 """Defines size-first-lexicographic-second powerset ordering."""
 
-from bit import pop_count, count_trailing_zeros
-from blade.bit import PopIter, reverse_bits
+from std.bit import pop_count, count_trailing_zeros
 
+from src.bit import PopIter, reverse_bits
+from .. import pascal, pascal_sum, pascal_degrade
+
+from . import Ordering
 
 # +--------------------------------------------------------------------------+ #
 # | Powerset Ordering: Size, Lexicographic
@@ -23,7 +26,7 @@ struct SlexicOrdering(Ordering):
     #
     @staticmethod
     @always_inline
-    fn powerset(n: Int, out result: List[List[Int]]):
+    def powerset(n: Int, out result: List[List[Int]]):
         """Returns the power set with size-lexic sorting."""
         result = List[List[Int]](capacity=2**n)
         for k in range(n + 1):
@@ -31,7 +34,7 @@ struct SlexicOrdering(Ordering):
 
     @staticmethod
     @always_inline
-    fn powerset_bin(n: Int, out result: List[Int]):
+    def powerset_bin(n: Int, out result: List[Int]):
         """Returns the power set with size-lexic sorting."""
         result = List[Int](capacity=2**n)
         for k in range(n + 1):
@@ -39,7 +42,7 @@ struct SlexicOrdering(Ordering):
 
     @staticmethod
     @always_inline
-    fn power_rank(n: Int, comb: List[Int], out result: Int):
+    def power_rank(n: Int, comb: List[Int], out result: Int):
         # iterate through pascals triangle,
         # moving down until hitting an element, then summing and moving right.
         # this has less time complexity than calculating each nCr separately.
@@ -81,7 +84,7 @@ struct SlexicOrdering(Ordering):
 
     @staticmethod
     @always_inline
-    fn power_rank_bin(n: Int, comb: Int, out result: Int):
+    def power_rank_bin(n: Int, comb: Int, out result: Int):
         r = pop_count(comb)
         result = pascal_sum(n, r) - 1
         for bit_idx in PopIter(comb):
@@ -90,19 +93,19 @@ struct SlexicOrdering(Ordering):
 
     @staticmethod
     @always_inline
-    fn power_unrank(n: Int, var idx: Int, out result: List[Int]):
+    def power_unrank(n: Int, var idx: Int, out result: List[Int]):
         var r = pascal_degrade(n, idx)
         result = Self.unrank(n, r, idx)
 
     @staticmethod
     @always_inline
-    fn power_unrank_bin(n: Int, var idx: Int, out result: Int):
+    def power_unrank_bin(n: Int, var idx: Int, out result: Int):
         var r = pascal_degrade(n, idx)
         result = Self.unrank_bin(n, r, idx)
 
     @staticmethod
     @always_inline
-    fn grade(n: Int, idx: Int) -> Int:
+    def grade(n: Int, idx: Int) -> Int:
         var _idx = idx
         return pascal_degrade(n, _idx)
 
@@ -110,7 +113,7 @@ struct SlexicOrdering(Ordering):
     #
     @staticmethod
     @always_inline
-    fn rank(n: Int, comb: List[Int], out result: Int):
+    def rank(n: Int, comb: List[Int], out result: Int):
         # iterate through pascals triangle,
         # moving down until hitting an element, then summing and moving right.
         # this has less time complexity than calculating each nCr separately.
@@ -148,7 +151,7 @@ struct SlexicOrdering(Ordering):
 
     @staticmethod
     @always_inline
-    fn rank_bin(n: Int, comb: Int, out result: Int):
+    def rank_bin(n: Int, comb: Int, out result: Int):
         r = pop_count(comb)
         result = pascal(n, r) - 1
         for bit_idx in PopIter(comb):
@@ -157,7 +160,7 @@ struct SlexicOrdering(Ordering):
 
     @staticmethod
     @always_inline
-    fn unrank(n: Int, var r: Int, var idx: Int, out result: List[Int]):
+    def unrank(n: Int, var r: Int, var idx: Int, out result: List[Int]):
         result = List[Int](capacity=8)
         var element = n
 
@@ -173,7 +176,7 @@ struct SlexicOrdering(Ordering):
 
     @staticmethod
     @always_inline
-    fn unrank_bin(n: Int, var r: Int, var idx: Int, out result: Int):
+    def unrank_bin(n: Int, var r: Int, var idx: Int, out result: Int):
         result = 0
         var element = n
 
@@ -191,7 +194,7 @@ struct SlexicOrdering(Ordering):
     #
     @staticmethod
     @always_inline
-    fn next_bin(n: Int, comb: Int, out next_comb: Int):
+    def next_bin(n: Int, comb: Int, out next_comb: Int):
         # TODO: create better algorithm for this sorting
         next_comb = reverse_bits(~comb, n)
         var t = next_comb | (next_comb - 1)

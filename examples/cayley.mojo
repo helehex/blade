@@ -4,13 +4,13 @@
 # x--------------------------------------------------------------------------x #
 """Cayley table image generator."""
 
-from pathlib import Path, _dir_of_current_file
-from sys import size_of
-from math import align_up
-from sys import argv
+from std.pathlib import Path, _dir_of_current_file
+from std.sys import size_of
+from std.math import align_up
+from std.sys import argv
 
 from blade import Signature
-from blade.combinatorics import BinaryOrdering, SlexicOrdering
+from blade.combinatorics import Ordering, BinaryOrdering, SlexicOrdering
 
 
 # +--------------------------------------------------------------------------+ #
@@ -20,9 +20,7 @@ from blade.combinatorics import BinaryOrdering, SlexicOrdering
 # This writes the multiplication table to a bmp file `img.bmp`
 # Takes three arguments for the `+`, `-`, and `0` basis vectors respectively
 #
-# TODO: you currently have to add the blade.mojopkg to this directory manually
-#
-def main():
+def main() raises:
     # Set args
     var args = [3, 3, 3] if len(argv()) == 1 else [0, 0, 0]
     for idx in range(1, len(argv())):
@@ -33,11 +31,15 @@ def main():
 
     # Define the pixel function
     @parameter
-    fn _sample(x: Int, y: Int) -> ColorBGR888:
+    def _sample(x: Int, y: Int) -> ColorBGR888:
         m = sig.mul(x, y)
-        c = m.sign
-        v = (m.idx * 255) // sig.dims
-        return ColorBGR888(v * Int(c == -1), v * Int(c == 0), v * Int(c == 1))
+        # c = m.sign
+        # v = (m.idx * 255) // sig.dims
+        # return ColorBGR888(v * Int(c == -1), v * Int(c == 0), v * Int(c == 1))
+        v = Float64(m.idx / sig.dims)
+        return ColorBGR888(
+            hsv=(v, 0.0, Float64(sig.mul(x, y).sign == sig.mul(y, x).sign))
+        )
 
     # Write the image to a bitmap file
     write_bmp[_sample](
@@ -50,11 +52,32 @@ def main():
 # +--------------------------------------------------------------------------+ #
 #
 @fieldwise_init
-@register_passable("trivial")
-struct ColorBGR888:
+struct ColorBGR888(TrivialRegisterPassable):
     var b: UInt8
     var g: UInt8
     var r: UInt8
+
+    def __init__(out self, *, hsv: Tuple[Float64, Float64, Float64]):
+        h6 = hsv[0] * 6.0
+        h6_rem = h6 % 1.0
+        a = hsv[2] * (1.0 - hsv[1])
+        b = hsv[2] * (1.0 - (h6_rem * hsv[1]))
+        c = hsv[2] * (1.0 - ((1.0 - h6_rem) * hsv[1]))
+        if h6 < 1.0:
+            rgb = (hsv[2], c, a)
+        elif h6 < 2.0:
+            rgb = (b, hsv[2], a)
+        elif h6 < 3.0:
+            rgb = (a, hsv[2], c)
+        elif h6 < 4.0:
+            rgb = (a, b, hsv[2])
+        elif h6 < 5.0:
+            rgb = (c, a, hsv[2])
+        else:
+            rgb = (hsv[2], a, b)
+        self.r = UInt8(rgb[0] * 255)
+        self.g = UInt8(rgb[1] * 255)
+        self.b = UInt8(rgb[2] * 255)
 
 
 comptime _UInt16 = InlineArray[UInt8, size_of[UInt16]()]
@@ -64,13 +87,13 @@ comptime _UInt32 = InlineArray[UInt8, size_of[UInt32]()]
 """Used to avoid padding to the highest multiple of the highest sized field."""
 
 
-fn to_bytes[T: AnyType](ref object: T) -> Span[UInt8, origin_of(object)]:
+def to_bytes[T: AnyType](ref object: T) -> Span[UInt8, origin_of(object)]:
     var byte_ptr = UnsafePointer(to=object).bitcast[UInt8]()
     return Span(ptr=byte_ptr, length=size_of[T]())
 
 
 @fieldwise_init
-struct BitmapFileHeader(Copyable & Movable):
+struct BitmapFileHeader(ImplicitlyCopyable):
     """This block of bytes is at the start of the file and is used to identify
     the file. A typical application reads this block first to ensure that the
     file is actually a BMP file and that it is not damaged.
@@ -96,7 +119,7 @@ struct BitmapFileHeader(Copyable & Movable):
     """The offset, i.e. starting address, of the byte where the bitmap image
     data (pixel array) can be found."""
 
-    fn __init__(
+    def __init__(
         out self,
         signature: UInt16,
         file_size: UInt32,
@@ -112,7 +135,7 @@ struct BitmapFileHeader(Copyable & Movable):
 
 
 @fieldwise_init
-struct BitmapInfoHeader(Copyable & Movable):
+struct BitmapInfoHeader(ImplicitlyCopyable):
     """This block of bytes tells the application detailed information about
     the image, which will be used to display the image on the screen.
 
@@ -157,7 +180,7 @@ struct BitmapInfoHeader(Copyable & Movable):
     var icc: _UInt32
     """The number of important colors used, or 0 when every color is important; generally ignored."""
 
-    fn __init__(
+    def __init__(
         out self,
         info_size: UInt32,
         width: UInt32,
@@ -184,10 +207,10 @@ struct BitmapInfoHeader(Copyable & Movable):
         self.icc = icc.as_bytes()
 
 
-comptime fn_sampler = fn (x: Int, y: Int) capturing [_] -> ColorBGR888
+comptime fn_sampler = def (x: Int, y: Int) capturing [_] -> ColorBGR888
 
 
-def write_bmp[sampler: fn_sampler](path: Path, width: Int, height: Int):
+def write_bmp[sampler: fn_sampler](path: Path, width: Int, height: Int) raises:
     bytes_per_pixel = 3
     bits_per_pixel = bytes_per_pixel * 8
 
@@ -196,20 +219,20 @@ def write_bmp[sampler: fn_sampler](path: Path, width: Int, height: Int):
 
     var file_header = BitmapFileHeader(
         0x4D42,
-        size_of[BitmapFileHeader]() + size_of[BitmapInfoHeader]() + img_size,
+        UInt32(size_of[BitmapFileHeader]() + size_of[BitmapInfoHeader]() + img_size),
         0,
         0,
-        size_of[BitmapFileHeader]() + size_of[BitmapInfoHeader](),
+        UInt32(size_of[BitmapFileHeader]() + size_of[BitmapInfoHeader]()),
     )
 
-    var info_header = BitmapInfoHeader(
-        size_of[BitmapInfoHeader](),
-        width,
-        height,
+    var info_header = BitmapInfoHeader.__init__(
+        UInt32(size_of[BitmapInfoHeader]()),
+        UInt32(width),
+        UInt32(height),
         1,
-        bits_per_pixel,
+        UInt16(bits_per_pixel),
         0,
-        img_size,
+        UInt32(img_size),
         2**100,
         2**100,
         0,

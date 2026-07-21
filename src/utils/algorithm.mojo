@@ -5,8 +5,8 @@
 """Algorithms."""
 
 
-fn vectorize_raising[
-    func: fn[width: Int] (Int) raises capturing -> None, width: Int
+def vectorize_raising[
+    func: def[width: Int] (Int) raises capturing -> None, width: Int
 ](count: Int) raises:
     var offset = 0
     var end = width
@@ -19,7 +19,7 @@ fn vectorize_raising[
         offset += 1
 
 
-fn vectorize_stoping[func: fn[width: Int] (Int) capturing -> Bool, width: Int](count: Int) -> Bool:
+def vectorize_stoping[func: def[width: Int] (Int) capturing -> Bool, width: Int](count: Int) -> Bool:
     var offset = 0
     var end = width
     while end <= count:
@@ -34,7 +34,7 @@ fn vectorize_stoping[func: fn[width: Int] (Int) capturing -> Bool, width: Int](c
     return False
 
 
-fn counted_sort(mut basis: List[Int]) -> Int:
+def counted_sort(mut basis: List[Int]) -> Int:
     var count = 0
     for i in range(1, len(basis)):
         var j = i
@@ -47,7 +47,7 @@ fn counted_sort(mut basis: List[Int]) -> Int:
     return count
 
 
-fn count_odd(array: List[Int]) -> Int:
+def count_odd(array: List[Int]) -> Int:
     var count = 0
     var i = 1
     var m = 0

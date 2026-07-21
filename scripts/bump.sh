@@ -30,7 +30,7 @@ fi
 OLD_MOJO_VERSION=$(grep -oPm1 "mojo = \"=*\K[^\"]+" $MANIFEST_PATH)
 
 # get the latest version of mojo from the correct channel
-NEW_MOJO_VERSION=$(pixi search mojo=0.* -c $CHANNEL | grep "Version" | head -1 )
+NEW_MOJO_VERSION=$(pixi search mojo=* -c $CHANNEL | grep "Version" | head -1 )
 NEW_MOJO_VERSION=${NEW_MOJO_VERSION##"Version"* }
 
 # update mojo if a newer version exists

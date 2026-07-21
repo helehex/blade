@@ -3,15 +3,17 @@
 # | Copyright (c) 2023-2025 Helehex
 # +--------------------------------------------------------------------------+ #
 
-from collections.string import StringSlice
-from bit import pop_count
-from utils._select import _select_register_value
-from blade.utils import ansi
-from blade.utils.algorithm import counted_sort
-from blade.utils.control import _assert
-from blade.utils.format import ctoi, stoi, write_repeat
-from blade.bit import PopIter, rsign
-from blade.combinatorics import (
+# from std.collections.string import StringSlice
+from std.bit import pop_count
+from std.utils._select import _select_register_value
+
+from src.utils import ansi
+from src.utils.algorithm import counted_sort
+from src.utils.control import _assert
+from src.utils.format import ctoi, stoi, write_repeat
+from src.utils.length import len
+from src.bit import PopIter, rsign
+from ..combinatorics import (
     Ordering,
     DefaultOrder,
     pascal,
@@ -21,8 +23,9 @@ from blade.combinatorics import (
     power_rank_bin,
     grade,
 )
-from .basis import Basis, SignedBasis, ScaledBasis, BasisIndex, SignedBasisIndex
 
+from .basis import Basis, SignedBasis, ScaledBasis, BasisIndex, SignedBasisIndex
+from .mask import BasisMask
 
 # +--------------------------------------------------------------------------+ #
 # | Signature
@@ -50,7 +53,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
 
     # +------( Initialize )------+ #
     #
-    fn __init__(
+    def __init__(
         out self, po: Int, ne: Int = 0, ze: Int = 0, *, flip_ze: Bool = True
     ):
         self.po = po
@@ -90,15 +93,15 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
 
     # +------( Masks )------+ #
     #
-    fn basis_mask(self, basis: Basis, out result: BasisMask):
+    def basis_mask(self, basis: Basis, out result: BasisMask):
         result = BasisMask(capacity=1)
         result.entries.append(basis)
 
-    fn basis_mask(self, basis: SignedBasis, out result: BasisMask):
+    def basis_mask(self, basis: SignedBasis, out result: BasisMask):
         result = BasisMask(capacity=1)
         result.entries.append(Basis(bin=basis.bin))
 
-    fn basis_mask(self, string: StringSlice, out result: BasisMask):
+    def basis_mask(self, string: StringSlice, out result: BasisMask):
         result = BasisMask()
 
         var start = 0
@@ -129,15 +132,15 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
             start = stop + 1
 
     @always_inline
-    fn empty_mask(self, out mask: BasisMask):
+    def empty_mask(self, out mask: BasisMask):
         mask = BasisMask()
 
     @always_inline
-    fn full_mask(self, out mask: BasisMask):
+    def full_mask(self, out mask: BasisMask):
         mask = BasisMask(full=self.vecs)
 
     @always_inline
-    fn grade_mask(self, grade: Int, out mask: BasisMask):
+    def grade_mask(self, grade: Int, out mask: BasisMask):
         elements = pascal(self.vecs, grade)
         mask = BasisMask(capacity=elements)
         var basis = ~(-1 << grade)
@@ -146,7 +149,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
             basis = Self.Order.next_bin(self.vecs, basis)
 
     @always_inline
-    fn even_mask(self, out mask: BasisMask):
+    def even_mask(self, out mask: BasisMask):
         mask = BasisMask(capacity=self.dims // 2)
         for grade in range(0, self.grds, 2):
             var basis = ~(-1 << grade)
@@ -155,61 +158,61 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
                 basis = Self.Order.next_bin(self.vecs, basis)
 
     @always_inline
-    fn scalar_mask(self, out mask: BasisMask):
+    def scalar_mask(self, out mask: BasisMask):
         mask = self.grade_mask(0)
 
     @always_inline
-    fn vector_mask(self, out mask: BasisMask):
+    def vector_mask(self, out mask: BasisMask):
         mask = self.grade_mask(1)
 
     @always_inline
-    fn bivector_mask(self, out mask: BasisMask):
+    def bivector_mask(self, out mask: BasisMask):
         mask = self.grade_mask(2)
 
     @always_inline
-    fn trivector_mask(self, out mask: BasisMask):
+    def trivector_mask(self, out mask: BasisMask):
         mask = self.grade_mask(3)
 
     @always_inline
-    fn quadvector_mask(self, out mask: BasisMask):
+    def quadvector_mask(self, out mask: BasisMask):
         mask = self.grade_mask(4)
 
     @always_inline
-    fn antiscalar_mask(self, out mask: BasisMask):
+    def antiscalar_mask(self, out mask: BasisMask):
         mask = self.grade_mask(self.grds - 1)
 
     @always_inline
-    fn antivector_mask(self, out mask: BasisMask):
+    def antivector_mask(self, out mask: BasisMask):
         mask = self.grade_mask(self.grds - 2)
 
     @always_inline
-    fn antibivector_mask(self, out mask: BasisMask):
+    def antibivector_mask(self, out mask: BasisMask):
         mask = self.grade_mask(self.grds - 3)
 
     @always_inline
-    fn antitrivector_mask(self, out mask: BasisMask):
+    def antitrivector_mask(self, out mask: BasisMask):
         mask = self.grade_mask(self.grds - 4)
 
     @always_inline
-    fn antiquadvector_mask(self, out mask: BasisMask):
+    def antiquadvector_mask(self, out mask: BasisMask):
         mask = self.grade_mask(self.grds - 5)
 
     # +------( Basis )------+ #
     #
-    fn basis(self, idx: BasisIndex) -> Basis:
+    def basis(self, idx: BasisIndex) -> Basis:
         return Basis(bin=power_unrank_bin[Self.Order](self.vecs, Int(idx)))
 
-    fn basis(self, string: StringSlice, out result: Basis):
+    def basis(self, string: StringSlice, out result: Basis):
         result = Basis()
 
-        if len(string) == 0 or (len(string) == 1 and string[0] == "s"):
+        if len(string) == 0 or (len(string) == 1 and string[byte=0] == "s"):
             return
 
         var prev_vec = -1
         var vec_idx = 0
 
         @parameter
-        fn account_vec(vec: Int):
+        def account_vec(vec: Int):
             _assert(
                 vec <= self.vecs,
                 "basis vector 'e",
@@ -223,9 +226,9 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
             prev_vec = vec
             vec_idx += 1
 
-        if string[0] != "e":
+        if string[byte=0] != StringSlice("e"):
             while vec_idx < len(string):
-                account_vec(ctoi(string[vec_idx]))
+                account_vec(ctoi(string[byte=vec_idx]))
 
         _assert(len(string) > 1, "'", string, "' is not a valid basis")
 
@@ -233,8 +236,8 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
             # basis vectors can be 'e' separated
             var char_idx = 0
             while char_idx < len(string):
-                if string[char_idx] != "e":
-                    account_vec(ctoi(string[char_idx]))
+                if string[byte=char_idx] != StringSlice("e"):
+                    account_vec(ctoi(string[byte=char_idx]))
                 char_idx += 1
         else:
             # basis vectors must be 'e' separated
@@ -251,19 +254,19 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
     # +------( SignedBasis )------+ #
     #
     @always_inline
-    fn signed_basis(self, idx: SignedBasisIndex) -> SignedBasis:
+    def signed_basis(self, idx: SignedBasisIndex) -> SignedBasis:
         return SignedBasis(
             idx.sign, bin=power_unrank_bin[Self.Order](self.vecs, idx.idx)
         )
 
-    fn signed_basis(self, string: StringSlice, out result: SignedBasis):
+    def signed_basis(self, string: StringSlice, out result: SignedBasis):
         result = SignedBasis()
 
         if len(string) == 0:
             return
 
         _assert(
-            string[0] == "e" and len(string) != 1,
+            string[byte=0] == "e" and len(string) != 1,
             "'",
             string,
             "' is not a valid basis",
@@ -271,7 +274,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
 
         @parameter
         @always_inline
-        fn _account_vec(vec: Int):
+        def _account_vec(vec: Int):
             _assert(
                 vec <= self.vecs,
                 "basis vector 'e",
@@ -283,8 +286,8 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
         if self.vecs < 10:
             # basis vectors can be 'e' separated
             for idx in range(len(string)):
-                if string[idx] != "e":
-                    _account_vec(ctoi(string[idx]))
+                if string[byte=idx] != StringSlice("e"):
+                    _account_vec(ctoi(string[byte=idx]))
         else:
             # basis vectors must be 'e' separated
             start, stop = 1, 2
@@ -300,25 +303,25 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
     # +------( BasisIndex )------+ #
     #
     @always_inline
-    fn basis_index(self, basis: Basis) -> BasisIndex:
+    def basis_index(self, basis: Basis) -> BasisIndex:
         return power_rank_bin[Self.Order](self.vecs, basis.bin)
 
     @always_inline
-    fn basis_index(self, basis: SignedBasis) -> BasisIndex:
+    def basis_index(self, basis: SignedBasis) -> BasisIndex:
         return power_rank_bin[Self.Order](self.vecs, basis.bin)
 
     @always_inline
-    fn basis_index(self, string: StringSlice) -> BasisIndex:
+    def basis_index(self, string: StringSlice) -> BasisIndex:
         return power_rank_bin[Self.Order](self.vecs, self.basis(string).bin)
 
     # +------( SignedBasisIndex )------+ #
     #
     @always_inline
-    fn signed_basis_index(self, basis: SignedBasis) -> SignedBasisIndex:
+    def signed_basis_index(self, basis: SignedBasis) -> SignedBasisIndex:
         return SignedBasisIndex(basis.sign, Int(self.basis_index(basis)))
 
     @always_inline
-    fn signed_basis_index(
+    def signed_basis_index(
         self, string: StringSlice, out result: SignedBasisIndex
     ):
         basis = self.signed_basis(string)
@@ -327,50 +330,50 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
     # +------( Grade Basis )------+ #
     #
     @always_inline
-    fn grade(self, basis: Basis) -> Int:
+    def grade(self, basis: Basis) -> Int:
         return pop_count(basis.bin)
 
     @always_inline
-    fn grade(self, basis: SignedBasis) -> Int:
+    def grade(self, basis: SignedBasis) -> Int:
         return pop_count(basis.bin)
 
     @always_inline
-    fn grade(self, basis: ScaledBasis) -> Int:
+    def grade(self, basis: ScaledBasis) -> Int:
         return pop_count(basis.bin)
 
     @always_inline
-    fn grade(self, idx: BasisIndex) -> Int:
+    def grade(self, idx: BasisIndex) -> Int:
         return grade[Self.Order](self.vecs, Int(idx))
 
     @always_inline
-    fn grade(self, idx: SignedBasisIndex) -> Int:
+    def grade(self, idx: SignedBasisIndex) -> Int:
         return grade[Self.Order](self.vecs, idx.idx)
 
     # +------( Product )------+ #
     #
     @always_inline
-    fn squash_vec(self, mut basis: SignedBasis, vec: Int):
+    def squash_vec(self, mut basis: SignedBasis, vec: Int):
         var mask = 1 << (vec - 1)
         var crosses = pop_count(basis.bin & (-1 << vec))
         basis.sign *= _select_register_value(
             Bool(basis.bin & mask), self.vec_sqrs[vec - 1], 1
-        ) * rsign(crosses & 1)
+        ) * rsign(Bool(crosses & 1))
         basis.bin ^= mask
 
     @always_inline
-    fn mul(self, lhs: Basis, rhs: Basis, out result: SignedBasis):
+    def mul(self, lhs: Basis, rhs: Basis, out result: SignedBasis):
         result = lhs
         for vec in PopIter(rhs.bin):
             self.squash_vec(result, vec + 1)
 
     @always_inline
-    fn mul(self, lhs: SignedBasis, rhs: SignedBasis, out result: SignedBasis):
+    def mul(self, lhs: SignedBasis, rhs: SignedBasis, out result: SignedBasis):
         result = SignedBasis(lhs.sign * rhs.sign, bin=lhs.bin)
         for vec in PopIter(rhs.bin):
             self.squash_vec(result, vec + 1)
 
     @always_inline
-    fn mul(
+    def mul(
         self, lhs: BasisIndex, rhs: BasisIndex, out result: SignedBasisIndex
     ):
         result = self.signed_basis_index(
@@ -378,7 +381,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
         )
 
     @always_inline
-    fn mul(self, lhs: BasisMask, rhs: BasisMask, out result: BasisMask):
+    def mul(self, lhs: BasisMask, rhs: BasisMask, out result: BasisMask):
         result = BasisMask()
         for lhs_basis in lhs.entries:
             for rhs_basis in rhs.entries:
@@ -387,7 +390,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
                     result.unmask(Basis(bin=res_basis.bin))
 
     @always_inline
-    fn sqr(self, mask: BasisMask, out result: BasisMask):
+    def sqr(self, mask: BasisMask, out result: BasisMask):
         result = BasisMask()
         for lhs_basis in mask.entries:
             for rhs_basis in mask.entries:
@@ -401,18 +404,18 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
     # +------( Format )------+ #
     #
     @no_inline
-    fn __str__(self) -> String:
+    def __str__(self) -> String:
         return String.write(self)
 
     @no_inline
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         return String.write(
             "Signature(", self.po, ", ", self.ne, ", ", self.ze, ")"
         )
 
     # TODO: add more formatting options, like coloring
     @no_inline
-    fn write_basis_to[
+    def write_basis_to[
         WriterType: Writer, //
     ](self, mut writer: WriterType, basis: Basis, *, expand: Bool = True):
         if not expand:
@@ -431,7 +434,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
             writer.write(ansi.clear)
 
     @no_inline
-    fn write_basis_to[
+    def write_basis_to[
         WriterType: Writer, //
     ](self, mut writer: WriterType, basis: SignedBasis, *, expand: Bool = True):
         if not expand:
@@ -450,14 +453,14 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
         self.write_basis_to(writer, Basis(bin=basis.bin))
 
     @no_inline
-    fn write_basis_to[
+    def write_basis_to[
         WriterType: Writer, //
     ](self, mut writer: WriterType, basis: ScaledBasis, *, expand: Bool = True):
         writer.write(ansi.get_color(self.grade(basis)), basis.scale)
         self.write_basis_to(writer, Basis(bin=basis.bin))
 
     @no_inline
-    fn write_basis_to[
+    def write_basis_to[
         WriterType: Writer, //
     ](self, mut writer: WriterType, basis: BasisIndex, *, expand: Bool = False):
         if expand:
@@ -471,7 +474,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
         writer.write(str_basis, " ")
 
     @no_inline
-    fn write_basis_to[
+    def write_basis_to[
         WriterType: Writer, //
     ](
         self,
@@ -496,7 +499,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
 
     # TODO: re-name to explicitly convey that this writes the geometric product table
     @no_inline
-    fn write_to[WriterType: Writer, //](self, mut writer: WriterType):
+    def write_to[WriterType: Writer, //](self, mut writer: WriterType):
         for x in range(self.dims):
             for y in range(self.dims):
                 self.write_basis_to(writer, self.mul(x, y))
@@ -505,15 +508,15 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
     # +------( Old Basis List )------+ #
     #
     @always_inline
-    fn ibasis_to_ebasis(self, ibasis: Int) -> List[Int]:
+    def ibasis_to_ebasis(self, ibasis: Int) -> List[Int]:
         return power_unrank[Self.Order](self.vecs, ibasis)
 
     @always_inline
-    fn ebasis_to_ibasis(self, ebasis: List[Int]) -> Int:
+    def ebasis_to_ibasis(self, ebasis: List[Int]) -> Int:
         return power_rank[Self.Order](self.vecs, ebasis)
 
     @always_inline
-    fn squash_basis(self, mut basis: List[Int], mut sign: Int):
+    def squash_basis(self, mut basis: List[Int], mut sign: Int):
         var result = List[Int](capacity=len(basis))
         var i = 1
         var j = 0
@@ -532,7 +535,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
         basis = result^
 
     @always_inline
-    fn reduce_basis(self, var basis: List[Int]) -> SignedBasisIndex:
+    def reduce_basis(self, var basis: List[Int]) -> SignedBasisIndex:
         if len(basis) == 0:
             return SignedBasisIndex(1, 0)
         elif len(basis) == 1:
@@ -543,7 +546,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
             return SignedBasisIndex(sign, self.ebasis_to_ibasis(basis))
 
     @always_inline
-    fn squash_vec(self, mut basis: List[Int], vec: Int, mut sign: Int):
+    def squash_vec(self, mut basis: List[Int], vec: Int, mut sign: Int):
         for idx in reversed(range(len(basis))):
             if basis[idx] == vec:
                 sign *= self.vec_sqrs[vec - 1]
@@ -558,7 +561,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
         basis.insert(0, vec)
 
     @always_inline
-    fn reduce_basis(
+    def reduce_basis(
         self, var basis1: List[Int], basis2: List[Int]
     ) -> SignedBasisIndex:
         var sign: Int = 1
@@ -567,11 +570,11 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
         return SignedBasisIndex(sign, self.ebasis_to_ibasis(basis1))
 
     @no_inline
-    fn __str__old(self) -> String:
+    def __str__old(self) -> String:
         return String.write(self)
 
     @no_inline
-    fn write_to_old[WriterType: Writer, //](self, mut writer: WriterType):
+    def write_to_old[WriterType: Writer, //](self, mut writer: WriterType):
         for x in range(self.dims):
             for y in range(self.dims):
                 self.write_basis_to(

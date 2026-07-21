@@ -1,7 +1,7 @@
 [workspace]
 preview = ["pixi-build"]
 authors = ["helehex <helehex@gmail.com>"]
-channels = ["conda-forge", "https://conda.modular.com/max"]
+channels = ["conda-forge", "https://conda.modular.com/max-nightly"]
 name = "blade"
 description = "Geometric Algebra."
 platforms = ["linux-64", "linux-aarch64", "osx-arm64"]
@@ -11,14 +11,14 @@ license = "MIT"
 [tasks]
 stable = "bash scripts/bump.sh stable"
 nightly = "bash scripts/bump.sh nightly"
-build = "mojo package ./src -o blade.mojopkg"
+build = "mojo precompile ./src -o _blade.mojoc"
 test = "bash scripts/test.sh"
 temp = "mojo temp.mojo"
 format = "mojo format -l 100 src"
 cayley = "mojo examples/cayley.mojo"
 
 [dependencies]
-mojo = "==0.25.7.0"
+mojo = "==1.0.0b3.dev2026072006"
 blade = { path = "." }
 
 [package]
@@ -29,5 +29,11 @@ version = "0.1.0"
 name="pixi-build-mojo"
 version = "0.1.*"
 
+[package.host-dependencies]
+mojo = "==1.0.0b3.dev2026072006"
+
 [package.build-dependencies]
-mojo = "==0.25.7.0"
+mojo = "==1.0.0b3.dev2026072006"
+
+[package.run-dependencies]
+mojo = "==1.0.0b3.dev2026072006"

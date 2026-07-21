@@ -2,9 +2,9 @@
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
 # +--------------------------------------------------------------------------+ #
-"""## blade 🔆
+"""## `blade` 🔆.
 
-Geometric Algebra for Mojo. 🔥
+Geometric Algebra for Mojo. 🔥.
 """
 
 from .ga import *

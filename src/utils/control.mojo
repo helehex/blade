@@ -2,9 +2,10 @@
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
 # +--------------------------------------------------------------------------+ #
-"""Assert"""
+"""Assert."""
+from std.os import abort
 
 
-fn _assert[*Ts: Writable](expression: Bool, *msg: *Ts):
+def _assert[*Ts: Writable](expression: Bool, *msg: *Ts):
     if not expression:
-        abort(String(msg))
+        abort(String(*msg))

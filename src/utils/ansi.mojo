@@ -40,8 +40,8 @@ comptime bg_colors = [
     bg_white,
 ]
 
-fn get_color(idx: Int) -> String:
+def get_color(idx: Int) -> String:
     return materialize[colors]()[(idx % 6) + 1]
 
-fn get_bg_color(idx: Int) -> String:
+def get_bg_color(idx: Int) -> String:
     return materialize[bg_colors]()[(idx % 6) + 1]

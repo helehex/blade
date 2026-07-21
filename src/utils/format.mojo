@@ -2,23 +2,24 @@
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
 # +--------------------------------------------------------------------------+ #
-"""Format"""
+"""Format."""
 
-from collections.string import StringSlice
-from collections.string.string import _chr_ascii
-
+# from std.collections.string import StringSlice
+from std.collections.string.string import _unsafe_chr_ascii
+from std.os import abort
+from src.utils.length import len
 
 @always_inline
-fn write_sign[WriterType: Writer](mut writer: WriterType, sign: Int):
+def write_sign[WriterType: Writer](mut writer: WriterType, sign: Int):
     writer.write(
-        _chr_ascii(
-            ((-(sign == 0).__int__() & 5) | (-(sign < 0).__int__() & 2)) + 43
+        _unsafe_chr_ascii(
+            ((-UInt8(sign == 0) & 5) | (-UInt8(sign < 0) & 2)) + 43
         )
     )
 
 
 @always_inline
-fn write_repeat[
+def write_repeat[
     WriterType: Writer
 ](mut writer: WriterType, reps: Int, string: String = " "):
     for _ in range(reps):
@@ -26,7 +27,7 @@ fn write_repeat[
 
 
 @always_inline
-fn ctoi(char: StringSlice) -> Int:
+def ctoi(char: StringSlice) -> Int:
     if len(char) != 1:
         abort("expected a character")
     var value = char.unsafe_ptr()[] - 48
@@ -36,7 +37,7 @@ fn ctoi(char: StringSlice) -> Int:
 
 
 @always_inline
-fn stoi(str: StringSlice) -> Int:
+def stoi(str: StringSlice) -> Int:
     if len(str) == 0:
         abort("expected a non-empty string")
     var result = 0

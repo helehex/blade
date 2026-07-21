@@ -4,10 +4,11 @@
 # +--------------------------------------------------------------------------+ #
 """Defines a static set-ordering prototype."""
 
-from blade.bit import PopIter
+from src.bit import PopIter
+from .. import pascal
 
 # TODO:
-# fn powerset[T: Copyable & Movable, //](list: List[T]) -> List[List[T]]:
+# def powerset[T: Copyable & Movable, //](list: List[T]) -> List[List[T]]:
 #     """Returns all possible subsets of the given set."""
 #     # maybe faster to use powerset_bin to generate this as well
 #     if len(list) == 0:
@@ -29,7 +30,7 @@ trait Ordering:
     # +------( powerset )------+ #
     #
     @staticmethod
-    fn powerset(n: Int) -> List[List[Int]]:
+    def powerset(n: Int) -> List[List[Int]]:
         """Lists the powerset of n, that is,
         the set containing all possible subsets of n elements.
 
@@ -37,7 +38,7 @@ trait Ordering:
         ...
 
     @staticmethod
-    fn powerset_bin(n: Int) -> List[Int]:
+    def powerset_bin(n: Int) -> List[Int]:
         """Lists the powerset of n, that is,
         the set containing all possible subsets of n elements.
 
@@ -46,38 +47,38 @@ trait Ordering:
         ...
 
     @staticmethod
-    fn power_rank(n: Int, comb: List[Int]) -> Int:
+    def power_rank(n: Int, comb: List[Int]) -> Int:
         """Gets the total order of a subset within the powerset of n elements.
         """
         ...
 
     @staticmethod
-    fn power_rank_bin(n: Int, comb: Int) -> Int:
+    def power_rank_bin(n: Int, comb: Int) -> Int:
         """Gets the total order of a subset within the powerset of n elements.
         """
         ...
 
     @staticmethod
-    fn power_unrank(n: Int, var idx: Int) -> List[Int]:
+    def power_unrank(n: Int, var idx: Int) -> List[Int]:
         """Returns the subset at position `idx` within the powerset of n elements.
         """
         ...
 
     @staticmethod
-    fn power_unrank_bin(n: Int, var idx: Int) -> Int:
+    def power_unrank_bin(n: Int, var idx: Int) -> Int:
         """Returns the subset at position `idx` within the powerset of n elements.
         """
         ...
 
     @staticmethod
-    fn grade(n: Int, idx: Int) -> Int:
+    def grade(n: Int, idx: Int) -> Int:
         """Returns the number of elements in the subset at position `idx`."""
         ...
 
     # +------( combinations )------+ #
     #
     @staticmethod
-    fn combinations(n: Int, r: Int, out result: List[List[Int]]):
+    def combinations(n: Int, r: Int, out result: List[List[Int]]):
         """Lists all possible combinations of `r` elements selected from a set `n`.
 
         Each combination is represented as a list of indices."""
@@ -92,7 +93,7 @@ trait Ordering:
             i = Self.next_bin(n, i)
 
     @staticmethod
-    fn combinations_bin(n: Int, r: Int, out result: List[Int]):
+    def combinations_bin(n: Int, r: Int, out result: List[Int]):
         """Lists all possible combinations of `r` elements selected from a set `n`.
 
         Each combination is represented as a binary set of bit flags,
@@ -105,28 +106,28 @@ trait Ordering:
             i = Self.next_bin(n, i)
 
     @staticmethod
-    fn rank(n: Int, comb: List[Int]) -> Int:
+    def rank(n: Int, comb: List[Int]) -> Int:
         """Gets the order of a combination within the set of
         possible combinations chosen from n elements.
         """
         ...
 
     @staticmethod
-    fn rank_bin(n: Int, comb: Int) -> Int:
+    def rank_bin(n: Int, comb: Int) -> Int:
         """Gets the order of a combination within the set of
         possible combinations of n elements.
         """
         ...
 
     @staticmethod
-    fn unrank(n: Int, var r: Int, var idx: Int) -> List[Int]:
+    def unrank(n: Int, var r: Int, var idx: Int) -> List[Int]:
         """Returns the combination at position `idx` within the set of
         possible combinations of n elements.
         """
         ...
 
     @staticmethod
-    fn unrank_bin(n: Int, var r: Int, var idx: Int) -> Int:
+    def unrank_bin(n: Int, var r: Int, var idx: Int) -> Int:
         """Returns the combination at position `idx` within the set of
         possible combinations of n elements.
         """
@@ -135,7 +136,7 @@ trait Ordering:
     # +------( iteration )------+ #
     #
     @staticmethod
-    fn next_bin(n: Int, bin: Int, out next_comb: Int):
+    def next_bin(n: Int, bin: Int, out next_comb: Int):
         """Returns the combination immediately after `bin`,
         in the order defined by the subsumed type.
         """

@@ -4,9 +4,10 @@
 # +--------------------------------------------------------------------------+ #
 """Combinatorics functions."""
 
-from utils._select import _select_register_value
-from math import sqrt, log, exp, gamma, lgamma
-from blade.math import tau, e
+from std.utils._select import _select_register_value
+from std.math import sqrt, log, exp, gamma, lgamma
+from src.math import tau, e
+# from ._powerset import *
 
 
 # +--------------------------------------------------------------------------+ #
@@ -14,7 +15,7 @@ from blade.math import tau, e
 # +--------------------------------------------------------------------------+ #
 #
 @always_inline
-fn factorial_slow(n: Int) -> Float64:
+def factorial_slow(n: Int) -> Float64:
     var result: Float64 = 0
     for i in range(2, n + 1):
         result += log(Float64(i))
@@ -22,17 +23,17 @@ fn factorial_slow(n: Int) -> Float64:
 
 
 @always_inline
-fn factorial_stirling(n: Float64) -> Float64:
+def factorial_stirling(n: Float64) -> Float64:
     return sqrt(tau * n) * ((n / e) ** n)
 
 
 @always_inline
-fn factorial_gamma(n: Float64) -> Float64:
+def factorial_gamma(n: Float64) -> Float64:
     return gamma(n + 1.0)
 
 
 @always_inline
-fn factorial(n: Int) -> Int:
+def factorial(n: Int) -> Int:
     return multifactorial[1](n)
 
 
@@ -44,8 +45,8 @@ comptime double_factorial = multifactorial[2]
 
 
 @always_inline
-fn multifactorial[step: Int](n: Int) -> Int:
-    constrained[step > 0, "factorial step must be greater than 0"]()
+def multifactorial[step: Int](n: Int) -> Int:
+    comptime assert step > 0, "factorial step must be greater than 0"
     var result: Int = 1
     var i: Int = n
     while i > 1:
@@ -68,20 +69,18 @@ fn multifactorial[step: Int](n: Int) -> Int:
 #   | 1  3  6  6  0
 #   | 1  4 12 24 24
 
-comptime nPr: fn (Int, Int) -> Int = permutial
+# comptime nPr: (def (n: Int, r: Int, out result: Int)) = permutial
 
 
 @always_inline
-fn permutial[r: Int](n: Int, out result: Int):
+def permutial[r: Int](n: Int, out result: Int):
     result = 1
-
-    @parameter
-    for i in range(1 - r, 1):
+    comptime for i in range(1 - r, 1):
         result *= n + i
 
 
 @always_inline
-fn permutial(n: Int, r: Int, out result: Int):
+def permutial(n: Int, r: Int, out result: Int):
     result = 1
     for i in range(n - r + 1, n + 1):
         result *= i
@@ -103,16 +102,15 @@ fn permutial(n: Int, r: Int, out result: Int):
 
 
 @always_inline
-fn supercial[n: Int](r: Int, out result: Int):
+def supercial[n: Int](r: Int, out result: Int):
     result = 1
 
-    @parameter
-    for i in range(1, n + 1):
+    comptime for i in range(1, n + 1):
         result *= r + i
 
 
 @always_inline
-fn supercial(n: Int, r: Int, out result: Int):
+def supercial(n: Int, r: Int, out result: Int):
     result = 1
     for i in range(r + 1, r + n + 1):
         result *= i
@@ -132,20 +130,19 @@ fn supercial(n: Int, r: Int, out result: Int):
 #   | 1  3  3  1  0
 #   | 1  4  6  4  1
 
-comptime nCr: fn (Int, var Int) -> Int = pascal
+# comptime nCr: def (Int, var Int) -> Int = pascal
 
 
 @always_inline
-fn pascal[r: Int](n: Int, out result: Int):
+def pascal[r: Int](n: Int, out result: Int):
     result = 1
 
-    @parameter
-    for i in range(1, r + 1):
+    comptime for i in range(1, r + 1):
         result = (result * (i + n - r)) // i
 
 
 @always_inline
-fn pascal(n: Int, var r: Int, out result: Int):
+def pascal(n: Int, var r: Int, out result: Int):
     """Returns `n choose r`, or `0` if `n >= r >= 0` is false."""
     result = Int(n >= r >= 0)
     r = min(r, n - r)  # * result # expects n to be positive
@@ -154,7 +151,7 @@ fn pascal(n: Int, var r: Int, out result: Int):
 
 
 @always_inline
-fn pascal_sum(n: Int, var r: Int, out sum: Int):
+def pascal_sum(n: Int, var r: Int, out sum: Int):
     sum = Int(r >= 0)
     term = 1
     for i in range(1, r + 1):
@@ -163,7 +160,7 @@ fn pascal_sum(n: Int, var r: Int, out sum: Int):
 
 
 @always_inline
-fn pascal_degrade(n: Int, mut power_rank: Int, out grade: Int):
+def pascal_degrade(n: Int, mut power_rank: Int, out grade: Int):
     term = 1
     grade = 0
     while power_rank - term >= 0:
@@ -173,13 +170,13 @@ fn pascal_degrade(n: Int, mut power_rank: Int, out grade: Int):
 
 
 @always_inline
-fn degrade(n: Int, var power_rank: Int) -> Int:
+def degrade(n: Int, var power_rank: Int) -> Int:
     _ = pascal_degrade(n, power_rank)
     return power_rank
 
 
 @always_inline
-fn next_pascal(mut n: Int, mut r: Int, mut current: Int, *, next_r: Bool):
+def next_pascal(mut n: Int, mut r: Int, mut current: Int, *, next_r: Bool):
     n += 1
     r += Int(next_r)
     current = (
@@ -207,16 +204,15 @@ comptime ntet = simplicial[3]
 
 
 @always_inline
-fn simplicial[n: Int](r: Int, out result: Int):
+def simplicial[n: Int](r: Int, out result: Int):
     result = 1
 
-    @parameter
-    for i in range(1, n + 1):
+    comptime for i in range(1, n + 1):
         result = (result * (i + r)) // i
 
 
 @always_inline
-fn simplicial(var n: Int, var r: Int, out result: Int):
+def simplicial(var n: Int, var r: Int, out result: Int):
     result = 1
     n, r = min(n, r), max(n, r)
     for i in range(1, n + 1):
@@ -224,6 +220,6 @@ fn simplicial(var n: Int, var r: Int, out result: Int):
 
 
 @always_inline
-fn next_simplicial(var n: Int, mut r: Int, mut current: Int):
+def next_simplicial(var n: Int, mut r: Int, mut current: Int):
     current = ((current * (r + n)) // r) or 1
     r += 1

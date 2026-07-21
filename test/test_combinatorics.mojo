@@ -3,13 +3,13 @@
 # | Copyright (c) 2023-2025 Helehex
 # x--------------------------------------------------------------------------x #
 
-from testing import assert_true, assert_false, assert_equal, assert_not_equal
+from std.testing import assert_true, assert_false, assert_equal, assert_not_equal
 from _testing import _assert_equal, _assert_not_equal
 
 from blade.combinatorics import *
 
 
-def main():
+def main() raises:
     test_pascal()
     test_factorial()
     test_combinations()
@@ -22,7 +22,7 @@ def main():
     test_power_rank_bin()
 
 
-def test_pascal():
+def test_pascal() raises:
     assert_equal(pascal(0, -1), 0)
     assert_equal(pascal(0, 0), 1)
     assert_equal(pascal(0, 1), 0)
@@ -63,7 +63,7 @@ def test_pascal():
     assert_equal(pascal(5, 6), 0)
 
 
-def test_factorial():
+def test_factorial() raises:
     assert_equal(factorial(0), 1)
     assert_equal(factorial(1), 1)
     assert_equal(factorial(2), 2)
@@ -73,7 +73,7 @@ def test_factorial():
     assert_equal(factorial(6), 720)
 
 
-def test_combinations():
+def test_combinations() raises:
     _assert_equal(BinaryOrdering.combinations(0, 0), [[]])
 
     _assert_equal(BinaryOrdering.combinations(1, 0), [[]])
@@ -129,7 +129,7 @@ def test_combinations():
     _assert_equal(SlexicOrdering.combinations(5, 5), [[1, 2, 3, 4, 5]])
 
 
-def test_combinations_bin():
+def test_combinations_bin() raises:
     _assert_equal(BinaryOrdering.combinations_bin(0, 0), [0])
 
     _assert_equal(BinaryOrdering.combinations_bin(1, 0), [0b0])
@@ -185,7 +185,7 @@ def test_combinations_bin():
     _assert_equal(SlexicOrdering.combinations_bin(5, 5), [0b11111])
 
 
-def test_powerset():
+def test_powerset() raises:
     # _assert_equal(powerset([]), [[]])
     # _assert_equal(powerset(["a"]), [[], ["a"]])
     # _assert_equal(powerset(["a", "b"]), [[], ["a"], ["b"], ["a", "b"]])
@@ -205,7 +205,7 @@ def test_powerset():
     _assert_equal(SlexicOrdering.powerset(4), [[], [1], [2], [3], [4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4], [1, 2, 3], [1, 2, 4], [1, 3, 4], [2, 3, 4], [1, 2, 3, 4]])
 
 
-def test_powerset_bin():
+def test_powerset_bin() raises:
     _assert_equal(BinaryOrdering.powerset_bin(0), [0b0])
     _assert_equal(BinaryOrdering.powerset_bin(1), [0b0, 0b1])
     _assert_equal(BinaryOrdering.powerset_bin(2), [0b00, 0b01, 0b10, 0b11])
@@ -219,7 +219,7 @@ def test_powerset_bin():
     _assert_equal(SlexicOrdering.powerset_bin(4), [0b0000, 0b0001, 0b0010, 0b0100, 0b1000, 0b0011, 0b0101, 0b1001, 0b0110, 0b1010, 0b1100, 0b0111, 0b1011, 0b1101, 0b1110, 0b1111])
 
 
-def test_power_unrank():
+def test_power_unrank() raises:
     # x--- Binary
     _assert_equal(BinaryOrdering.power_unrank(0, 0), [])
 
@@ -295,7 +295,7 @@ def test_power_unrank():
     _assert_equal(SlexicOrdering.power_unrank(4, 15), [1, 2, 3, 4])
 
 
-def test_power_unrank_bin():
+def test_power_unrank_bin() raises:
     # x--- Binary
     assert_equal(BinaryOrdering.power_unrank_bin(0, 0), 0b0)
 
@@ -371,9 +371,9 @@ def test_power_unrank_bin():
     assert_equal(SlexicOrdering.power_unrank_bin(4, 15), 0b1111)
 
 
-def test_power_rank():
+def test_power_rank() raises:
     pass
 
 
-def test_power_rank_bin():
+def test_power_rank_bin() raises:
     pass

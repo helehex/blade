@@ -1,27 +1,19 @@
-from collections import Optional
-from testing.testing import (
-    isclose,
-    _SourceLocation,
-    _assert_error,
-    __call_location,
-    _assert_cmp_error,
-)
-
+from std.collections import Optional
+from std.testing.testing import isclose, _assert_error, _assert_cmp_error
+from std.reflection import SourceLocation, source_location, call_location
 
 @always_inline
-fn _str[T: Copyable & Movable & Representable & EqualityComparable](l: List[List[T]]) -> String:
+def _str[T: Copyable & Writable & Equatable](l: List[List[T]]) -> String:
     var result: String = "["
     for idx in range(len(l) - 1):
-        result += l[idx].__str__() + ", "
+        result += String(l[idx]) + ", "
     if len(l) > 0:
-        result += l[len(l) - 1].__str__()
+        result += String(l[len(l) - 1])
     return result + "]"
 
 
 @always_inline
-fn _assert_equal[
-    T: Copyable & Movable & Representable & EqualityComparable
-](lhs: List[T], rhs: List[T], msg: String = "", *, location: Optional[_SourceLocation] = None,) raises:
+def _assert_equal[T: Copyable & Writable & Equatable](lhs: List[T], rhs: List[T], msg: String = "", *, location: Optional[SourceLocation] = None) raises:
     var eq = len(lhs) == len(rhs)
 
     if eq:
@@ -32,17 +24,15 @@ fn _assert_equal[
 
     if not eq:
         raise _assert_cmp_error["`left == right` comparison"](
-            lhs.__str__(),
-            rhs.__str__(),
+            String(lhs),
+            String(rhs),
             msg=msg,
-            loc=location.or_else(__call_location()),
+            loc=location.or_else(call_location()),
         )
 
 
 @always_inline
-fn _assert_not_equal[
-    T: Copyable & Movable & Representable & EqualityComparable
-](lhs: List[T], rhs: List[T], msg: String = "", *, location: Optional[_SourceLocation] = None,) raises:
+def _assert_not_equal[T: Copyable & Writable & Equatable](lhs: List[T], rhs: List[T], msg: String = "", *, location: Optional[SourceLocation] = None) raises:
     var ne = len(lhs) != len(rhs)
 
     if not ne:
@@ -53,50 +43,46 @@ fn _assert_not_equal[
 
     if not ne:
         raise _assert_cmp_error["`left != right` comparison"](
-            lhs.__str__(),
-            rhs.__str__(),
+            String(lhs),
+            String(rhs),
             msg=msg,
-            loc=location.or_else(__call_location()),
+            loc=location.or_else(call_location()),
         )
 
 
-@always_inline
-fn _assert_equal[
-    T: Copyable & Movable & Representable & EqualityComparable
-](lhs: List[List[T]], rhs: List[List[T]], msg: String = "", *, location: Optional[_SourceLocation] = None,) raises:
-    var eq = len(lhs) == len(rhs)
+# @always_inline
+# def _assert_equal[T: Copyable & Writable & Equatable](lhs: List[List[T]], rhs: List[List[T]], msg: String = "", *, location: Optional[SourceLocation] = None,) raises:
+#     var eq = len(lhs) == len(rhs)
 
-    if eq:
-        for idx in range(len(lhs)):
-            if lhs[idx] != rhs[idx]:
-                eq = False
-                break
+#     if eq:
+#         for idx in range(len(lhs)):
+#             if lhs[idx] != rhs[idx]:
+#                 eq = False
+#                 break
 
-    if not eq:
-        raise _assert_cmp_error["`left == right` comparison"](
-            _str(lhs),
-            _str(rhs),
-            msg=msg,
-            loc=location.or_else(__call_location()),
-        )
+#     if not eq:
+#         raise _assert_cmp_error["`left == right` comparison"](
+#             _str(lhs),
+#             _str(rhs),
+#             msg=msg,
+#             loc=location.or_else(call_location()),
+#         )
 
 
-@always_inline
-fn _assert_not_equal[
-    T: Copyable & Movable & Representable & EqualityComparable
-](lhs: List[List[T]], rhs: List[List[T]], msg: String = "", *, location: Optional[_SourceLocation] = None,) raises:
-    var ne = len(lhs) != len(rhs)
+# @always_inline
+# def _assert_not_equal[T: Copyable & Writable & Equatable](lhs: List[List[T]], rhs: List[List[T]], msg: String = "", *, location: Optional[SourceLocation] = None,) raises:
+#     var ne = len(lhs) != len(rhs)
 
-    if not ne:
-        for idx in range(len(lhs)):
-            if lhs[idx] != rhs[idx]:
-                ne = True
-                break
+#     if not ne:
+#         for idx in range(len(lhs)):
+#             if lhs[idx] != rhs[idx]:
+#                 ne = True
+#                 break
 
-    if not ne:
-        raise _assert_cmp_error["`left != right` comparison"](
-            _str(lhs),
-            _str(rhs),
-            msg=msg,
-            loc=location.or_else(__call_location()),
-        )
+#     if not ne:
+#         raise _assert_cmp_error["`left != right` comparison"](
+#             _str(lhs),
+#             _str(rhs),
+#             msg=msg,
+#             loc=location.or_else(call_location()),
+#         )

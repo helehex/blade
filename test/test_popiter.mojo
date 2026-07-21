@@ -3,13 +3,13 @@
 # | Copyright (c) 2023-2025 Helehex
 # x--------------------------------------------------------------------------x #
 
-from testing import assert_true, assert_false, assert_equal, assert_not_equal
+from std.testing import assert_true, assert_false, assert_equal, assert_not_equal
 from _testing import _assert_equal, _assert_not_equal
 
 from blade.bit import PopIter
 
 
-def main():
+def main() raises:
     var iter = PopIter(0b0000)
     assert_false(iter.__has_next__())
 

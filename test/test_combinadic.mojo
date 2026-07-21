@@ -3,19 +3,19 @@
 # | Copyright (c) 2023-2025 Helehex
 # x--------------------------------------------------------------------------x #
 
-from testing import assert_true, assert_false, assert_equal, assert_not_equal
+from std.testing import assert_true, assert_false, assert_equal, assert_not_equal
 from _testing import _assert_equal, _assert_not_equal
 
 from blade.combinatorics import Combinadic
 
 
-def main():
+def main() raises:
     test_init()
     # test_inc()
     # test_int()
 
 
-def test_init():
+def test_init() raises:
     assert_equal(Combinadic[4](0)._data, 0b0000)
     assert_equal(Combinadic[4](1)._data, 0b0001)
     assert_equal(Combinadic[4](2)._data, 0b0010)

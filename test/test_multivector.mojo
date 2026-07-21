@@ -3,14 +3,14 @@
 # | Copyright (c) 2023-2025 Helehex
 # x--------------------------------------------------------------------------x #
 
-from testing import assert_true, assert_false, assert_equal, assert_not_equal
+from std.testing import assert_true, assert_false, assert_equal, assert_not_equal
 from _testing import _assert_equal, _assert_not_equal
 
 from blade.ga import *
 from blade.algebra.multivector import *
 
 
-def main():
+def main() raises:
     test_eq()
     test_ne()
     test_subspace_constructor()
@@ -22,21 +22,21 @@ def main():
     test_sandwich()
 
 
-def test_eq():
+def test_eq() raises:
     assert_true(G3.Multivector[G3.empty_mask]().__eq__(Float64(0)))
     assert_true(G3.Multivector[G3.vector_mask](1, 2, 3).__eq__(G3.Multivector[G3.vector_mask](1, 2, 3)))
     assert_false(G3.Multivector[G3.vector_mask](1, 2, 3).__eq__(G3.Multivector[G3.vector_mask](1, 4, 3)))
     assert_false(G3.Multivector[G3.vector_mask](1, 2, 3).__eq__(Float64(1)))
 
 
-def test_ne():
+def test_ne() raises:
     assert_false(G3.Multivector[G3.empty_mask]().__ne__(Float64(0)))
     assert_false(G3.Multivector[G3.vector_mask](1, 2, 3).__ne__(G3.Multivector[G3.vector_mask](1, 2, 3)))
     assert_true(G3.Multivector[G3.vector_mask](1, 2, 3).__ne__(G3.Multivector[G3.vector_mask](1, 4, 3)))
     assert_true(G3.Multivector[G3.vector_mask](1, 2, 3).__ne__(Float64(1)))
 
 
-def test_subspace_constructor():
+def test_subspace_constructor() raises:
     assert_true(G3.vector(1, 2, 3) == G3.Multivector[G3.vector_mask](1, 2, 3))
     assert_true(G3.vector(1, 0, 3) != G3.Multivector[G3.vector_mask](1, 2, 3))
 
@@ -47,32 +47,32 @@ def test_subspace_constructor():
     # assert_true(i[G3](0) != G3.Multivector[G3.antiscalar_mask](6))
 
 
-def test_getattr():
+def test_getattr() raises:
     comptime g3 = Signature(3, 0, 0)
     assert_equal(Multivector[g3](6).s, Float64(6))
     assert_equal(G3.Multivector[G3.vector_mask](7, 8, 9).s, Float64(0))
     assert_equal(G3.Multivector[G3.scalar_mask | G3.vector_mask](6, 7, 8, 9).s, Float64(6))
 
 
-def test_normalized():
+def test_normalized() raises:
     comptime g3 = Signature(3, 0, 0)
     assert_true(G3.Multivector[G3.vector_mask](1, 2, 3).normalized() == G3.Multivector[G3.vector_mask](0.2672612419124244, 0.53452248382484879, 0.80178372573727319))
     assert_true(G3.Multivector[G3.bivector_mask](1, 2, 3).normalized() == G3.Multivector[G3.bivector_mask](0.2672612419124244, 0.53452248382484879, 0.80178372573727319))
 
 
-def test_add():
+def test_add() raises:
     comptime g3 = Signature(3, 0, 0)
     assert_true(G3.Multivector[G3.vector_mask](1, 2, 3).__add__(G3.Multivector[G3.vector_mask](1, 2, 3)) == G3.Multivector[G3.vector_mask](2, 4, 6))
     assert_true(G3.Multivector[G3.vector_mask](1, 2, 3).__add__(Float64(1)) == G3.Multivector[G3.scalar_mask | G3.vector_mask](1, 1, 2, 3))
 
 
-def test_sub():
+def test_sub() raises:
     comptime g3 = Signature(3, 0, 0)
     assert_true(G3.Multivector[G3.vector_mask](2, 4, 6).__sub__(G3.Multivector[G3.vector_mask](1, 2, 3)) == G3.Multivector[G3.vector_mask](1, 2, 3))
     assert_true(G3.Multivector[G3.vector_mask](1, 2, 3).__sub__(Float64(1)) == G3.Multivector[G3.scalar_mask | G3.vector_mask](-1, 1, 2, 3))
 
 
-def test_mul():
+def test_mul() raises:
     comptime g3 = Signature(3, 0, 0)
     assert_true(G3.Multivector[G3.vector_mask](1, 2, 3).__mul__(Float64(2)) == G3.Multivector[G3.vector_mask](2, 4, 6))
     assert_true(G3.Multivector[G3.vector_mask](1, 2, 3).__mul__(G3.Multivector[G3.antiscalar_mask](1)) == G3.Multivector[G3.bivector_mask](3, -2, 1))
@@ -90,6 +90,6 @@ def test_mul():
     assert_true(PG3.Multivector[PG3.vector_mask](1, 2, 3, 4).__mul__(PG3.Multivector[PG3.antiscalar_mask](1)) == PG3.Multivector[niltrivector_mask](-4, 3, -2))
 
 
-def test_sandwich():
+def test_sandwich() raises:
     comptime g3 = Signature(3, 0, 0)
     assert_true(G3.Multivector[G3.even_mask](0, 1, 0, 0)(G3.Multivector[G3.vector_mask](1, 2, 3)) == G3.Multivector[G3.vector_mask](-1, -2, 3))

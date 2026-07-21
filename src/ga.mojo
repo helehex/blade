@@ -8,13 +8,13 @@ Geometric Algebra.
 This contains the main interface of blade.
 """
 
-from os import abort
+from std.os import abort
 
 from .algebra.basis import BasisLiteral, Basis
 from .algebra.mask import BasisMask
 from .algebra.multivector import Multivector
 from .algebra.signature import Signature
-
+from .utils.length import len
 
 # +--------------------------------------------------------------------------+ #
 # | Flavor Aliases
@@ -63,7 +63,7 @@ comptime SG3 = ga(1, 3)
 # +------( Initialization Helper )------+ #
 #
 @always_inline("builtin")
-fn ga[
+def ga[
     _po: __mlir_type.`!pop.int_literal`,
     _ne: __mlir_type.`!pop.int_literal` = __mlir_attr.`#pop.int_literal<0>: !pop.int_literal`,
     _ze: __mlir_type.`!pop.int_literal` = __mlir_attr.`#pop.int_literal<0>: !pop.int_literal`,
@@ -78,19 +78,18 @@ fn ga[
     return type_of(self)()
 
 
-@register_passable("trivial")
-struct GA[sig: Signature]:
+struct GA[sig: Signature](TrivialRegisterPassable):
     """Statically generated geometric algebra."""
 
     # +------( Initialization Helper )------+ #
     #
     @always_inline("builtin")
-    fn __init__(out self):
+    def __init__(out self):
         pass
 
     # +------( Multivector Parsing )------+ #
     #
-    fn __getitem__[
+    def __getitem__[
         string: String
     ](self, out result: Multivector[Self.sig, Self.sig.basis_mask(string)]):
         result = result.__init__()
@@ -100,22 +99,22 @@ struct GA[sig: Signature]:
         while stop < len(string):
             stop = string.find("+", start=start)
             stop = len(string) if stop == -1 else stop
-            var slice = string[start:stop].strip(" ")
+            var slice = string[byte=start:stop].strip(" ")
             var idx_of_e = slice.find("e")
             idx_of_e = len(slice) if idx_of_e == -1 else idx_of_e
             try:
-                var basis = materialize[Self.sig]().signed_basis(slice[idx_of_e:])
-                var entry = result.mask.get_entry(Basis(bin=basis.bin))
+                var basis = materialize[Self.sig]().signed_basis(slice[byte=idx_of_e:])
+                var entry = materialize[result.mask]().get_entry(Basis(bin=basis.bin))
                 var value = 1 if idx_of_e == start else result.Coef(
-                    slice[:idx_of_e]
+                    slice[byte=:idx_of_e]
                 )
-                result._data[entry] = value * basis.sign
+                result._data[entry] = value * Float64(basis.sign)
             except e:
                 abort[prefix="failed to parse multivector: "](String(e))
             start = stop + 1
 
     @always_inline("builtin")
-    fn __getattr__[
+    def __getattr__[
         attr: StringLiteral
     ](self, out result: BasisLiteral[Self.sig, Self.sig.signed_basis(attr)]):
         result = result.__init__()
@@ -123,12 +122,12 @@ struct GA[sig: Signature]:
     # +------( Subspace Constructors )------+ #
     #
     comptime Multivector = Multivector[Self.sig, dtype=_, size=_, mask=_]
-    comptime Vector = Multivector[Self.sig,]
-    comptime i = Multivector[Self.sig, Self.antiscalar_mask, _, _](1)
+    comptime Vector = Multivector[Self.sig, ...]
+    comptime i = Multivector[Self.sig, Self.antiscalar_mask, ...](1)
 
     @staticmethod
     @always_inline
-    fn vector[
+    def vector[
         type: DType = DType.float64, size: Int = 1
     ](var *coefs: SIMD[type, size]) -> Multivector[
         Self.sig, Self.vector_mask, type, size
@@ -137,7 +136,7 @@ struct GA[sig: Signature]:
 
     @staticmethod
     @always_inline
-    fn bivector[
+    def bivector[
         type: DType = DType.float64, size: Int = 1
     ](var *coefs: SIMD[type, size]) -> Multivector[
         Self.sig, Self.bivector_mask, type, size
@@ -146,7 +145,7 @@ struct GA[sig: Signature]:
 
     # @staticmethod
     # @always_inline
-    # fn i[type: DType = DType.float64, size: Int = 1](var coef: SIMD[type, size]) -> Multivector[sig, Self.antiscalar_mask, type, size]:
+    # def i[type: DType = DType.float64, size: Int = 1](var coef: SIMD[type, size]) -> Multivector[sig, Self.antiscalar_mask, type, size]:
     #     return Multivector[sig, Self.antiscalar_mask, type, size](coef)
 
     # +------( Mask Aliases )------+ #

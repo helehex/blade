@@ -1,10 +1,10 @@
-# Blade ![Static Badge](https://img.shields.io/badge/build-0.1.0-orange) ![Static Badge](https://img.shields.io/badge/mojo-0.25.7.0-red)
+# Blade ![Static Badge](https://img.shields.io/badge/build-0.1.0-orange) ![Static Badge](https://img.shields.io/badge/mojo-1.0.0b3.dev2026072006-red)
 **Blade** is a geometric algebra library for Mojo 🔥
 
 ## Geometric Algebra
 Geometric algebra is a mathematical abstraction over geometry.
-At it's core, blade uses something called a 'Multivector'.
-Multivectors are numeric types that represent geometric objects and transformations.
+At it's core, it uses something called a 'Multivector'.
+A multivector represents geometric objects and transformations.
 
 With blade, you can generate the geometric product table for an arbitrary signature,
 Allowing geometric abstractions for arbitrary dimensions.

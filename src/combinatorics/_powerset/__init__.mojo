@@ -9,7 +9,7 @@ from .slexic_ordering import SlexicOrdering
 from .binary_ordering import BinaryOrdering
 
 
-comptime DefaultOrder = SlexicOrdering
+comptime DefaultOrder: Ordering = SlexicOrdering
 comptime powerset[Order: Ordering = DefaultOrder] = Order.powerset
 comptime powerset_bin[Order: Ordering = DefaultOrder] = Order.powerset_bin
 comptime power_rank[Order: Ordering = DefaultOrder] = Order.power_rank
