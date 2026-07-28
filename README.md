@@ -1,4 +1,4 @@
-# Blade ![Static Badge](https://img.shields.io/badge/build-0.1.0-orange) ![Static Badge](https://img.shields.io/badge/mojo-1.0.0b3.dev2026072006-red)
+# Blade ![Static Badge](https://img.shields.io/badge/build-0.1.0-orange) ![Static Badge](https://img.shields.io/badge/mojo-1.0.0b3.dev2026072706-red)
 **Blade** is a geometric algebra library for Mojo 🔥
 
 ## Geometric Algebra
@@ -24,4 +24,4 @@ Developers can use blade as a mathematical abstraction over geometry (projective
 ## Contributing
 I welcome contributions.
 
-If you want to reach out, you can email me at helehex@gmail.com, or message me on discord
+If you have any questions, or if you just want to talk, feel free to email me at helehex@gmail.com

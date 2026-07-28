@@ -18,7 +18,7 @@ format = "mojo format -l 100 src"
 cayley = "mojo examples/cayley.mojo"
 
 [dependencies]
-mojo = "==1.0.0b3.dev2026072006"
+mojo = "==1.0.0b3.dev2026072706"
 blade = { path = "." }
 
 [package]
@@ -30,10 +30,10 @@ name="pixi-build-mojo"
 version = "0.1.*"
 
 [package.host-dependencies]
-mojo = "==1.0.0b3.dev2026072006"
+mojo = "==1.0.0b3.dev2026072706"
 
 [package.build-dependencies]
-mojo = "==1.0.0b3.dev2026072006"
+mojo = "==1.0.0b3.dev2026072706"
 
 [package.run-dependencies]
-mojo = "==1.0.0b3.dev2026072006"
+mojo = "==1.0.0b3.dev2026072706"

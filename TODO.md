@@ -1,4 +1,5 @@
 # TODO
+- GPU
 - Optimize
     - Use fast quaternion muls
     - Use binary combination sorting to avoid ranking/unranking
@@ -8,6 +9,5 @@
 - Operations
     - inner, outer, regressive, exp, sqrt, diff
 - Examples
-    - Signature explorer
     - Computer graphics
     - Physics simulation

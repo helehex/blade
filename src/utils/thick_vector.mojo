@@ -7,7 +7,7 @@
 from std.memory import UnsafePointer
 
 
-@always_inline
+@always_inline("builtin")
 def _thick_vector_construction_checks[size: Int, width: Int]():
     comptime assert size >= 0 and width > 0, "number of elements in `SmallArray` must be >= 0"
 
@@ -16,7 +16,7 @@ def _thick_vector_construction_checks[size: Int, width: Int]():
 # | Thick Vector
 # +--------------------------------------------------------------------------+ #
 #
-struct ThickVector[type: DType, size: SIMDSize, thickness: Int = 1](
+struct ThickVector[type: DType, size: SIMDLength, thickness: Int = 1](
     TrivialRegisterPassable, Movable
 ):
     """A thick vector."""
@@ -68,24 +68,8 @@ struct ThickVector[type: DType, size: SIMDSize, thickness: Int = 1](
             result[coef_idx] = self[coef_idx][idx]
 
     @always_inline
-    def __getitem__[
-        width: Int
-    ](ref self: Self.Lane, var idx: Int) -> SIMD[Self.type, width]:
-        return self.unsafe_ptr().load[width](idx)
-
-    @always_inline
     def __getitem__(ref self, var idx: Int) -> Self.Coef:
         return (self.unsafe_ptr() + idx)[]
-
-    @always_inline
-    def __setitem__[
-        lif: MutOrigin, //, width: Int
-    ](
-        ref [lif]self: ThickVector[Self.type, Self.size, 1],
-        var idx: Int,
-        value: SIMD[Self.type, width],
-    ):
-        self.unsafe_ptr().store[width](idx, value)
 
     @always_inline
     def __setitem__[
@@ -98,14 +82,6 @@ struct ThickVector[type: DType, size: SIMDSize, thickness: Int = 1](
         ref self,
     ) -> UnsafePointer[Self.Coef, origin = origin_of(self._data)]:
         return UnsafePointer(to=self._data).bitcast[Self.Coef]()
-
-    # @always_inline
-    # def clear[lif: AnyLifetime[True].type, //](ref [lif]self):
-    #     memclr(self.unsafe_ptr(), size)
-
-    # @always_inline
-    # def fill(self, value: Scalar[type]):
-    #     memset(self.unsafe_ptr(), value, size)
 
     # +------( Operations )------+ #
     #
@@ -124,29 +100,3 @@ struct ThickVector[type: DType, size: SIMDSize, thickness: Int = 1](
     @always_inline
     def __isnot__(ref [_]self, ref [_]rhs: Self) -> Bool:
         return UnsafePointer(to=self) != UnsafePointer(to=rhs)
-
-    # @always_inline
-    # def __eq__[size: Int = size](self, rhs: ThickVector[type, size]) -> Bool:
-    #     return self[:] == rhs[:]
-
-    # @always_inline
-    # def __ne__[size: Int = size](self, rhs: ThickVector[type, size]) -> Bool:
-    #     return self[:] != rhs[:]
-
-    # @always_inline
-    # def __any__(self) -> Bool:
-    #     @parameter
-    #     @always_inline
-    #     def _check[width: Int](offset: Int) -> Bool:
-    #         return any(self.__getitem__[width](offset) != 0)
-
-    #     return vectorize_stoping[_check, simd_width_of[type]()](size)
-
-    # @always_inline
-    # def __all__(self) -> Bool:
-    #     @parameter
-    #     @always_inline
-    #     def _check[width: Int](offset: Int) -> Bool:
-    #         return any(self.__getitem__[width](offset) == 0)
-
-    #     return not vectorize_stoping[_check, simd_width_of[type]()](size)
