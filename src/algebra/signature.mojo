@@ -1,7 +1,7 @@
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 
 # from std.collections.string import StringSlice
 from std.bit import pop_count
@@ -13,6 +13,9 @@ from src.utils.control import _assert
 from src.utils.format import ctoi, stoi, write_repeat
 from src.utils.length import len
 from src.bit import PopIter, rsign
+
+# TODO: Cant use absolute import here
+# Mojo https://github.com/modular/modular/issues/6747
 from ..combinatorics import (
     Ordering,
     DefaultOrder,
@@ -27,9 +30,10 @@ from ..combinatorics import (
 from .basis import Basis, SignedBasis, ScaledBasis, BasisIndex, SignedBasisIndex
 from .mask import BasisMask
 
-# +--------------------------------------------------------------------------+ #
+
+# +----------------------------------------------------------------------------------------------+ #
 # | Signature
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
 @fieldwise_init
 struct Signature[Order: Ordering = DefaultOrder](Writable):

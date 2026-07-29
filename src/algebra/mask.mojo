@@ -1,7 +1,7 @@
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 """Helper struct for basis masking."""
 
 from std.bit import next_power_of_two
@@ -74,14 +74,12 @@ struct BasisMask(Copyable, Movable, Sized):
 
         while True:
             if lhs_idx < len(lhs.entries) and (
-                rhs_idx >= len(rhs.entries)
-                or lhs.entries[lhs_idx] < rhs.entries[rhs_idx]
+                rhs_idx >= len(rhs.entries) or lhs.entries[lhs_idx] < rhs.entries[rhs_idx]
             ):
                 result.entries.append(lhs.entries[lhs_idx])
                 lhs_idx += 1
             elif rhs_idx < len(rhs.entries) and (
-                lhs_idx >= len(lhs.entries)
-                or lhs.entries[lhs_idx] > rhs.entries[rhs_idx]
+                lhs_idx >= len(lhs.entries) or lhs.entries[lhs_idx] > rhs.entries[rhs_idx]
             ):
                 result.entries.append(rhs.entries[rhs_idx])
                 rhs_idx += 1

@@ -1,7 +1,7 @@
-# x--------------------------------------------------------------------------x #
+# +----------------------------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# x--------------------------------------------------------------------------x #
+# +----------------------------------------------------------------------------------------------+ #
 """Bitmap encoder."""
 
 from std.pathlib import Path
@@ -9,9 +9,9 @@ from std.sys import size_of
 from std.math import align_up
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | Color
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
 @fieldwise_init
 struct ColorBGR888(TrivialRegisterPassable):
@@ -42,9 +42,9 @@ struct ColorBGR888(TrivialRegisterPassable):
         self.b = UInt8(rgb[2] * 255)
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | Encoder
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
 comptime _UInt16 = InlineArray[UInt8, size_of[UInt16]()]
 """Used to avoid padding to the highest multiple of the highest sized field."""
@@ -173,7 +173,7 @@ struct BitmapInfoHeader(ImplicitlyCopyable):
         self.icc = icc.as_bytes()
 
 
-comptime fn_sampler = def (x: Int, y: Int) capturing [_] -> ColorBGR888
+comptime fn_sampler = def(x: Int, y: Int) capturing[_] -> ColorBGR888
 
 
 def write_bmp[sampler: fn_sampler](path: Path, width: Int, height: Int) raises:
@@ -185,7 +185,9 @@ def write_bmp[sampler: fn_sampler](path: Path, width: Int, height: Int) raises:
 
     var file_header = BitmapFileHeader(
         0x4D42,
-        UInt32(size_of[BitmapFileHeader]() + size_of[BitmapInfoHeader]() + img_size),
+        UInt32(
+            size_of[BitmapFileHeader]() + size_of[BitmapInfoHeader]() + img_size
+        ),
         0,
         0,
         UInt32(size_of[BitmapFileHeader]() + size_of[BitmapInfoHeader]()),

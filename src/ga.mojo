@@ -1,7 +1,7 @@
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 """
 Geometric Algebra.
 
@@ -16,9 +16,9 @@ from .algebra.multivector import Multivector
 from .algebra.signature import Signature
 from .utils.length import len
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | Flavor Aliases
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
 comptime Split = ga(1)
 """Split Numbers."""
@@ -54,9 +54,9 @@ comptime SG3 = ga(1, 3)
 """3D Spacetime Algebra."""
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | Geometric Algebra
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
 # This is the general wrapper for static signature parsing and generation.
 #
@@ -68,9 +68,7 @@ def ga[
     _ne: __mlir_type.`!pop.int_literal` = __mlir_attr.`#pop.int_literal<0>: !pop.int_literal`,
     _ze: __mlir_type.`!pop.int_literal` = __mlir_attr.`#pop.int_literal<0>: !pop.int_literal`,
 ](
-    out self: GA[
-        Signature(IntLiteral[_po](), IntLiteral[_ne](), IntLiteral[_ze]())
-    ],
+    out self: GA[Signature(IntLiteral[_po](), IntLiteral[_ne](), IntLiteral[_ze]())],
     po: IntLiteral[_po],
     ne: IntLiteral[_ne] = IntLiteral[_ne](),
     ze: IntLiteral[_ze] = IntLiteral[_ze](),
@@ -105,9 +103,7 @@ struct GA[sig: Signature](TrivialRegisterPassable):
             try:
                 var basis = materialize[Self.sig]().signed_basis(slice[byte=idx_of_e:])
                 var entry = materialize[result.mask]().get_entry(Basis(bin=basis.bin))
-                var value = 1 if idx_of_e == start else result.Coef(
-                    slice[byte=:idx_of_e]
-                )
+                var value = 1 if idx_of_e == start else result.Coef(slice[byte=:idx_of_e])
                 result._data[entry] = value * Float64(basis.sign)
             except e:
                 abort[prefix="failed to parse multivector: "](String(e))
@@ -129,18 +125,14 @@ struct GA[sig: Signature](TrivialRegisterPassable):
     @always_inline
     def vector[
         type: DType = DType.float64, size: Int = 1
-    ](var *coefs: SIMD[type, size]) -> Multivector[
-        Self.sig, Self.vector_mask, type, size
-    ]:
+    ](var *coefs: SIMD[type, size]) -> Multivector[Self.sig, Self.vector_mask, type, size]:
         return Multivector[Self.sig, Self.vector_mask, type, size](coefs^)
 
     @staticmethod
     @always_inline
     def bivector[
         type: DType = DType.float64, size: Int = 1
-    ](var *coefs: SIMD[type, size]) -> Multivector[
-        Self.sig, Self.bivector_mask, type, size
-    ]:
+    ](var *coefs: SIMD[type, size]) -> Multivector[Self.sig, Self.bivector_mask, type, size]:
         return Multivector[Self.sig, Self.bivector_mask, type, size](coefs^)
 
     # @staticmethod

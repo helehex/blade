@@ -1,7 +1,7 @@
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 
 from std.bit import pop_count
 
@@ -11,12 +11,13 @@ from src.bit import PopIter, reverse_bits
 from .multivector import Multivector
 from .signature import Signature
 
-# +--------------------------------------------------------------------------+ #
+
+# +----------------------------------------------------------------------------------------------+ #
 # | Basis Literal
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
 struct BasisLiteral[sig: Signature, basis: SignedBasis](
-    TrivialRegisterPassable, Defaultable, Equatable, Movable, Writable
+    Defaultable, Equatable, Movable, TrivialRegisterPassable, Writable
 ):
     @always_inline("builtin")
     def __init__(out self):
@@ -59,9 +60,7 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](
     def __mul__(
         lhs,
         rhs: SIMD,
-        out result: Multivector[
-            Self.sig, Self.sig.basis_mask(Self.basis), rhs.dtype, rhs.size
-        ],
+        out result: Multivector[Self.sig, Self.sig.basis_mask(Self.basis), rhs.dtype, rhs.size],
     ):
         result = result.__init__[False]()
         result._data[0] = rhs
@@ -70,9 +69,7 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](
     def __rmul__(
         rhs,
         lhs: SIMD,
-        out result: Multivector[
-            Self.sig, Self.sig.basis_mask(Self.basis), lhs.dtype, lhs.size
-        ],
+        out result: Multivector[Self.sig, Self.sig.basis_mask(Self.basis), lhs.dtype, lhs.size],
     ):
         result = rhs * lhs
 
@@ -101,15 +98,15 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](
         writer.write(self.basis)
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | Basis
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
 struct Basis(
-    TrivialRegisterPassable,
     Defaultable,
     Equatable,
     Movable,
+    TrivialRegisterPassable,
     Writable,
 ):
     var bin: Int
@@ -138,16 +135,14 @@ struct Basis(
         var lhs_vecs = pop_count(lhs.bin)
         var rhs_vecs = pop_count(rhs.bin)
         return (lhs_vecs < rhs_vecs) | (
-            (lhs_vecs == rhs_vecs)
-            & (UInt(reverse_bits(lhs.bin)) > UInt(reverse_bits(rhs.bin)))
+            (lhs_vecs == rhs_vecs) & (UInt(reverse_bits(lhs.bin)) > UInt(reverse_bits(rhs.bin)))
         )
 
     def __gt__(lhs, rhs: Self) -> Bool:
         var lhs_vecs = pop_count(lhs.bin)
         var rhs_vecs = pop_count(rhs.bin)
         return (lhs_vecs > rhs_vecs) | (
-            (lhs_vecs == rhs_vecs)
-            & (UInt(reverse_bits(lhs.bin)) < UInt(reverse_bits(rhs.bin)))
+            (lhs_vecs == rhs_vecs) & (UInt(reverse_bits(lhs.bin)) < UInt(reverse_bits(rhs.bin)))
         )
 
     @no_inline
@@ -159,13 +154,11 @@ struct Basis(
                 writer.write("e", vec + 1)
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | Signed Basis
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
-struct SignedBasis(
-    TrivialRegisterPassable, Defaultable, Equatable, Movable, Writable
-):
+struct SignedBasis(Defaultable, Equatable, Movable, TrivialRegisterPassable, Writable):
     var sign: Int
     var bin: Int
 
@@ -208,11 +201,13 @@ struct SignedBasis(
         writer.write(Basis(bin=self.bin))
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | Scaled Basis
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
-struct ScaledBasis[dtype: DType, width: Int](TrivialRegisterPassable, Defaultable, Equatable, Writable):
+struct ScaledBasis[dtype: DType, width: Int](
+    Defaultable, Equatable, TrivialRegisterPassable, Writable
+):
     var scale: SIMD[Self.dtype, Self.width]
     var bin: Int
 
@@ -274,18 +269,16 @@ struct ScaledBasis[dtype: DType, width: Int](TrivialRegisterPassable, Defaultabl
                     ", ",
                 )
             writer.write(
-                ScaledBasis[Self.dtype, 1](
-                    self.scale[Self.width - 1], bin=self.bin
-                ),
+                ScaledBasis[Self.dtype, 1](self.scale[Self.width - 1], bin=self.bin),
                 "]",
             )
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | Basis Index
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
-struct BasisIndex(TrivialRegisterPassable, Equatable, Intable, Writable):
+struct BasisIndex(Equatable, Intable, TrivialRegisterPassable, Writable):
     var idx: Int
 
     @implicit
@@ -314,11 +307,11 @@ struct BasisIndex(TrivialRegisterPassable, Equatable, Intable, Writable):
         writer.write(self.idx)
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | Signed Basis Index
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
-struct SignedBasisIndex(TrivialRegisterPassable, Equatable, Movable, Writable):
+struct SignedBasisIndex(Equatable, Movable, TrivialRegisterPassable, Writable):
     var sign: Int
     var idx: Int
 

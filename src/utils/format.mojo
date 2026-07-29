@@ -1,7 +1,7 @@
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 """Format."""
 
 # from std.collections.string import StringSlice
@@ -9,19 +9,14 @@ from std.collections.string.string import _unsafe_chr_ascii
 from std.os import abort
 from src.utils.length import len
 
+
 @always_inline
 def write_sign[WriterType: Writer](mut writer: WriterType, sign: Int):
-    writer.write(
-        _unsafe_chr_ascii(
-            ((-UInt8(sign == 0) & 5) | (-UInt8(sign < 0) & 2)) + 43
-        )
-    )
+    writer.write(_unsafe_chr_ascii(((-UInt8(sign == 0) & 5) | (-UInt8(sign < 0) & 2)) + 43))
 
 
 @always_inline
-def write_repeat[
-    WriterType: Writer
-](mut writer: WriterType, reps: Int, string: String = " "):
+def write_repeat[WriterType: Writer](mut writer: WriterType, reps: Int, string: String = " "):
     for _ in range(reps):
         writer.write(string)
 

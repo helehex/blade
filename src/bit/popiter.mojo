@@ -1,15 +1,15 @@
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 """Defines the bit pop iterator."""
 from std.sys import bit_width_of
 from std.bit import count_trailing_zeros, count_leading_zeros
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | PopIter
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
 # A better name might be: IndicesOfSetBitsIter.
 #
@@ -52,9 +52,7 @@ struct PopIter[reversed: Bool = False](ImplicitlyCopyable):
 
     @always_inline("nodebug")
     def _backward(mut self):
-        self.idx = (
-            bit_width_of[Int]() - count_leading_zeros(self.bin & ~(-1 << self.idx)) - 1
-        )
+        self.idx = bit_width_of[Int]() - count_leading_zeros(self.bin & ~(-1 << self.idx)) - 1
 
     @always_inline("nodebug")
     def __has_next__(self) -> Bool:

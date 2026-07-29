@@ -1,7 +1,7 @@
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 """Defines a static set-ordering prototype."""
 
 from src.bit import PopIter
@@ -20,9 +20,9 @@ from .. import pascal
 #     return cs^
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | Ordering
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
 trait Ordering:
     """Powerset ordering meta-type."""
@@ -48,26 +48,22 @@ trait Ordering:
 
     @staticmethod
     def power_rank(n: Int, comb: List[Int]) -> Int:
-        """Gets the total order of a subset within the powerset of n elements.
-        """
+        """Gets the total order of a subset within the powerset of n elements."""
         ...
 
     @staticmethod
     def power_rank_bin(n: Int, comb: Int) -> Int:
-        """Gets the total order of a subset within the powerset of n elements.
-        """
+        """Gets the total order of a subset within the powerset of n elements."""
         ...
 
     @staticmethod
     def power_unrank(n: Int, var idx: Int) -> List[Int]:
-        """Returns the subset at position `idx` within the powerset of n elements.
-        """
+        """Returns the subset at position `idx` within the powerset of n elements."""
         ...
 
     @staticmethod
     def power_unrank_bin(n: Int, var idx: Int) -> Int:
-        """Returns the subset at position `idx` within the powerset of n elements.
-        """
+        """Returns the subset at position `idx` within the powerset of n elements."""
         ...
 
     @staticmethod

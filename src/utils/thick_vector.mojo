@@ -1,7 +1,7 @@
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 """Thick Vector."""
 
 from std.memory import UnsafePointer
@@ -12,12 +12,12 @@ def _thick_vector_construction_checks[size: Int, width: Int]():
     comptime assert size >= 0 and width > 0, "number of elements in `SmallArray` must be >= 0"
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | Thick Vector
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
 struct ThickVector[type: DType, size: SIMDLength, thickness: Int = 1](
-    TrivialRegisterPassable, Movable
+    Movable, TrivialRegisterPassable
 ):
     """A thick vector."""
 
@@ -36,9 +36,7 @@ struct ThickVector[type: DType, size: SIMDLength, thickness: Int = 1](
     @always_inline
     def __init__[init: Bool = True](out self):
         _thick_vector_construction_checks[Self.size, Self.thickness]()
-        __mlir_op.`lit.ownership.mark_initialized`(
-            __get_mvalue_as_litref(self._data)
-        )
+        __mlir_op.`lit.ownership.mark_initialized`(__get_mvalue_as_litref(self._data))
 
         comptime if init:
             for idx in range(Self.size):
@@ -51,9 +49,7 @@ struct ThickVector[type: DType, size: SIMDLength, thickness: Int = 1](
     #         self[idx] = values[idx]
 
     @always_inline
-    def __init__[
-        clear: Bool = True
-    ](out self, var values: VariadicList[Self.Coef, is_owned = True]):
+    def __init__[clear: Bool = True](out self, var values: VariadicList[Self.Coef, is_owned=True]):
         self = self.__init__[False]()
         for idx in range(Self.size):
             self[idx] = values[idx]
@@ -72,15 +68,13 @@ struct ThickVector[type: DType, size: SIMDLength, thickness: Int = 1](
         return (self.unsafe_ptr() + idx)[]
 
     @always_inline
-    def __setitem__[
-        lif: MutOrigin, //
-    ](ref [lif]self, var idx: Int, var value: Self.Coef):
+    def __setitem__[lif: MutOrigin, //](ref[lif] self, var idx: Int, var value: Self.Coef):
         (self.unsafe_ptr() + idx)[] = value
 
     @always_inline
     def unsafe_ptr(
         ref self,
-    ) -> UnsafePointer[Self.Coef, origin = origin_of(self._data)]:
+    ) -> UnsafePointer[Self.Coef, origin=origin_of(self._data)]:
         return UnsafePointer(to=self._data).bitcast[Self.Coef]()
 
     # +------( Operations )------+ #
@@ -94,9 +88,9 @@ struct ThickVector[type: DType, size: SIMDLength, thickness: Int = 1](
         return True
 
     @always_inline
-    def __is__(ref [_]self, ref [_]rhs: Self) -> Bool:
+    def __is__(ref[_] self, ref[_] rhs: Self) -> Bool:
         return UnsafePointer(to=self) == UnsafePointer(to=rhs)
 
     @always_inline
-    def __isnot__(ref [_]self, ref [_]rhs: Self) -> Bool:
+    def __isnot__(ref[_] self, ref[_] rhs: Self) -> Bool:
         return UnsafePointer(to=self) != UnsafePointer(to=rhs)

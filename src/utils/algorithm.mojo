@@ -1,12 +1,12 @@
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 """Algorithms."""
 
 
 def vectorize_raising[
-    func: def[width: Int] (Int) raises capturing -> None, width: Int
+    func: def[width: Int](Int) raises capturing -> None, width: Int
 ](count: Int) raises:
     var offset = 0
     var end = width
@@ -19,7 +19,7 @@ def vectorize_raising[
         offset += 1
 
 
-def vectorize_stoping[func: def[width: Int] (Int) capturing -> Bool, width: Int](count: Int) -> Bool:
+def vectorize_stoping[func: def[width: Int](Int) capturing -> Bool, width: Int](count: Int) -> Bool:
     var offset = 0
     var end = width
     while end <= count:

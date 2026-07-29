@@ -1,7 +1,7 @@
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 """Defines a G2 Multivector, and it's subspaces.
 
 Cl(2,0,0) ⇔ Mat2x2
@@ -20,11 +20,11 @@ from std.math import sqrt, cos, sin, atan2
 # from collections import Optional
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | G2 Multivector
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
-struct Multivector[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassable, Equatable, Movable, Writable):
+struct Multivector[type: DType = DType.float64, size: Int = 1](Equatable, Movable, TrivialRegisterPassable, Writable):
     """A G2 Multivector."""
 
     # +------[ Alias ]------+ #
@@ -502,11 +502,11 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](TrivialRegisterPa
         )
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | G2 Rotor
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
-struct Rotor[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassable, Equatable, Movable, Writable):
+struct Rotor[type: DType = DType.float64, size: Int = 1](Equatable, Movable, TrivialRegisterPassable, Writable):
     """The real and anti parts of a Multivector G2. Useful for rotating vectors."""
 
     # +------[ Alias ]------+ #
@@ -833,11 +833,11 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassable
         self = self / other
 
 
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | G2 Vector
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
-struct Vector[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassable, Equatable, Movable, Writable):
+struct Vector[type: DType = DType.float64, size: Int = 1](Equatable, Movable, TrivialRegisterPassable, Writable):
     # +------[ Alias ]------+ #
     #
     comptime Coef = SIMD[Self.type, Self.size]

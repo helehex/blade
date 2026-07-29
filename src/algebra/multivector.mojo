@@ -1,7 +1,7 @@
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 # | MIT License
 # | Copyright (c) 2023-2025 Helehex
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 """Multivector."""
 
 from std.os import abort
@@ -13,13 +13,14 @@ from .basis import Basis, SignedBasis, ScaledBasis, BasisLiteral
 from .mask import BasisMask
 from .signature import Signature
 
-# +--------------------------------------------------------------------------+ #
+
+# +----------------------------------------------------------------------------------------------+ #
 # | Multivector
-# +--------------------------------------------------------------------------+ #
+# +----------------------------------------------------------------------------------------------+ #
 #
 struct Multivector[
     sig: Signature, mask: BasisMask, dtype: DType = DType.float64, size: Int = 1
-](TrivialRegisterPassable, Writable, Movable):
+](Movable, TrivialRegisterPassable, Writable):
     """Multivector."""
 
     # +------[ Alias ]------+ #
@@ -94,7 +95,7 @@ struct Multivector[
         self = Self(coefs^)
 
     @always_inline
-    def __init__(out self, var coefs: VariadicList[Self.Coef, is_owned = True]):
+    def __init__(out self, var coefs: VariadicList[Self.Coef, is_owned=True]):
         self = self.__init__[False]()
         if len(coefs) != len(materialize[Self.mask]()):
             abort(
@@ -137,7 +138,6 @@ struct Multivector[
     @no_inline
     def write_to[WriterType: Writer, //](self, mut writer: WriterType):
         comptime if Self.size == 1:
-
             comptime if len(Self.mask) == 0:
                 writer.write("0")
                 return
@@ -149,12 +149,14 @@ struct Multivector[
             comptime for entry in range(length):
                 # TODO: reduce verbosity with ScaledBasisIndex
                 var element = ScaledBasis(
-                    abs(self._data[entry]), materialize[self.mask]().get_basis(entry)
+                    abs(self._data[entry]),
+                    materialize[self.mask]().get_basis(entry),
                 )
                 materialize[Self.sig]().write_basis_to(writer, element)
                 writer.write(" - " if self._data[entry + 1] < 0 else " + ")
             var element = ScaledBasis(
-                abs(self._data[length]), materialize[self.mask]().get_basis(length)
+                abs(self._data[length]),
+                materialize[self.mask]().get_basis(length),
             )
             materialize[Self.sig]().write_basis_to(writer, element)
         else:
@@ -275,7 +277,9 @@ struct Multivector[
         ].__init__[False]()
 
         comptime for entry in range(len(result.mask)):
-            result._data[entry] = self._data[(len(materialize[result.mask]()) - 1) - entry]
+            result._data[entry] = self._data[
+                (len(materialize[result.mask]()) - 1) - entry
+            ]
 
         return result
 
@@ -297,7 +301,9 @@ struct Multivector[
     # +------( Arithmetic )------+ #
     #
     @always_inline
-    def __add__(lhs, rhs: Self.Mask, out result: Self.Mask[lhs.mask | rhs.mask]):
+    def __add__(
+        lhs, rhs: Self.Mask, out result: Self.Mask[lhs.mask | rhs.mask]
+    ):
         result = result.__init__[False]()
 
         comptime for entry in range(len(result.mask)):
@@ -319,7 +325,9 @@ struct Multivector[
         return lhs + rhs
 
     @always_inline
-    def __sub__(lhs, rhs: Self.Mask, out result: Self.Mask[lhs.mask | rhs.mask]):
+    def __sub__(
+        lhs, rhs: Self.Mask, out result: Self.Mask[lhs.mask | rhs.mask]
+    ):
         result = result.__init__[False]()
 
         comptime for entry in range(len(result.mask)):
@@ -341,11 +349,9 @@ struct Multivector[
         return lhs - rhs
 
     @always_inline
-    def __mul__[
-        lhs_origin: ImmOrigin, rhs_origin: ImmOrigin, //
-    ](
-        ref [lhs_origin]lhs,
-        ref [rhs_origin]rhs: Self.Mask,
+    def __mul__(
+        lhs,
+        rhs: Self.Mask,
         out result: Self.Mask[Self.sig.mul(lhs.mask, rhs.mask)],
     ):
         result = result.__init__[True]()
@@ -365,15 +371,16 @@ struct Multivector[
                         * rhs._data[rhs_entry]
                     )
 
-    @always_inline
-    def __mul__[
-        origin: ImmOrigin, //
-    ](
-        ref [origin]lhs,
-        ref [origin]rhs: Self,
-        out result: Self.Mask[Self.sig.sqr(rhs.mask)],
-    ):
-        result = lhs**2
+    # @always_inline
+    # def __mul__[
+    #     origin: ImmOrigin, //
+    # ](
+    #     ref [origin]lhs,
+    #     ref [origin]rhs: Self,
+    #     out result: Self.Mask[Self.sig.sqr(rhs.mask)],
+    # ):
+    #     print("squared")
+    #     result = lhs**2
 
     @always_inline
     def __rmul__(
@@ -413,7 +420,9 @@ struct Multivector[
 
             comptime if res_basis.sign != 0:
                 result._data[res_entry] += (
-                    Self.Coef(res_basis.sign) * lhs._data[lhs_entry] * lhs._data[lhs_entry]
+                    Self.Coef(res_basis.sign)
+                    * lhs._data[lhs_entry]
+                    * lhs._data[lhs_entry]
                 )
 
     @always_inline
