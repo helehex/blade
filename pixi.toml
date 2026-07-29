@@ -11,15 +11,28 @@ license = "MIT"
 [tasks]
 stable = "bash scripts/bump.sh stable"
 nightly = "bash scripts/bump.sh nightly"
-build = "mojo precompile ./src -o _blade.mojoc"
-test = "bash scripts/test.sh"
-temp = "mojo temp.mojo"
 format = "mojo format -l 100 src"
-cayley = "mojo examples/cayley.mojo"
+build = "mojo precompile ./src -o /home/helehex/projects/blade/.pixi/envs/default/lib/mojo/blade.mojoc"
+temp = {cmd = "mojo .test.mojo", depends-on = ["build"] }
+test = {cmd = "bash scripts/test.sh", depends-on = ["build"] }
+cayley = {cmd = "mojo examples/cayley.mojo", depends-on = ["build"] }
+
+# For testing and running examples,
+# you could make a test environment instead,
+# and use default-environment in tasks,
+# but the lsp may not find the package.
+#
+# [tasks]
+# test = {cmd = "bash scripts/test.sh", default-environment = "test" }
+#
+# [environments]
+# test = ["test"]
+#
+# [feature.test.dependencies]
+# blade = { path = "." }
 
 [dependencies]
-mojo = "==1.0.0b3.dev2026072706"
-blade = { path = "." }
+mojo = "==1.0.0b3.dev2026072906"
 
 [package]
 name = "blade"
@@ -30,10 +43,10 @@ name="pixi-build-mojo"
 version = "0.1.*"
 
 [package.host-dependencies]
-mojo = "==1.0.0b3.dev2026072706"
+mojo = "==1.0.0b3.dev2026072906"
 
 [package.build-dependencies]
-mojo = "==1.0.0b3.dev2026072706"
+mojo = "==1.0.0b3.dev2026072906"
 
 [package.run-dependencies]
-mojo = "==1.0.0b3.dev2026072706"
+mojo = "==1.0.0b3.dev2026072906"
