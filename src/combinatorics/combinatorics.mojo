@@ -8,8 +8,6 @@ from std.utils._select import _select_register_value
 from std.math import sqrt, log, exp, gamma, lgamma
 from src.math import tau, e
 
-# from ._powerset import *
-
 
 # +----------------------------------------------------------------------------------------------+ #
 # | Factorial

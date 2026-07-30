@@ -57,9 +57,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
 
     # +------( Initialize )------+ #
     #
-    def __init__(
-        out self, po: Int, ne: Int = 0, ze: Int = 0, *, flip_ze: Bool = True
-    ):
+    def __init__(out self, po: Int, ne: Int = 0, ze: Int = 0, *, flip_ze: Bool = True):
         self.po = po
         self.ne = ne
         self.ze = ze
@@ -115,9 +113,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
             if stop == -1:
                 stop = len(string)
 
-            var slice = StringSlice(
-                unsafe_from_utf8=string._slice[start:stop]
-            ).strip(" ")
+            var slice = StringSlice(unsafe_from_utf8=string._slice[start:stop]).strip(" ")
             var idx_of_e = slice.find("e")
 
             if idx_of_e == -1:
@@ -125,9 +121,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
             else:
                 # TODO: manualy set slice to avoid ctime raising problems
                 basis = self.signed_basis(
-                    StringSlice(
-                        unsafe_from_utf8=slice._slice[idx_of_e : len(slice)]
-                    )
+                    StringSlice(unsafe_from_utf8=slice._slice[idx_of_e : len(slice)])
                 )
 
             if basis.sign != 0:
@@ -223,9 +217,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
                 vec,
                 "' not present in algebra",
             )
-            _assert(
-                prev_vec < vec, "basis element '", string, "' is not sorted"
-            )
+            _assert(prev_vec < vec, "basis element '", string, "' is not sorted")
             result.bin |= 1 << (vec - 1)
             prev_vec = vec
             vec_idx += 1
@@ -249,9 +241,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
             while stop <= len(string):
                 stop = string.find("e", start=start)
                 stop = len(string) if stop == -1 else stop
-                var slice_sep = StringSlice(
-                    unsafe_from_utf8=string._slice[start:stop]
-                )
+                var slice_sep = StringSlice(unsafe_from_utf8=string._slice[start:stop])
                 account_vec(stoi(slice_sep))
                 start, stop = stop + 1, stop + 2
 
@@ -259,9 +249,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
     #
     @always_inline
     def signed_basis(self, idx: SignedBasisIndex) -> SignedBasis:
-        return SignedBasis(
-            idx.sign, bin=power_unrank_bin[Self.Order](self.vecs, idx.idx)
-        )
+        return SignedBasis(idx.sign, bin=power_unrank_bin[Self.Order](self.vecs, idx.idx))
 
     def signed_basis(self, string: StringSlice, out result: SignedBasis):
         result = SignedBasis()
@@ -298,9 +286,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
             while stop <= len(string):
                 stop = string.find("e", start=start)
                 stop = len(string) if stop == -1 else stop
-                var slice_sep = StringSlice(
-                    unsafe_from_utf8=string._slice[start:stop]
-                )
+                var slice_sep = StringSlice(unsafe_from_utf8=string._slice[start:stop])
                 _account_vec(stoi(slice_sep))
                 start, stop = stop + 1, stop + 2
 
@@ -325,9 +311,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
         return SignedBasisIndex(basis.sign, Int(self.basis_index(basis)))
 
     @always_inline
-    def signed_basis_index(
-        self, string: StringSlice, out result: SignedBasisIndex
-    ):
+    def signed_basis_index(self, string: StringSlice, out result: SignedBasisIndex):
         basis = self.signed_basis(string)
         return SignedBasisIndex(basis.sign, Int(self.basis_index(basis)))
 
@@ -377,12 +361,8 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
             self.squash_vec(result, vec + 1)
 
     @always_inline
-    def mul(
-        self, lhs: BasisIndex, rhs: BasisIndex, out result: SignedBasisIndex
-    ):
-        result = self.signed_basis_index(
-            self.mul(self.basis(lhs), self.basis(rhs))
-        )
+    def mul(self, lhs: BasisIndex, rhs: BasisIndex, out result: SignedBasisIndex):
+        result = self.signed_basis_index(self.mul(self.basis(lhs), self.basis(rhs)))
 
     @always_inline
     def mul(self, lhs: BasisMask, rhs: BasisMask, out result: BasisMask):
@@ -413,9 +393,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
 
     @no_inline
     def __repr__(self) -> String:
-        return String.write(
-            "Signature(", self.po, ", ", self.ne, ", ", self.ze, ")"
-        )
+        return String.write("Signature(", self.po, ", ", self.ne, ", ", self.ze, ")")
 
     # TODO: add more formatting options, like coloring
     @no_inline
@@ -442,9 +420,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
         WriterType: Writer, //
     ](self, mut writer: WriterType, basis: SignedBasis, *, expand: Bool = True):
         if not expand:
-            self.write_basis_to(
-                writer, self.signed_basis_index(basis), expand=False
-            )
+            self.write_basis_to(writer, self.signed_basis_index(basis), expand=False)
             return
 
         writer.write(ansi.get_color(self.grade(basis)))
@@ -480,13 +456,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
     @no_inline
     def write_basis_to[
         WriterType: Writer, //
-    ](
-        self,
-        mut writer: WriterType,
-        basis: SignedBasisIndex,
-        *,
-        expand: Bool = False,
-    ):
+    ](self, mut writer: WriterType, basis: SignedBasisIndex, *, expand: Bool = False,):
         if expand:
             self.write_basis_to(writer, self.signed_basis(basis), expand=True)
             return
@@ -565,9 +535,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
         basis.insert(0, vec)
 
     @always_inline
-    def reduce_basis(
-        self, var basis1: List[Int], basis2: List[Int]
-    ) -> SignedBasisIndex:
+    def reduce_basis(self, var basis1: List[Int], basis2: List[Int]) -> SignedBasisIndex:
         var sign: Int = 1
         for vec in basis2:
             self.squash_vec(basis1, vec, sign)
@@ -583,8 +551,6 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
             for y in range(self.dims):
                 self.write_basis_to(
                     writer,
-                    self.reduce_basis(
-                        self.ibasis_to_ebasis(x), self.ibasis_to_ebasis(y)
-                    ),
+                    self.reduce_basis(self.ibasis_to_ebasis(x), self.ibasis_to_ebasis(y)),
                 )
             writer.write(ansi.clear, "\n")

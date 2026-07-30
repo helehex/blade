@@ -185,9 +185,7 @@ def write_bmp[sampler: fn_sampler](path: Path, width: Int, height: Int) raises:
 
     var file_header = BitmapFileHeader(
         0x4D42,
-        UInt32(
-            size_of[BitmapFileHeader]() + size_of[BitmapInfoHeader]() + img_size
-        ),
+        UInt32(size_of[BitmapFileHeader]() + size_of[BitmapInfoHeader]() + img_size),
         0,
         0,
         UInt32(size_of[BitmapFileHeader]() + size_of[BitmapInfoHeader]()),

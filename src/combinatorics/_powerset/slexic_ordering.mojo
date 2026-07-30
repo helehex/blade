@@ -196,11 +196,9 @@ struct SlexicOrdering(Ordering):
     @staticmethod
     @always_inline
     def next_bin(n: Int, comb: Int, out next_comb: Int):
-        # TODO: create better algorithm for this sorting
+        # TODO: avoid partial reverse and invert?
         next_comb = reverse_bits(~comb, n)
         var t = next_comb | (next_comb - 1)
         # TODO: remove min() when mojo #3613 is resolved
-        next_comb = (t + 1) | (
-            ((~t & -~t) - 1) >> min(count_trailing_zeros(next_comb) + 1, 31)
-        )
+        next_comb = (t + 1) | (((~t & -~t) - 1) >> min(count_trailing_zeros(next_comb) + 1, 63))
         next_comb = reverse_bits(~next_comb, n)

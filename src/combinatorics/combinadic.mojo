@@ -23,9 +23,7 @@ struct Combinadic[width: Int, Order: Ordering = DefaultOrder](Intable):
 
     # Integer to Combinadic
     def __init__(out self, var idx: Int):
-        comptime assert (
-            Self.width <= bit_width_of[Int]()
-        ), "width must be <= Int.BITWIDTH"
+        comptime assert Self.width <= bit_width_of[Int](), "width must be <= Int.BITWIDTH"
         idx %= 2**Self.width
         self._data = power_unrank_bin[Self.Order](Self.width, idx)
 

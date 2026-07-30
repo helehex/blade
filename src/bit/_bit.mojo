@@ -46,7 +46,7 @@ def reverse_bits(bin: Int) -> Int:
 
 @always_inline
 def reverse_bits(bin: Int, width: Int) -> Int:
-    return bit_reverse(Int((Int64(bin) << Int64(64 - width))))
+    return bit_reverse(bin << bit_width_of[Int]() - width)
 
 
 # +----------------------------------------------------------------------------------------------+ #
@@ -61,13 +61,3 @@ def bsign(bool: Bool) -> Int:
 @always_inline("builtin")
 def rsign(bool: Bool) -> Int:
     return -(bool).__int__() | (~bool).__int__()
-
-
-# @always_inline
-# def reverse_bits(bin: UInt, width: UInt) -> Int:
-#     # cant constant fold bit_reverse in mojo 25.1, wait for new version.
-#     return bit_reverse(bin << (bit_width_of[Int]() - width))
-
-
-# @always_inline
-# def idx_of_nth_set(value: Int, n: Int) -> Int:
