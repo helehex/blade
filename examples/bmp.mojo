@@ -59,7 +59,7 @@ def to_bytes[T: AnyType](ref object: T) -> Span[UInt8, origin_of(object)]:
 
 
 @fieldwise_init
-struct BitmapFileHeader(ImplicitlyCopyable):
+struct BitmapFileHeader(Copyable):
     """This block of bytes is at the start of the file and is used to identify
     the file. A typical application reads this block first to ensure that the
     file is actually a BMP file and that it is not damaged.
@@ -101,7 +101,7 @@ struct BitmapFileHeader(ImplicitlyCopyable):
 
 
 @fieldwise_init
-struct BitmapInfoHeader(ImplicitlyCopyable):
+struct BitmapInfoHeader(Copyable):
     """This block of bytes tells the application detailed information about
     the image, which will be used to display the image on the screen.
 

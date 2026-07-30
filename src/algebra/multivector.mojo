@@ -120,7 +120,7 @@ struct Multivector[sig: Signature, mask: BasisMask, dtype: DType = DType.float64
     #
     @no_inline
     def __str__(self) -> String:
-        return String.write(self)
+        return String(self)
 
     @no_inline
     def write_to[WriterType: Writer, //](self, mut writer: WriterType):

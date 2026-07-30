@@ -141,7 +141,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](Equatable, Movabl
     #
     @no_inline
     def __str__(self) -> String:
-        return String.write(self)
+        return String(self)
 
     @no_inline
     def write_to[WriterType: Writer, //](self, mut writer: WriterType):
@@ -588,7 +588,7 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](Equatable, Movable, Tri
     #
     @no_inline
     def __str__(self) -> String:
-        return String.write(self)
+        return String(self)
 
     @no_inline
     def write_to[WriterType: Writer, //](self, mut writer: WriterType):
@@ -913,7 +913,7 @@ struct Vector[type: DType = DType.float64, size: Int = 1](Equatable, Movable, Tr
     #
     @no_inline
     def __str__(self) -> String:
-        return String.write(self)
+        return String(self)
 
     @no_inline
     def write_to[WriterType: Writer, //](self, mut writer: WriterType):

@@ -22,7 +22,7 @@ Cl(3,0,0) ⇔ Mat2x2(C)
 # | G3 Multivector
 # +----------------------------------------------------------------------------------------------+ #
 #
-struct Multivector[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassable, Equatable, Movable, Writable):
+struct Multivector[type: DType = DType.float64, size: Int = 1](Equatable, Movable, TrivialRegisterPassable, Writable):
     """A G3 Multivector."""
 
     # +------[ Alias ]------+ #
@@ -132,7 +132,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](TrivialRegisterPa
     #
     @no_inline
     def __str__(self) -> String:
-        return String.write(self)
+        return String(self)
 
     @no_inline
     def write_to[WriterType: Writer, //](self, mut writer: WriterType):
@@ -309,7 +309,7 @@ struct Multivector[type: DType = DType.float64, size: Int = 1](TrivialRegisterPa
 # | G3 Rotor
 # +----------------------------------------------------------------------------------------------+ #
 #
-struct Rotor[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassable, Equatable, Movable, Writable):
+struct Rotor[type: DType = DType.float64, size: Int = 1](Equatable, Movable, TrivialRegisterPassable, Writable):
     """A G3 Rotor. The even sub-algebra of G3. Isomorphic with Quaternions."""
 
     # +------[ Alias ]------+ #
@@ -386,7 +386,7 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassable
     #
     @no_inline
     def __str__(self) -> String:
-        return String.write(self)
+        return String(self)
 
     @no_inline
     def write_to[WriterType: Writer, //](self, mut writer: WriterType):
@@ -529,7 +529,7 @@ struct Rotor[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassable
 # | G3 Vector
 # +----------------------------------------------------------------------------------------------+ #
 #
-struct Vector[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassable, Equatable, Movable, Writable):
+struct Vector[type: DType = DType.float64, size: Int = 1](Equatable, Movable, TrivialRegisterPassable, Writable):
     """A G3 Vector."""
 
     # +------[ Alias ]------+ #
@@ -599,7 +599,7 @@ struct Vector[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassabl
     #
     @no_inline
     def __str__(self) -> String:
-        return String.write(self)
+        return String(self)
 
     @no_inline
     def write_to[WriterType: Writer, //](self, mut writer: WriterType):
@@ -732,7 +732,7 @@ struct Vector[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassabl
 # | G3 Bivector
 # +----------------------------------------------------------------------------------------------+ #
 #
-struct Bivector[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassable, Equatable, Movable, Writable):
+struct Bivector[type: DType = DType.float64, size: Int = 1](Equatable, Movable, TrivialRegisterPassable, Writable):
     """A G3 Bivector."""
 
     # +------[ Alias ]------+ #
@@ -802,7 +802,7 @@ struct Bivector[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassa
     #
     @no_inline
     def __str__(self) -> String:
-        return String.write(self)
+        return String(self)
 
     @no_inline
     def write_to[WriterType: Writer, //](self, mut writer: WriterType):
@@ -947,7 +947,7 @@ struct Bivector[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassa
 # | G3 Antiox
 # +----------------------------------------------------------------------------------------------+ #
 #
-struct Antiox[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassable, Equatable, Movable, Writable):
+struct Antiox[type: DType = DType.float64, size: Int = 1](Equatable, Movable, TrivialRegisterPassable, Writable):
     """A G3 Antiox."""
 
     # +------[ Alias ]------+ #
@@ -1013,7 +1013,7 @@ struct Antiox[type: DType = DType.float64, size: Int = 1](TrivialRegisterPassabl
     #
     @no_inline
     def __str__(self) -> String:
-        return String.write(self)
+        return String(self)
 
     @no_inline
     def write_to[WriterType: Writer, //](self, mut writer: WriterType):

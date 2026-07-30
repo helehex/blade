@@ -32,7 +32,7 @@ cayley = {cmd = "mojo examples/cayley.mojo", depends-on = ["build"] }
 # blade = { path = "." }
 
 [dependencies]
-mojo = "==1.0.0b3.dev2026072906"
+mojo = "==1.0.0b3.dev2026073014"
 
 [package]
 name = "blade"
@@ -43,10 +43,10 @@ name="pixi-build-mojo"
 version = "0.1.*"
 
 [package.host-dependencies]
-mojo = "==1.0.0b3.dev2026072906"
+mojo = "==1.0.0b3.dev2026073014"
 
 [package.build-dependencies]
-mojo = "==1.0.0b3.dev2026072906"
+mojo = "==1.0.0b3.dev2026073014"
 
 [package.run-dependencies]
-mojo = "==1.0.0b3.dev2026072906"
+mojo = "==1.0.0b3.dev2026073014"

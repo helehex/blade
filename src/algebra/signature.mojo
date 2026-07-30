@@ -389,11 +389,11 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
     #
     @no_inline
     def __str__(self) -> String:
-        return String.write(self)
+        return String(self)
 
     @no_inline
     def __repr__(self) -> String:
-        return String.write("Signature(", self.po, ", ", self.ne, ", ", self.ze, ")")
+        return String("Signature(", self.po, ", ", self.ne, ", ", self.ze, ")")
 
     # TODO: add more formatting options, like coloring
     @no_inline
@@ -543,7 +543,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
 
     @no_inline
     def __str__old(self) -> String:
-        return String.write(self)
+        return String(self)
 
     @no_inline
     def write_to_old[WriterType: Writer, //](self, mut writer: WriterType):

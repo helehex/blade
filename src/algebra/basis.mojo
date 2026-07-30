@@ -254,7 +254,7 @@ struct ScaledBasis[dtype: DType, width: Int](
 
     @no_inline
     def __str__(self) -> String:
-        return String.write(self)
+        return String(self)
 
     @no_inline
     def write_to[WriterType: Writer](self, mut writer: WriterType):
