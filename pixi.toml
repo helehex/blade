@@ -12,7 +12,7 @@ license = "MIT"
 stable = "bash scripts/bump.sh stable"
 nightly = "bash scripts/bump.sh nightly"
 format = "mojo format -l 100 src"
-build = "mojo precompile ./src -o /home/helehex/projects/blade/.pixi/envs/default/lib/mojo/blade.mojoc"
+build = "mojo precompile src -o .pixi/envs/default/lib/mojo/blade.mojoc"
 temp = {cmd = "mojo .test.mojo", depends-on = ["build"] }
 test = {cmd = "bash scripts/test.sh", depends-on = ["build"] }
 cayley = {cmd = "mojo examples/cayley.mojo", depends-on = ["build"] }
