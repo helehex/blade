@@ -110,9 +110,11 @@ struct GA[sig: Signature](TrivialRegisterPassable):
             start = stop + 1
 
     @always_inline("builtin")
-    def __getattr__[
-        attr: StringLiteral
-    ](self, out result: BasisLiteral[Self.sig, Self.sig.signed_basis(attr)]):
+    def __getattr__(
+        self,
+        key: StringLiteral,
+        out result: BasisLiteral[Self.sig, Self.sig.signed_basis(StringLiteral[key.value]())],
+    ):
         result = result.__init__()
 
     # +------( Subspace Constructors )------+ #
