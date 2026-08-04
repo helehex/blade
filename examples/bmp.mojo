@@ -54,7 +54,7 @@ comptime _UInt32 = InlineArray[UInt8, size_of[UInt32]()]
 
 
 def to_bytes[T: AnyType](ref object: T) -> Span[UInt8, origin_of(object)]:
-    var byte_ptr = UnsafePointer(to=object).bitcast[UInt8]()
+    var byte_ptr = Pointer(to=object).unsafe_bitcast[UInt8]()
     return Span(unsafe_ptr=byte_ptr, length=size_of[T]())
 
 

@@ -4,8 +4,6 @@
 # +----------------------------------------------------------------------------------------------+ #
 """Thick Vector."""
 
-from std.memory import UnsafePointer
-
 
 @always_inline("builtin")
 def _thick_vector_construction_checks[size: Int, width: Int]():
@@ -65,17 +63,17 @@ struct ThickVector[type: DType, size: SIMDLength, thickness: Int = 1](
 
     @always_inline
     def __getitem__(ref self, var idx: Int) -> Self.Coef:
-        return (self.unsafe_ptr() + idx)[]
+        return self.unsafe_ptr().unsafe_offset(idx)[]
 
     @always_inline
     def __setitem__[lif: MutOrigin, //](ref[lif] self, var idx: Int, var value: Self.Coef):
-        (self.unsafe_ptr() + idx)[] = value
+        self.unsafe_ptr().unsafe_offset(idx)[] = value
 
     @always_inline
     def unsafe_ptr(
         ref self,
-    ) -> UnsafePointer[Self.Coef, origin=origin_of(self._data)]:
-        return UnsafePointer(to=self._data).bitcast[Self.Coef]()
+    ) -> Pointer[Self.Coef, origin=origin_of(self._data)]:
+        return Pointer(to=self._data).unsafe_bitcast[Self.Coef]()
 
     # +------( Operations )------+ #
     #
@@ -89,8 +87,8 @@ struct ThickVector[type: DType, size: SIMDLength, thickness: Int = 1](
 
     @always_inline
     def __is__(ref[_] self, ref[_] rhs: Self) -> Bool:
-        return UnsafePointer(to=self) == UnsafePointer(to=rhs)
+        return Pointer(to=self) == Pointer(to=rhs)
 
     @always_inline
     def __isnot__(ref[_] self, ref[_] rhs: Self) -> Bool:
-        return UnsafePointer(to=self) != UnsafePointer(to=rhs)
+        return Pointer(to=self) != Pointer(to=rhs)

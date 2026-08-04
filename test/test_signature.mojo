@@ -16,7 +16,7 @@ def main() raises:
 
 def test_squash_basis() raises:
     var sig = Signature(1)
-    var basis = [1, 1]
+    var basis: List = [1, 1]
     var sign = 1
     sig.squash_basis(basis, sign)
     assert_equal(sign, 1)

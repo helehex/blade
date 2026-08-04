@@ -15,7 +15,7 @@ def main() raises:
 
 
 def test_counted_sort() raises:
-    var l = [1]
+    var l: List = [1]
     assert_equal(counted_sort(l), 0)
     _assert_equal(l, [1])
 
