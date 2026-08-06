@@ -152,7 +152,7 @@ def pascal(n: Int, var r: Int, out result: Int):
 @always_inline
 def pascal_sum(n: Int, var r: Int, out sum: Int):
     sum = Int(r >= 0)
-    term = 1
+    var term = 1
     for i in range(1, r + 1):
         term = (term * (n - i + 1)) // i
         sum += term
@@ -160,7 +160,7 @@ def pascal_sum(n: Int, var r: Int, out sum: Int):
 
 @always_inline
 def pascal_degrade(n: Int, mut power_rank: Int, out grade: Int):
-    term = 1
+    var term = 1
     grade = 0
     while power_rank - term >= 0:
         power_rank -= term

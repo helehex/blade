@@ -60,7 +60,7 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](
     def __mul__(
         lhs,
         rhs: SIMD,
-        out result: Multivector[Self.sig, Self.sig.basis_mask(Self.basis), rhs.dtype, rhs.size],
+        out result: Multivector[Self.sig, Self.sig.basis_mask(Self.basis), rhs.dtype, rhs.length],
     ):
         result = result.__init__[False]()
         result._data[0] = rhs
@@ -69,7 +69,7 @@ struct BasisLiteral[sig: Signature, basis: SignedBasis](
     def __rmul__(
         rhs,
         lhs: SIMD,
-        out result: Multivector[Self.sig, Self.sig.basis_mask(Self.basis), lhs.dtype, lhs.size],
+        out result: Multivector[Self.sig, Self.sig.basis_mask(Self.basis), lhs.dtype, lhs.length],
     ):
         result = rhs * lhs
 

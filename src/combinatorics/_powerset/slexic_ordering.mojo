@@ -86,7 +86,7 @@ struct SlexicOrdering(Ordering):
     @staticmethod
     @always_inline
     def power_rank_bin(n: Int, comb: Int, out result: Int):
-        r = pop_count(comb)
+        var r = pop_count(comb)
         result = pascal_sum(n, r) - 1
         for bit_idx in PopIter(comb):
             result -= pascal(n - (bit_idx + 1), r)
@@ -153,7 +153,7 @@ struct SlexicOrdering(Ordering):
     @staticmethod
     @always_inline
     def rank_bin(n: Int, comb: Int, out result: Int):
-        r = pop_count(comb)
+        var r = pop_count(comb)
         result = pascal(n, r) - 1
         for bit_idx in PopIter(comb):
             result -= pascal(n - (bit_idx + 1), r)

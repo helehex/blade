@@ -14,9 +14,7 @@ from src.utils.format import ctoi, stoi, write_repeat
 from src.utils.length import len
 from src.bit import PopIter, rsign
 
-# TODO: Cant use absolute import here
-# Mojo https://github.com/modular/modular/issues/6747
-from ..combinatorics import (
+from src.combinatorics import (
     Ordering,
     DefaultOrder,
     pascal,
@@ -115,6 +113,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
 
             var slice = StringSlice(unsafe_from_utf8=string._slice[start:stop]).strip(" ")
             var idx_of_e = slice.find("e")
+            var basis: SignedBasis
 
             if idx_of_e == -1:
                 basis = SignedBasis()
@@ -139,7 +138,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
 
     @always_inline
     def grade_mask(self, grade: Int, out mask: BasisMask):
-        elements = pascal(self.vecs, grade)
+        var elements = pascal(self.vecs, grade)
         mask = BasisMask(capacity=elements)
         var basis = ~(-1 << grade)
         for _ in range(elements):
@@ -237,7 +236,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
                 char_idx += 1
         else:
             # basis vectors must be 'e' separated
-            start, stop = 1, 2
+            var start, stop = 1, 2
             while stop <= len(string):
                 stop = string.find("e", start=start)
                 stop = len(string) if stop == -1 else stop
@@ -282,7 +281,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
                     _account_vec(ctoi(string[byte=idx]))
         else:
             # basis vectors must be 'e' separated
-            start, stop = 1, 2
+            var start, stop = 1, 2
             while stop <= len(string):
                 stop = string.find("e", start=start)
                 stop = len(string) if stop == -1 else stop
@@ -312,7 +311,7 @@ struct Signature[Order: Ordering = DefaultOrder](Writable):
 
     @always_inline
     def signed_basis_index(self, string: StringSlice, out result: SignedBasisIndex):
-        basis = self.signed_basis(string)
+        var basis = self.signed_basis(string)
         return SignedBasisIndex(basis.sign, Int(self.basis_index(basis)))
 
     # +------( Grade Basis )------+ #

@@ -20,11 +20,12 @@ struct ColorBGR888(TrivialRegisterPassable):
     var r: UInt8
 
     def __init__(out self, *, hsv: Tuple[Float64, Float64, Float64]):
-        h6 = hsv[0] * 6.0
-        h6_rem = h6 % 1.0
-        a = hsv[2] * (1.0 - hsv[1])
-        b = hsv[2] * (1.0 - (h6_rem * hsv[1]))
-        c = hsv[2] * (1.0 - ((1.0 - h6_rem) * hsv[1]))
+        var h6 = hsv[0] * 6.0
+        var h6_rem = h6 % 1.0
+        var a = hsv[2] * (1.0 - hsv[1])
+        var b = hsv[2] * (1.0 - (h6_rem * hsv[1]))
+        var c = hsv[2] * (1.0 - ((1.0 - h6_rem) * hsv[1]))
+        var rgb: Tuple[Float64, Float64, Float64]
         if h6 < 1.0:
             rgb = (hsv[2], c, a)
         elif h6 < 2.0:
@@ -177,11 +178,11 @@ comptime fn_sampler = def(x: Int, y: Int) capturing[_] -> ColorBGR888
 
 
 def write_bmp[sampler: fn_sampler](path: Path, width: Int, height: Int) raises:
-    bytes_per_pixel = 3
-    bits_per_pixel = bytes_per_pixel * 8
+    var bytes_per_pixel = 3
+    var bits_per_pixel = bytes_per_pixel * 8
 
-    row_size = align_up(width * bytes_per_pixel, 4)
-    img_size = row_size * height
+    var row_size = align_up(width * bytes_per_pixel, 4)
+    var img_size = row_size * height
 
     var file_header = BitmapFileHeader(
         0x4D42,
@@ -205,7 +206,7 @@ def write_bmp[sampler: fn_sampler](path: Path, width: Int, height: Int) raises:
         0,
     )
 
-    rem = List[UInt8](length=row_size - (width * bytes_per_pixel), fill=0)
+    var rem = List[UInt8](length=row_size - (width * bytes_per_pixel), fill=0)
 
     with open(path, "w") as bmp_out:
         bmp_out.write_bytes(to_bytes(file_header))

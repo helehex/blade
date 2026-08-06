@@ -32,11 +32,11 @@ def main() raises:
     # Define the pixel function
     @parameter
     def _sample(x: Int, y: Int) -> ColorBGR888:
-        m = sig.mul(x, y)
+        var m = sig.mul(x, y)
         # c = m.sign
         # v = (m.idx * 255) // sig.dims
         # return ColorBGR888(v * Int(c == -1), v * Int(c == 0), v * Int(c == 1))
-        v = Float64(m.idx / sig.dims)
+        var v = Float64(m.idx / sig.dims)
         return ColorBGR888(hsv=(v, 0.0, Float64(sig.mul(x, y).sign == sig.mul(y, x).sign)))
 
     # Write the image to a bitmap file
